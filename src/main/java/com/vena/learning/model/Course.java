@@ -13,22 +13,23 @@ class Course{
     @Column(name="course_id")
     private String courseId;
 
-    @Column(name="is_approved")
     private boolean isApproved;
+    private boolean isDeleted;
+    private boolean isPublished;
 
     private String description;
     private String title;
 
-    @OneToMany(mappedBy="enrollment_id")
-    private Enrollment enrollment;
+    @OneToMany(mappedBy="course", cascade = CascadeType.ALL)
+    private List<Enrollment> enrollments;
 
     @ManyToOne
     @JoinColumn(name="instructor_id")
     private Instructor instructor;
 
-    @OneToMany(mappedBy="module_id")
-    private Module module;
+    @OneToMany(mappedBy="course", cascade = CascadeType.ALL)
+    private List<Module> modules;
 
-    @OneToMany(mappedBy="quiz_id")
-    private Quiz quiz;
+    @OneToMany(mappedBy="course", cascade = CascadeType.ALL)
+    private List<Quiz> quizes;
 }
