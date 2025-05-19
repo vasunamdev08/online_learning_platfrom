@@ -2,6 +2,7 @@ package com.vena.learning.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import java.util.List;
 
 @Entity
 @Data
@@ -15,4 +16,7 @@ public class Question {
     private Quiz quiz;
 
     private String question;
+
+    @OneToMany(mappedBy = "choice_id")
+    private List<Choice> choices;
 }
