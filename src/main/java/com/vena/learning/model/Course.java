@@ -15,8 +15,6 @@ class Course{
 
     private boolean isApproved;
     private boolean isDeleted;
-    private boolean isPublished;
-
     private String description;
     private String title;
 
