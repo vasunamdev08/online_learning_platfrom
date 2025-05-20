@@ -10,8 +10,7 @@ class Choice{
 
     @Id
     @GeneratedValue(strategy= GenerationType.UUID)
-    @Column(name="choice_id")
-    private String choiceId;
+    private String id;
 
     @Column(name="is_correct")
     private boolean isCorrect;
