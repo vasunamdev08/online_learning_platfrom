@@ -5,25 +5,35 @@ import com.vena.learning.dto.CreateCourseDTO;
 import com.vena.learning.model.Course;
 import com.vena.learning.model.User;
 import com.vena.learning.repository.CourseRepository;
+import com.vena.learning.repository.UserRepository;
 import com.vena.learning.service.InstructorService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import lombok.RequiredArgsConstructor;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class InstructorServiceImpl implements InstructorService {
 
-    @Autowired
-    private CourseRepository courseRepository;
+    private final CourseRepository courseRepository;
+    private final UserRepository userRepository;
 
     @Override
     public List<CourseDTO> getCoursesByInstructor(String instructorId) {
-        List<Course> courses = courseRepository.findByInstructorId(instructorId);
-        return courses.stream()
-                .map(course -> new CourseDTO(course))
+        return courseRepository.findByInstructors_Id(instructorId)
+                .stream()
+                .map(course -> {
+                    CourseDTO dto = new CourseDTO();
+                    dto.setId(course.getId());
+                    dto.setTitle(course.getTitle());
+                    dto.setDescription(course.getDescription());
+                    dto.setCategory(course.getCategory());
+                    return dto;
+                })
                 .collect(Collectors.toList());
     }
 
@@ -36,13 +46,20 @@ public class InstructorServiceImpl implements InstructorService {
         course.setCategory(courseDTO.getCategory());
 
         User instructor = userRepository.findById(instructorId)
-                .orElseThrow(() -> new ResourceNotFoundException("Instructor not found"));
+                .orElseThrow(() -> new RuntimeException("Instructor not found"));
 
-        course.getInstructors().add(instructor); // assuming Many-to-Many
+        course.setInstructors(new HashSet<>());
+        course.getInstructors().add(instructor);
+
         courseRepository.save(course);
 
-        return new CourseDTO(course);
-    }
+        CourseDTO dto = new CourseDTO();
+        dto.setId(course.getId());
+        dto.setTitle(course.getTitle());
+        dto.setDescription(course.getDescription());
+        dto.setCategory(course.getCategory());
 
+        return dto;
+    }
 }
 
