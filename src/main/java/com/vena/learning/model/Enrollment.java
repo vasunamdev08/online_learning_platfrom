@@ -4,25 +4,18 @@ import com.vena.learning.model.enums.Grade;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import lombok.Data;
-import java.time.LocalDate;
+import jakarta.persistence.Table;
+
+import java.util.Date;
 
 @Entity
-@Data
+@Table(name = "enrollment")
 public class Enrollment {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
-    private LocalDate enrollmentDate;
-
-    @Enumerated(EnumType.STRING)
-    private Grade grade;
 
     @ManyToOne
     @JoinColumn(name = "student_id")
@@ -31,4 +24,16 @@ public class Enrollment {
     @ManyToOne
     @JoinColumn(name = "course_id")
     private Course course;
+
+    private Date enrollmentDate;
+    private Date completionDate;
+    private Boolean isCompleted;
+    private Integer progress;
+    private Integer attempts;
+
+    @Enumerated(EnumType.STRING)
+    private Grade grade;
+
+    // Getters and Setters
 }
+
