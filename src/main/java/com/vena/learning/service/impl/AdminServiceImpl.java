@@ -2,10 +2,9 @@ package com.vena.learning.service.impl;
 
 import com.vena.learning.dto.AdminInstitution;
 import com.vena.learning.model.User;
-import com.vena.learning.repository.AdminRepository;
 import com.vena.learning.repository.InstructorRepository;
 import com.vena.learning.repository.StudentRepository;
-import com.vena.learning.service.UserService;
+import com.vena.learning.service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class UserServiceImpl implements UserService {
+public class AdminServiceImpl implements AdminService {
 
     @Autowired
     private StudentRepository studentRepository;

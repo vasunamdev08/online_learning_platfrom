@@ -5,7 +5,7 @@ import com.vena.learning.model.User;
 
 import java.util.List;
 
-public interface UserService {
+public interface AdminService {
 
     List<User> getAllUsersByInstitution(AdminInstitution adminInstitution);
 }
