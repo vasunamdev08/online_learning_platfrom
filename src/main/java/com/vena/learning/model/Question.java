@@ -17,6 +17,6 @@ public class Question {
 
     private String question;
 
-    @OneToMany(mappedBy = "choice_id")
+    @OneToMany(mappedBy = "question")
     private List<Choice> choices;
 }

@@ -15,10 +15,10 @@ public class Quiz {
     @JoinColumn(name = "course_id")
     private Course course;
 
-    @OneToMany(mappedBy = "question_id")
+    @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL)
     private List<Question> questions;
 
-    @OneToMany(mappedBy = "quiz_attempt_id")
+    @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL)
     private List<QuizAttempt> quizAttempts;
     private String title;
 }

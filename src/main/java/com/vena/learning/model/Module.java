@@ -15,8 +15,10 @@ public class Module {
     private Course course;
 
     private boolean isComplete;
-    private int sequenceId;
+    private int sequence;
     private String title;
     private String content;
+
+    @Enumerated
     private Type type;
 }
