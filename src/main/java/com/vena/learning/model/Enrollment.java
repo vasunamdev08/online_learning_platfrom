@@ -19,15 +19,6 @@ public class Enrollment {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
-
-    @ManyToOne
-    @JoinColumn(name = "student_id")
-    private Student student;
-
-    @ManyToOne
-    @JoinColumn(name = "course_id")
-    private Course course;
-
     private Date enrollmentDate;
     private Date completionDate;
     private Boolean isCompleted;
@@ -36,6 +27,14 @@ public class Enrollment {
 
     @Enumerated(EnumType.STRING)
     private Grade grade;
+
+    @ManyToOne
+    @JoinColumn(name = "student_id")
+    private Student student;
+
+    @ManyToOne
+    @JoinColumn(name = "course_id")
+    private Course course;
 
 }
 
