@@ -13,7 +13,7 @@ import lombok.Data;
 
 @Entity
 @Data
-class Choice{
+public class Choice{
 
     @Id
     @GeneratedValue(strategy= GenerationType.UUID)
