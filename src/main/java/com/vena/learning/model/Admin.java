@@ -10,6 +10,6 @@ import lombok.EqualsAndHashCode;
 @Entity
 @Data
 @EqualsAndHashCode(callSuper = true)
-class Admin extends User{
+public class Admin extends User{
 
 }

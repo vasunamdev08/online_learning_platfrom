@@ -14,7 +14,7 @@ import java.util.List;
 
 @Entity
 @Data
-class Course{
+public class Course{
 
 
     @Id
