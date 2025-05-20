@@ -1,31 +1,22 @@
 package com.vena.learning.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import java.util.List;
 
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Instructor {
+@EqualsAndHashCode(callSuper = true)
+public class Instructor extends User {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private String id;
-
-    private String name;
-
-    @Column(unique = true)
-    private String email;
-
-    private String department;
-
-//     Uncomment if Course entity exists and is mapped
-//     @OneToMany(mappedBy = "instructor")
-//     private List<Course> courses;
-
+    @OneToMany(mappedBy = "instructor", cascade = CascadeType.ALL)
+    private List<Course> courses;
 
 }
-
