@@ -15,13 +15,12 @@ import java.util.List;
 public class Question {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String questionId;
+    private String id;
+    private String question;
 
     @ManyToOne
     @JoinColumn(name = "quiz_id")
     private Quiz quiz;
-
-    private String question;
 
     @OneToMany(mappedBy = "question")
     private List<Choice> choices;

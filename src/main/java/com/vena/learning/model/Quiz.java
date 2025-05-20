@@ -17,7 +17,6 @@ public class Quiz {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
-
     private String title;
 
     @ManyToOne
