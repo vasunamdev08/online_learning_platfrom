@@ -10,9 +10,9 @@ public class QuizAttempt {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
-
     private LocalDateTime attemptDate;
     private int score;
+    private int attemptNumber;
 
     @ManyToOne
     @JoinColumn(name = "student_id")
