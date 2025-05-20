@@ -1,5 +1,6 @@
 package com.vena.learning.model;
 
+
 import com.vena.learning.model.enums.Role;
 import jakarta.persistence.Column;
 import jakarta.persistence.EnumType;
@@ -28,4 +29,3 @@ public abstract class User {
     @Enumerated(EnumType.STRING)
     private Role role; // STUDENT, INSTRUCTOR, ADMIN
 }
-
