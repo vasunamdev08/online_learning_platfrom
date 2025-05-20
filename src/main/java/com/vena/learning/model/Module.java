@@ -1,6 +1,14 @@
 package com.vena.learning.model;
 
-import jakarta.persistence.*;
+import com.vena.learning.model.enums.Type;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.Data;
 
 @Entity
@@ -8,7 +16,7 @@ import lombok.Data;
 public class Module {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String moduleId;
+    private String id;
 
     @ManyToOne
     @JoinColumn(name = "course_id")
@@ -19,6 +27,6 @@ public class Module {
     private String title;
     private String content;
 
-    @Enumerated
+    @Enumerated(EnumType.STRING)
     private Type type;
 }
