@@ -10,16 +10,20 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.Data;
-import java.time.LocalDate;
+
+import java.util.Date;
 
 @Entity
 @Data
 public class Enrollment {
-
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
-    private LocalDate enrollmentDate;
+    private Date enrollmentDate;
+    private Date completionDate;
+    private Boolean isCompleted;
+    private Integer progress;
+    private Integer attempts;
 
     @Enumerated(EnumType.STRING)
     private Grade grade;
@@ -31,4 +35,6 @@ public class Enrollment {
     @ManyToOne
     @JoinColumn(name = "course_id")
     private Course course;
+
 }
+
