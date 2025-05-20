@@ -10,8 +10,7 @@ class Course{
 
     @Id
     @GeneratedValue(strategy= GenerationType.UUID)
-    @Column(name="course_id")
-    private String courseId;
+    private String id;
 
     private boolean isApproved;
     private boolean isDeleted;
