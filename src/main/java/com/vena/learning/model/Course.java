@@ -28,5 +28,5 @@ class Course{
     private List<Module> modules;
 
     @OneToMany(mappedBy="course", cascade = CascadeType.ALL)
-    private List<Quiz> quizes;
+    private List<Quiz> quizzes;
 }
