@@ -1,4 +1,4 @@
-package com.vena.learning.model.enums;
+package com.vena.learning.enums;
 
 public enum Grade {
     A,
@@ -6,5 +6,6 @@ public enum Grade {
     C,
     D,
     F,
+    Pending,
 }
 
