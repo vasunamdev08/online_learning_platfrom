@@ -1,6 +1,6 @@
 package com.vena.learning.model;
 
-import com.vena.learning.model.enums.Type;
+import com.vena.learning.enums.Type;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;

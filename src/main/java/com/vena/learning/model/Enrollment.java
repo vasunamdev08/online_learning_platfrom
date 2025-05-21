@@ -1,6 +1,6 @@
 package com.vena.learning.model;
 
-import com.vena.learning.model.enums.Grade;
+import com.vena.learning.enums.Grade;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -24,6 +24,7 @@ public class Enrollment {
     private Boolean isCompleted;
     private Integer progress;
     private Integer attempts;
+    private Boolean isEnrolled;
 
     @Enumerated(EnumType.STRING)
     private Grade grade;

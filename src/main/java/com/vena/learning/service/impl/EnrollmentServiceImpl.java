@@ -1,13 +1,17 @@
 package com.vena.learning.service.impl;
 
+import com.vena.learning.dto.EnrollmentRequestDto;
 import com.vena.learning.dto.EnrollmentRequestDTO;
 import com.vena.learning.model.Course;
 import com.vena.learning.model.Enrollment;
 import com.vena.learning.model.Student;
+import com.vena.learning.enums.Grade;
 import com.vena.learning.repository.CourseRepository;
 import com.vena.learning.repository.EnrollmentRepository;
+import com.vena.learning.service.CourseService;
 import com.vena.learning.repository.StudentRepository;
 import com.vena.learning.service.EnrollmentService;
+import com.vena.learning.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,35 +23,69 @@ import java.util.UUID;
 public class EnrollmentServiceImpl implements EnrollmentService {
 
     @Autowired
-    private EnrollmentRepository enrollmentRepo;
-
+    private CourseService courseService;
     @Autowired
-    private StudentRepository studentRepo;
-
+    private StudentService studentService;
     @Autowired
-    private CourseRepository courseRepo;
+    private EnrollmentRepository enrollmentRepository;
 
     @Override
-    public String enrollStudent(String courseId, EnrollmentRequestDTO enrollmentRequestDTO) {
-        String studentId = enrollmentRequestDTO.getStudentId();
-
-        Student student = studentRepo.findById(studentId).orElseThrow(() -> new RuntimeException("Student not found."));
-        Course course = courseRepo.findById(courseId).orElseThrow(() -> new RuntimeException("Course not found."));
-
-        if (enrollmentRepo.existsByStudentIdAndCourseId(studentId, courseId)) {
-            return "Student is already enrolled in this course";
+    public void enrollStudent(EnrollmentRequestDto enrollmentRequestDto) {
+        String studentId = enrollmentRequestDto.getStudentId();
+        String courseId = enrollmentRequestDto.getCourseId();
+        if(isEnrolled(studentId, courseId)) {
+            throw new RuntimeException("Student is already enrolled in the course");
         }
+        Student student = studentService.getStudentById(studentId);
+        Course course = courseService.getCourseById(courseId);
+        addEnrollment(student, course);
+    }
 
+    @Override
+    public void addEnrollment(Student student, Course course) {
         Enrollment enrollment = new Enrollment();
-//        enrollment.setId(UUID.randomUUID().toString());
         enrollment.setStudent(student);
         enrollment.setCourse(course);
-        enrollment.setEnrollmentDate(LocalDate.now());
-
-        //TODO: enrollment entity is complete need to set the fields once updated,
-        // missing fields -> attempts, completion_date, is_completed, progress.
-
-        enrollmentRepo.save(enrollment);
-        return "Enrolled successfully in course: " +  course.getTitle();
+        enrollment.setIsEnrolled(true);
+        enrollment.setIsCompleted(false);
+        enrollment.setEnrollmentDate(new java.util.Date());
+        enrollment.setAttempts(0);
+        enrollment.setGrade(Grade.Pending);
+        enrollment.setCompletionDate(null);
+        enrollment.setProgress(0);
+        enrollmentRepository.save(enrollment);
     }
+
+    @Override
+    public void unenrollStudent(EnrollmentRequestDto enrollmentRequestDto) {
+        String studentId = enrollmentRequestDto.getStudentId();
+        String courseId = enrollmentRequestDto.getCourseId();
+        if(!isEnrolled(studentId, courseId)) {
+            throw new RuntimeException("Student is not enrolled in the course");
+        }
+        if(!isExists(studentId, courseId)) {
+            throw new RuntimeException("Enrollment does not exist");
+        }
+        Enrollment enrollment = enrollmentRepository.findByStudentIdAndCourseId(studentId, courseId).get();
+        enrollment.setIsEnrolled(false);
+        enrollmentRepository.save(enrollment);
+    }
+
+    @Override
+    public boolean isEnrolled(String studentId, String courseId) {
+        return enrollmentRepository.isEnrolledByStudentIdAndCourseId(studentId, courseId);
+    }
+
+    @Override
+    public boolean isExists(String studentId, String courseId) {
+        return enrollmentRepository.existsByStudentIdAndCourseId(studentId, courseId);
+    }
+
+    @Override
+    public Enrollment getCourseDetailsByIds(String studentId, String courseId) {
+        return enrollmentRepository.findByStudentIdAndCourseId(studentId, courseId).orElseThrow(
+                () -> new RuntimeException("Enrollment not found with studentId: " + studentId + " and courseId: " + courseId)
+        );
+    }
+
 }
