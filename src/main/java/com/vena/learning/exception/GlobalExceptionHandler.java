@@ -12,16 +12,16 @@ import java.util.Map;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleAllExceptions(Exception e, WebRequest req) {
-        Map<String, Object> body = Map.of(
-                "status", 500,
-                "error", "Internal Server Error",
-                "message", e.getMessage(),
-                "path", req.getDescription(false).replace("uri=", "")
-        );
-
-        return ResponseEntity.status(500).body(body);
+    @ExceptionHandler
+    public ResponseEntity<?> handleException(Exception e) {
+        return ResponseEntity.status(500).body("An error occurred: " + e.getMessage());
+    }
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<?> handleIllegalArgumentException(IllegalArgumentException e) {
+        return ResponseEntity.badRequest().body("Invalid argument: " + e.getMessage());
+    }
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<?> handleRuntimeException(RuntimeException e) {
+        return ResponseEntity.status(500).body("An error occurred: " + e.getMessage());
     }
 }
