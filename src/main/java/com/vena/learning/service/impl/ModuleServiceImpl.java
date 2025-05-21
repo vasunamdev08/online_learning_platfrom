@@ -1,5 +1,6 @@
 package com.vena.learning.service.impl;
 
+import com.vena.learning.model.Module;
 import com.vena.learning.repository.ModuleRepository;
 import com.vena.learning.service.EnrollmentService;
 import com.vena.learning.service.ModuleService;
