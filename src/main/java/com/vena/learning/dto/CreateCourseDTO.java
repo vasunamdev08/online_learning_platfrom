@@ -6,7 +6,7 @@ import lombok.Data;
 public class CreateCourseDTO {
     private String title;
     private String description;
-    private String category;
+    private String InstructorId;
 }
 
 
