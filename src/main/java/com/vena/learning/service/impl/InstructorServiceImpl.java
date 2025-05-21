@@ -1,9 +1,7 @@
 package com.vena.learning.service.impl;
 
 import com.vena.learning.dto.CourseDTO;
-import com.vena.learning.dto.CreateCourseDTO;
 import com.vena.learning.model.Course;
-import com.vena.learning.model.User;
 import com.vena.learning.repository.CourseRepository;
 import com.vena.learning.repository.UserRepository;
 import com.vena.learning.dto.RegisterRequest;
@@ -15,9 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import java.util.HashSet;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
