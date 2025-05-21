@@ -8,13 +8,14 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+
 @Service
 public interface AdminService {
     List<User> getAllUsersByInstitution(AdminInstitution adminInstitution);
     void registerAdmin(RegisterRequest adminRequest);
     void saveAdmin(RegisterRequest adminRequest);
     boolean isExists(String email,String username);
-    Optional<Admin> getAdminByEmail(String email);
-    Optional<Admin> getAdminById(String id);
-    Optional<Admin> getAdminByUsername(String username);
+    Admin getAdminByEmail(String email);
+    Admin getAdminById(String id);
+    Admin getAdminByUsername(String username);
 }
