@@ -20,7 +20,6 @@ public class Course{
     @Id
     @GeneratedValue(strategy= GenerationType.UUID)
     private String id;
-
     private boolean isApproved;
     private boolean isDeleted;
     private String description;
