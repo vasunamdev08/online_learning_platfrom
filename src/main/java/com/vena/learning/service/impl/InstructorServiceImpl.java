@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class InstructorServiceImpl implements InstructorService {
@@ -18,18 +17,24 @@ public class InstructorServiceImpl implements InstructorService {
     private InstructorRepository instructorRepository;
 
     @Override
-    public Optional<Instructor> getInstructorById(String id) {
-        return instructorRepository.findById(id);
+    public Instructor getInstructorById(String id) {
+        return instructorRepository.findById(id).orElseThrow(
+                () -> new RuntimeException("Instructor not found with id: " + id)
+        );
     }
 
     @Override
-    public Optional<Instructor> getInstructorByUsername(String username) {
-        return instructorRepository.findByUsername(username);
+    public Instructor getInstructorByUsername(String username) {
+        return instructorRepository.findByUsername(username).orElseThrow(
+                () -> new RuntimeException("Instructor not found with username: " + username)
+        );
     }
 
     @Override
-    public Optional<Instructor> getInstructorByEmail(String email) {
-        return instructorRepository.getInstructorByEmail(email);
+    public Instructor getInstructorByEmail(String email) {
+        return instructorRepository.getInstructorByEmail(email).orElseThrow(
+                () -> new RuntimeException("Instructor not found with email: " + email)
+        );
     }
 
     @Override

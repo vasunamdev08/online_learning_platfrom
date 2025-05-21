@@ -1,11 +1,8 @@
 package com.vena.learning.service.impl;
 
-import com.vena.learning.dto.AdminInstitution;
 import com.vena.learning.model.Course;
 import com.vena.learning.model.Instructor;
 import com.vena.learning.model.User;
-import com.vena.learning.repository.InstructorRepository;
-import com.vena.learning.repository.StudentRepository;
 import com.vena.learning.dto.RegisterRequest;
 import com.vena.learning.model.Admin;
 import com.vena.learning.enums.Role;
@@ -18,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class AdminServiceImpl implements AdminService {
@@ -95,10 +93,9 @@ public class AdminServiceImpl implements AdminService {
         }
 
         List<Instructor> instructors= instructorService.getAllInstructorByInstitute(institution);
-        List<Course> allCourses = new ArrayList<>();
-        for (Instructor instructor : instructors) {
-            allCourses.addAll(instructor.getCourses());
-        }
+        List<Course> allCourses = instructors.stream()
+                .flatMap(instructor -> instructor.getCourses().stream())
+                .collect(Collectors.toList());
         return allCourses;
     }
 }
