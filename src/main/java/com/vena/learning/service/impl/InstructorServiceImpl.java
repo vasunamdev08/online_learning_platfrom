@@ -8,7 +8,7 @@ import com.vena.learning.repository.CourseRepository;
 import com.vena.learning.repository.UserRepository;
 import com.vena.learning.dto.RegisterRequest;
 import com.vena.learning.model.Instructor;
-import com.vena.learning.model.enums.Role;
+import com.vena.learning.enums.Role;
 import com.vena.learning.repository.InstructorRepository;
 import com.vena.learning.service.InstructorService;
 import org.springframework.beans.factory.annotation.Autowired;

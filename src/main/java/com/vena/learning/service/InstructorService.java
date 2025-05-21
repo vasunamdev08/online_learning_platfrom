@@ -1,7 +1,6 @@
 package com.vena.learning.service;
 
 import com.vena.learning.dto.CourseDTO;
-import com.vena.learning.dto.CreateCourseDTO;
 import com.vena.learning.dto.RegisterRequest;
 import com.vena.learning.model.Instructor;
 import org.springframework.stereotype.Service;
