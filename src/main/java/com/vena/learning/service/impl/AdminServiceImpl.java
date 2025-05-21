@@ -1,6 +1,8 @@
 package com.vena.learning.service.impl;
 
 import com.vena.learning.dto.AdminInstitution;
+import com.vena.learning.model.Course;
+import com.vena.learning.model.Instructor;
 import com.vena.learning.model.User;
 import com.vena.learning.repository.InstructorRepository;
 import com.vena.learning.repository.StudentRepository;
@@ -22,10 +24,6 @@ public class AdminServiceImpl implements AdminService {
 
     @Autowired
     private AdminRepository adminRepository;
-    @Autowired
-    private StudentRepository studentRepository;
-    @Autowired
-    private InstructorRepository instructorRepository;
 
     @Autowired
     private StudentService studentService;
@@ -88,5 +86,19 @@ public class AdminServiceImpl implements AdminService {
         return adminRepository.findByUsername(username).orElseThrow(
                 () -> new RuntimeException("Admin not found with username: " + username)
         );
+    }
+
+    @Override
+    public List<Course> getAllCoursesByInstitution(String institution){
+        if(institution==null || institution.trim().isEmpty()){
+            throw new IllegalArgumentException("Institution cannot be null or empty");
+        }
+
+        List<Instructor> instructors= instructorService.getAllInstructorByInstitute(institution);
+        List<Course> allCourses = new ArrayList<>();
+        for (Instructor instructor : instructors) {
+            allCourses.addAll(instructor.getCourses());
+        }
+        return allCourses;
     }
 }

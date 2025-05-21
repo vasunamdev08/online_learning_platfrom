@@ -26,4 +26,10 @@ public class AdminController {
         List<User> users=adminService.getAllUsersByInstitution(institution);
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
+
+    @GetMapping("/courses/{institution}")
+    public ResponseEntity<?> getCourses(@PathVariable String institution){
+        List<Course> courses= adminService.getAllCoursesByInstitution(institution);
+        return new ResponseEntity<>(courses,HttpStatus.OK);
+    }
 }

@@ -1,6 +1,7 @@
 package com.vena.learning.service;
 
 import com.vena.learning.dto.AdminInstitution;
+import com.vena.learning.model.Course;
 import com.vena.learning.model.User;
 import com.vena.learning.dto.RegisterRequest;
 import com.vena.learning.model.Admin;
@@ -18,4 +19,6 @@ public interface AdminService {
     Admin getAdminByEmail(String email);
     Admin getAdminById(String id);
     Admin getAdminByUsername(String username);
+
+    List<Course> getAllCoursesByInstitution(String institution);
 }
