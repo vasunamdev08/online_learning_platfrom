@@ -3,6 +3,7 @@ package com.vena.learning.controller;
 import com.vena.learning.dto.EnrollmentRequestDto;
 import com.vena.learning.model.Course;
 import com.vena.learning.model.Enrollment;
+import com.vena.learning.model.Module;
 import com.vena.learning.service.EnrollmentService;
 import com.vena.learning.service.ModuleService;
 import com.vena.learning.service.StudentService;
