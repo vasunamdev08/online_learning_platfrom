@@ -1,14 +1,17 @@
 package com.vena.learning.service.impl;
 
 import com.vena.learning.dto.RegisterRequest;
+import com.vena.learning.model.Course;
+import com.vena.learning.model.Enrollment;
 import com.vena.learning.model.Student;
-import com.vena.learning.model.enums.Role;
+import com.vena.learning.enums.Role;
 import com.vena.learning.repository.StudentRepository;
 import com.vena.learning.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class StudentServiceImpl implements StudentService {
@@ -16,23 +19,29 @@ public class StudentServiceImpl implements StudentService {
     private StudentRepository studentRepository;
 
     @Override
-    public Optional<Student> getStudentByEmail(String email) {
-        return studentRepository.getStudentByEmail(email);
+    public Student getStudentByEmail(String email) {
+        return studentRepository.getStudentByEmail(email).orElseThrow(
+                () -> new RuntimeException("Student not found with email: " + email)
+        );
     }
 
     @Override
-    public Optional<Student> getStudentById(String id) {
-        return studentRepository.findById(id);
+    public Student getStudentById(String id) {
+        return studentRepository.findById(id).orElseThrow(
+                () -> new RuntimeException("Student not found with id: " + id)
+        );
     }
 
     @Override
-    public Optional<Student> getStudentByUsername(String username) {
-        return studentRepository.findByUsername(username);
+    public Student getStudentByUsername(String username) {
+        return studentRepository.findByUsername(username).orElseThrow(
+                () -> new RuntimeException("Student not found with username: " + username)
+        );
     }
 
     @Override
     public boolean isStudentExist(String email, String username) {
-        return getStudentByEmail(email).isPresent()|| getStudentByUsername(username).isPresent();
+        return getStudentByEmail(email) !=null || getStudentByUsername(username)!=null;
     }
 
     @Override
@@ -56,5 +65,15 @@ public class StudentServiceImpl implements StudentService {
         student.setInstitution(user.getInstitution());
         student.setRole(Role.STUDENT);
         studentRepository.save(student);
+    }
+
+    @Override
+    public List<Course> getStudentCources(String studentId) {
+        Student student = getStudentById(studentId);
+        List<Course> courses = student.getEnrollments().stream().map(Enrollment::getCourse).collect(Collectors.toList());
+        if(courses.isEmpty()) {
+            throw new RuntimeException("No courses found for student with id: " + studentId);
+        }
+        return courses;
     }
 }
