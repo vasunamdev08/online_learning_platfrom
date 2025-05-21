@@ -1,4 +1,4 @@
-package com.vena.learning.model.enums;
+package com.vena.learning.enums;
 
 public enum Role {
     STUDENT, INSTRUCTOR, ADMIN
