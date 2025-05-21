@@ -10,8 +10,9 @@ import com.vena.learning.service.CourseService;
 import com.vena.learning.service.EnrollmentService;
 import com.vena.learning.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-
+@Service
 public class EnrollmentServiceImpl implements EnrollmentService {
     @Autowired
     private CourseService courseService;
