@@ -76,4 +76,9 @@ public class StudentServiceImpl implements StudentService {
         }
         return courses;
     }
+
+    @Override
+    public List<Student> getAllStudentByInstitute(String institution){
+        return studentRepository.findByInstitution(institution).orElseThrow(()-> new RuntimeException("Student not found"));
+    }
 }

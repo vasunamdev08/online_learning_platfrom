@@ -7,6 +7,8 @@ import com.vena.learning.repository.InstructorRepository;
 import com.vena.learning.service.InstructorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -56,5 +58,10 @@ public class InstructorServiceImpl implements InstructorService {
             throw new RuntimeException("Instructor details are incomplete");
         }
         saveInstructor(instructorRequest);
+    }
+
+    @Override
+    public List<Instructor> getAllInstructorByInstitute(String institution){
+        return instructorRepository.findByInstitution(institution).orElseThrow(()-> new RuntimeException("Instructor not found"));
     }
 }

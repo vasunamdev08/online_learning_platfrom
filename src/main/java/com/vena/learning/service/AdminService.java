@@ -11,7 +11,7 @@ import java.util.Optional;
 
 @Service
 public interface AdminService {
-    List<User> getAllUsersByInstitution(AdminInstitution adminInstitution);
+    List<User> getAllUsersByInstitution(String institution);
     void registerAdmin(RegisterRequest adminRequest);
     void saveAdmin(RegisterRequest adminRequest);
     boolean isExists(String email,String username);

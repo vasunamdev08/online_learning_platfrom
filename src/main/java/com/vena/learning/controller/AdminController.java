@@ -1,6 +1,7 @@
 package com.vena.learning.controller;
 
 import com.vena.learning.dto.AdminInstitution;
+import com.vena.learning.model.Course;
 import com.vena.learning.model.User;
 import com.vena.learning.service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +21,9 @@ public class AdminController {
     @Autowired
     private AdminService adminService;
 
-    @GetMapping("/users/{adminInstitution}")
-    public ResponseEntity<?> getUsers(@PathVariable AdminInstitution adminInstitution){
-        List<User> users=adminService.getAllUsersByInstitution(adminInstitution);
+    @GetMapping("/users/{institution}")
+    public ResponseEntity<?> getUsers(@PathVariable String institution){
+        List<User> users=adminService.getAllUsersByInstitution(institution);
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 }

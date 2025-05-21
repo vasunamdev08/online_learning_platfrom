@@ -10,5 +10,5 @@ import java.util.List;
 public interface InstructorRepository extends JpaRepository<Instructor,String> {
     Optional<Instructor> findByUsername(String username);
     Optional<Instructor> getInstructorByEmail(String email);
-    List<Instructor> findByInstitution(String institution);
+    Optional<List<Instructor>> findByInstitution(String institution);
 }

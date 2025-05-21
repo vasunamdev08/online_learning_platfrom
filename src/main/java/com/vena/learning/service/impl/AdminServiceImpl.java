@@ -9,6 +9,8 @@ import com.vena.learning.model.Admin;
 import com.vena.learning.enums.Role;
 import com.vena.learning.repository.AdminRepository;
 import com.vena.learning.service.AdminService;
+import com.vena.learning.service.InstructorService;
+import com.vena.learning.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +26,13 @@ public class AdminServiceImpl implements AdminService {
     private StudentRepository studentRepository;
     @Autowired
     private InstructorRepository instructorRepository;
+
+    @Autowired
+    private StudentService studentService;
+
+    @Autowired
+    private InstructorService instructorService;
+
     @Override
     public void registerAdmin(RegisterRequest adminRequest) {
         if(adminRequest.getName() == null || adminRequest.getEmail() == null || adminRequest.getUsername() == null || adminRequest.getPassword() == null) {
@@ -35,16 +44,14 @@ public class AdminServiceImpl implements AdminService {
         saveAdmin(adminRequest);
     }
     @Override
-    public List<User> getAllUsersByInstitution(AdminInstitution adminInstitution) {
-
-        String institution= adminInstitution.getInstitution();
+    public List<User> getAllUsersByInstitution(String institution) {
 
         if(institution==null || institution.trim().isEmpty()){
             throw new IllegalArgumentException("Institution cannot be null or empty");
         }
         List<User> allUsers=new ArrayList<>();
-        allUsers.addAll(studentRepository.findByInstitution(institution).orElseThrow(()-> new RuntimeException("NO STUDENT FOUND")));
-        allUsers.addAll(instructorRepository.findByInstitution(institution));
+        allUsers.addAll(studentService.getAllStudentByInstitute(institution));
+        allUsers.addAll(instructorService.getAllInstructorByInstitute(institution));
         return allUsers;
     }
     @Override
