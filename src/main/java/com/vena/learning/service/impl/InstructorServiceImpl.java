@@ -6,10 +6,15 @@ import com.vena.learning.model.Course;
 import com.vena.learning.model.User;
 import com.vena.learning.repository.CourseRepository;
 import com.vena.learning.repository.UserRepository;
+import com.vena.learning.dto.RegisterRequest;
+import com.vena.learning.model.Instructor;
+import com.vena.learning.model.enums.Role;
+import com.vena.learning.repository.InstructorRepository;
 import com.vena.learning.service.InstructorService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
@@ -19,48 +24,56 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class InstructorServiceImpl implements InstructorService {
 
+    @Autowired
+    private InstructorRepository instructorRepository;
     private final CourseRepository courseRepository;
     private final UserRepository userRepository;
 
     @Override
-    public List<CourseDTO> getCoursesByInstructor(String instructorId) {
-        return courseRepository.findByInstructors_Id(instructorId)
-                .stream()
-                .map(course -> {
-                    CourseDTO dto = new CourseDTO();
-                    dto.setId(course.getId());
-                    dto.setTitle(course.getTitle());
-                    dto.setDescription(course.getDescription());
-                    dto.setCategory(course.getCategory());
-                    return dto;
-                })
-                .collect(Collectors.toList());
+    public Optional<Instructor> getInstructorById(String id) {
+        return instructorRepository.findById(id);
     }
 
     @Override
-    public CourseDTO createCourse(CreateCourseDTO courseDTO, String instructorId) {
-        Course course = new Course();
-        course.setId(UUID.randomUUID().toString());
-        course.setTitle(courseDTO.getTitle());
-        course.setDescription(courseDTO.getDescription());
-        course.setCategory(courseDTO.getCategory());
+    public Optional<Instructor> getInstructorByUsername(String username) {
+        return instructorRepository.findByUsername(username);
+    }
 
-        User instructor = userRepository.findById(instructorId)
-                .orElseThrow(() -> new RuntimeException("Instructor not found"));
+    @Override
+    public Optional<Instructor> getInstructorByEmail(String email) {
+        return instructorRepository.getInstructorByEmail(email);
+    }
 
-        course.setInstructors(new HashSet<>());
-        course.getInstructors().add(instructor);
+    public List<CourseDTO> getCoursesByInstructor(String instructorId) {
+        List<Course> allByInstructorId = courseRepository.findALLByInstructorId(instructorId);
+        // assuming such a constructor exists
+        return allByInstructorId.stream()
+                .map(CourseDTO::new) // assuming such a constructor exists
+                .collect(Collectors.toList());
+    }
 
-        courseRepository.save(course);
+    public boolean isExist(String email, String username) {
+        return instructorRepository.getInstructorByEmail(email).isPresent() || instructorRepository.findByUsername(username).isPresent();
+    }
 
-        CourseDTO dto = new CourseDTO();
-        dto.setId(course.getId());
-        dto.setTitle(course.getTitle());
-        dto.setDescription(course.getDescription());
-        dto.setCategory(course.getCategory());
-
-        return dto;
+    public void saveInstructor(RegisterRequest instructorRequest) {
+        Instructor instructor = new Instructor();
+        instructor.setName(instructorRequest.getName());
+        instructor.setEmail(instructorRequest.getEmail());
+        instructor.setUsername(instructorRequest.getUsername());
+        instructor.setPassword(instructorRequest.getPassword());
+        instructor.setInstitution(instructorRequest.getInstitution());
+        instructor.setRole(Role.INSTRUCTOR);
+        instructorRepository.save(instructor);
+    }
+    @Override
+    public void registerInstructor(RegisterRequest instructorRequest) {
+        if(isExist(instructorRequest.getEmail(), instructorRequest.getUsername())) {
+            throw new RuntimeException("Instructor already exists with email or username");
+        }
+        if (instructorRequest.getName() == null || instructorRequest.getEmail() == null || instructorRequest.getUsername() == null || instructorRequest.getPassword() == null) {
+            throw new RuntimeException("Instructor details are incomplete");
+        }
+        saveInstructor(instructorRequest);
     }
 }
-
-
