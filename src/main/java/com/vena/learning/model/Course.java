@@ -24,12 +24,13 @@ public class Course{
     private boolean isDeleted;
     private String description;
     private String title;
+    private String instructorId;
 
     @OneToMany(mappedBy="course", cascade = CascadeType.ALL)
     private List<Enrollment> enrollments;
 
     @ManyToOne
-    @JoinColumn(name="instructor_id")
+    @JoinColumn(name="instructorId")
     private Instructor instructor;
 
     @OneToMany(mappedBy="course", cascade = CascadeType.ALL)
