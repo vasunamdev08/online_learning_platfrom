@@ -1,18 +1,19 @@
 package com.vena.learning.controller;
 
 import com.vena.learning.dto.EnrollmentRequestDto;
+import com.vena.learning.dto.QuestionDTO;
 import com.vena.learning.model.Course;
 import com.vena.learning.model.Enrollment;
-import com.vena.learning.dto.EnrollmentRequestDTO;
+import com.vena.learning.model.Module;
 import com.vena.learning.service.EnrollmentService;
 import com.vena.learning.service.ModuleService;
+import com.vena.learning.service.QuizService;
 import com.vena.learning.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,6 +29,8 @@ public class StudentController {
     private EnrollmentService enrollmentService;
     @Autowired
     private ModuleService moduleService;
+    @Autowired
+    private QuizService quizService;
 
     /*
     we can use this endpoint to get all courses that a student is enrolled in after logging in.
@@ -66,5 +69,9 @@ public class StudentController {
         Module module = moduleService.getModuleById(studentId, courseId, moduleId);
         return ResponseEntity.ok(module);
     }
-
+    @GetMapping("/courses/{courseId}/quizzes/{quizId}")
+    public ResponseEntity<List<QuestionDTO>> getQuizQuestions(@PathVariable String courseId, @PathVariable String quizId) {
+        List<QuestionDTO> questions = quizService.getQuizQuestions(courseId, quizId);
+        return ResponseEntity.ok(questions);
+    }
 }

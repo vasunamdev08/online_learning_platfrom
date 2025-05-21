@@ -1,10 +1,13 @@
 package com.vena.learning.service.impl;
 
+import com.vena.learning.model.Module;
 import com.vena.learning.repository.ModuleRepository;
 import com.vena.learning.service.EnrollmentService;
 import com.vena.learning.service.ModuleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+@Service
 public class ModuleServiceImpl implements ModuleService {
     @Autowired
     private ModuleRepository moduleRepository;

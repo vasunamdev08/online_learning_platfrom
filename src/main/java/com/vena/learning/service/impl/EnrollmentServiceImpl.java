@@ -1,23 +1,16 @@
 package com.vena.learning.service.impl;
 
 import com.vena.learning.dto.EnrollmentRequestDto;
-import com.vena.learning.dto.EnrollmentRequestDTO;
 import com.vena.learning.model.Course;
 import com.vena.learning.model.Enrollment;
 import com.vena.learning.model.Student;
 import com.vena.learning.enums.Grade;
-import com.vena.learning.repository.CourseRepository;
 import com.vena.learning.repository.EnrollmentRepository;
 import com.vena.learning.service.CourseService;
-import com.vena.learning.repository.StudentRepository;
 import com.vena.learning.service.EnrollmentService;
 import com.vena.learning.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
-import java.util.Date;
-import java.util.UUID;
 
 @Service
 public class EnrollmentServiceImpl implements EnrollmentService {
@@ -78,7 +71,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
     @Override
     public boolean isExists(String studentId, String courseId) {
-        return enrollmentRepository.existsByStudentIdAndCourseId(studentId, courseId);
+        return enrollmentRepository.isEnrolledByStudentIdAndCourseId(studentId, courseId);
     }
 
     @Override
