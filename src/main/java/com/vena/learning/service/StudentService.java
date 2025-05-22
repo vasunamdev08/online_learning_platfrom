@@ -1,6 +1,6 @@
 package com.vena.learning.service;
 
-import com.vena.learning.dto.RegisterRequest;
+import com.vena.learning.dto.requestDto.RegisterRequest;
 import com.vena.learning.model.Course;
 import com.vena.learning.model.Student;
 import org.springframework.stereotype.Service;
@@ -12,7 +12,11 @@ public interface StudentService {
     Student getStudentByEmail(String email);
     Student getStudentById(String id);
     Student getStudentByUsername(String username);
+
+    boolean isExistsByEmail(String email);
+    boolean isExistsByUsername(String username);
     boolean isStudentExist(String email, String username);
+
     void registerStudent(RegisterRequest user);
     void saveStudent(RegisterRequest user);
 

@@ -1,4 +1,4 @@
-package com.vena.learning.dto;
+package com.vena.learning.dto.requestDto;
 
 import lombok.Data;
 

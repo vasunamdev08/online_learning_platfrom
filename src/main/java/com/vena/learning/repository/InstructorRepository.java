@@ -9,4 +9,6 @@ public interface InstructorRepository extends JpaRepository<Instructor,String> {
     Optional<Instructor> findByUsername(String username);
     Optional<Instructor> getInstructorByEmail(String email);
 
+    boolean existsByEmail(String email);
+    boolean existsByUsername(String username);
 }
