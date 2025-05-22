@@ -1,6 +1,6 @@
 package com.vena.learning.service.impl;
 
-import com.vena.learning.dto.RegisterRequest;
+import com.vena.learning.dto.requestDto.RegisterRequest;
 import com.vena.learning.model.Admin;
 import com.vena.learning.enums.Role;
 import com.vena.learning.repository.AdminRepository;
@@ -38,7 +38,17 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public boolean isExists(String email, String username) {
-        return getAdminByEmail(email)!=null|| getAdminByUsername(username)!=null;
+        return adminRepository.existsByEmail(email) || adminRepository.existsByUsername(username);
+    }
+
+    @Override
+    public boolean isExistsByUsername(String username) {
+        return adminRepository.existsByUsername(username);
+    }
+
+    @Override
+    public boolean isExistsByEmail(String email) {
+        return adminRepository.existsByEmail(email);
     }
 
     @Override

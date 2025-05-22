@@ -1,6 +1,6 @@
 package com.vena.learning.service.impl;
 
-import com.vena.learning.dto.RegisterRequest;
+import com.vena.learning.dto.requestDto.RegisterRequest;
 import com.vena.learning.model.Course;
 import com.vena.learning.model.Enrollment;
 import com.vena.learning.model.Student;
@@ -40,8 +40,18 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
+    public boolean isExistsByUsername(String username) {
+        return studentRepository.existsByUsername(username);
+    }
+
+    @Override
+    public boolean isExistsByEmail(String email) {
+        return studentRepository.existsByEmail(email);
+    }
+
+    @Override
     public boolean isStudentExist(String email, String username) {
-        return getStudentByEmail(email) !=null || getStudentByUsername(username)!=null;
+        return isExistsByEmail(email) || isExistsByUsername(username);
     }
 
     @Override
