@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class InstructorServiceImpl implements InstructorService {
@@ -79,4 +80,15 @@ public class InstructorServiceImpl implements InstructorService {
     public List<Instructor> getAllInstructorByInstitute(String institution){
         return instructorRepository.findByInstitution(institution).orElseThrow(()-> new RuntimeException("Instructor not found"));
     }
+    @Override
+    public void deleteInstructor(String userId) {
+        Instructor instructor = getInstructorById(userId);
+        instructorRepository.delete(instructor);
+    }
+
+    @Override
+    public Optional<Instructor> findById(String userId) {
+        return instructorRepository.findById(userId);
+    }
+
 }

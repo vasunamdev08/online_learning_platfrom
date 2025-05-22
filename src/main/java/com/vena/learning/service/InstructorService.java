@@ -5,6 +5,7 @@ import com.vena.learning.model.Instructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public interface InstructorService {
@@ -20,4 +21,7 @@ public interface InstructorService {
     boolean isExistsByEmail(String email);
     boolean isExistsByUsername(String username);
 
-  }
+    void deleteInstructor(String userId);
+
+    Optional<Instructor> findById(String userId);
+}
