@@ -1,6 +1,6 @@
 package com.vena.learning.controller;
 
-import com.vena.learning.model.Course;
+import com.vena.learning.dto.responseDto.CourseResponse;
 import com.vena.learning.service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,13 +19,13 @@ public class CourseController {
 
     @GetMapping
     public ResponseEntity<?> getAllCourses() {
-        List<Course> approvedCourses = courseService.getApprovedCourses();
+        List<CourseResponse> approvedCourses = courseService.getApprovedCourses();
         return ResponseEntity.ok(approvedCourses);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> fetchCourseById(@PathVariable String id) {
-        Course course = courseService.getCourseById(id);
+        CourseResponse course = courseService.getCourseResponseByCourseId(id);
         return ResponseEntity.ok(course);
     }
 
