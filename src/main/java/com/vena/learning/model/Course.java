@@ -1,5 +1,6 @@
 package com.vena.learning.model;
 
+import com.vena.learning.dto.requestDto.CourseRequest;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -15,13 +16,12 @@ import java.util.List;
 @Entity
 @Data
 public class Course{
-
-
     @Id
     @GeneratedValue(strategy= GenerationType.UUID)
     private String id;
     private boolean isApproved;
     private boolean isDeleted;
+    private boolean isComplete;
     private String description;
     private String title;
 
@@ -37,4 +37,19 @@ public class Course{
 
     @OneToMany(mappedBy="course", cascade = CascadeType.ALL)
     private List<Quiz> quizzes;
+
+    public Course() {
+    }
+
+    public Course(CourseRequest courseRequest) {
+        this.title = courseRequest.getTitle();
+        this.description = courseRequest.getDescription();
+        this.isApproved= false;
+        this.isDeleted = false;
+        this.isComplete = false;
+        this.modules = courseRequest.getModules().stream()
+                .map(moduleRequest -> new Module(moduleRequest, this))
+                .toList();
+    }
+
 }
