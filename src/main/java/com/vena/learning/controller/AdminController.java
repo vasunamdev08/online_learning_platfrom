@@ -9,6 +9,7 @@ import com.vena.learning.service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,5 +35,12 @@ public class AdminController {
         List<CourseResponse> courses= adminService.getAllCoursesByInstitution(adminId);
         return new ResponseEntity<>(courses,HttpStatus.OK);
     }
+
+    @DeleteMapping("/deleteUser/{userId}")
+    public ResponseEntity<?> deleteUser(@PathVariable String userId){
+        adminService.deleteUser(userId);
+        return new ResponseEntity<>("User deleted successfully",HttpStatus.OK);
+    }
+
 
 }
