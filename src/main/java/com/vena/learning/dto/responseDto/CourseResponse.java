@@ -1,7 +1,9 @@
 package com.vena.learning.dto.responseDto;
 
 import com.vena.learning.model.Course;
+import lombok.Data;
 
+@Data
 public class CourseResponse {
 
     private String id;
