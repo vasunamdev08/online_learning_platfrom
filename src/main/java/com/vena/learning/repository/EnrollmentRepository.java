@@ -10,6 +10,7 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment,String> {
     Optional<Enrollment> findByStudentIdAndCourseId(String studentId, String courseId);
     boolean existsByStudentIdAndCourseId(String studentId, String courseId);
 
-    @Query(nativeQuery = true, value = "SELECT is_enrolled FROM enrollment WHERE student_id = ?1 AND course_id = ?2")
-    boolean isEnrolledByStudentIdAndCourseId(String studentId, String courseId);
+//    boolean getIsEnrolledByStudentIdAndCourseId(String studentId, String courseId);
+
+    boolean existsByStudentIdAndCourseIdAndIsEnrolledTrue(String studentId, String courseId);
 }

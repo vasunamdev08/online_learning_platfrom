@@ -1,6 +1,6 @@
 package com.vena.learning.controller;
 
-import com.vena.learning.dto.EnrollmentRequestDto;
+import com.vena.learning.dto.requestDto.EnrollmentRequest;
 import com.vena.learning.model.Course;
 import com.vena.learning.model.Enrollment;
 import com.vena.learning.model.Module;
@@ -45,13 +45,13 @@ public class StudentController {
         return ResponseEntity.ok(courses);
     }
     @PostMapping("/student/enroll")
-    public ResponseEntity<?> enrollInCourse(@RequestBody EnrollmentRequestDto enrollmentRequestDto) {
-        enrollmentService.enrollStudent(enrollmentRequestDto);
+    public ResponseEntity<?> enrollInCourse(@RequestBody EnrollmentRequest enrollmentRequest) {
+        enrollmentService.enrollStudent(enrollmentRequest);
         return ResponseEntity.ok("Student enrolled in course successfully");
     }
     @PostMapping("/student/unenroll")
-    public ResponseEntity<?> unenrollInCourse(@RequestBody EnrollmentRequestDto enrollmentRequestDto) {
-        enrollmentService.unenrollStudent(enrollmentRequestDto);
+    public ResponseEntity<?> unenrollInCourse(@RequestBody EnrollmentRequest enrollmentRequest) {
+        enrollmentService.unenrollStudent(enrollmentRequest);
         return ResponseEntity.ok("Student unenrolled from course successfully");
     }
     @GetMapping("/{studentId}/courses/{courseId}")
