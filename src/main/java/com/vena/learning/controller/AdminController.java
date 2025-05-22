@@ -35,8 +35,4 @@ public class AdminController {
         return new ResponseEntity<>(courses,HttpStatus.OK);
     }
 
-//    @PutMapping("users/{userId}/role")
-//    public ResponseEntity<?> updateRole(@PathVariable String userId, @RequestBody RoleUpdateRequest roleRequest){
-//
-//    }
 }
