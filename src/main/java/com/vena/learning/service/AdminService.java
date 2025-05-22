@@ -27,4 +27,6 @@ public interface AdminService {
     List<CourseResponse> getAllCoursesByInstitution(String adminId);
 
     String getInstitutionByAdminId(String adminId);
+
+    void deleteUser(String userId);
 }
