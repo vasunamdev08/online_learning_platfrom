@@ -24,4 +24,7 @@ public interface InstructorService {
     void deleteInstructor(String userId);
 
     Optional<Instructor> findById(String userId);
+
+
+    List<Instructor> getAllInstructors();
 }

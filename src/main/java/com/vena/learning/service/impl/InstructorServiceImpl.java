@@ -91,4 +91,9 @@ public class InstructorServiceImpl implements InstructorService {
         return instructorRepository.findById(userId);
     }
 
+    @Override
+    public List<Instructor> getAllInstructors() {
+        return instructorRepository.findAll();
+    }
+
 }
