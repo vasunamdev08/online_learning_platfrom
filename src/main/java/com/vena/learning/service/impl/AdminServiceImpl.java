@@ -146,15 +146,10 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public void deleteUser(String adminID, String userId) {
-        System.out.println("Admin ID: " + adminID);
-        System.out.println("User ID: " + userId);
         Optional<Student> studentOpt = studentService.findById(userId);
         Optional<Instructor> instructorOpt = instructorService.findById(userId);
 
         String institution = getInstitutionByAdminId(adminID);
-
-        System.out.println("Admin Institution: " + institution);
-        System.out.println("Student Institution: " + (studentOpt.isPresent() ? studentOpt.get().getInstitution() : "N/A"));
 
         if (studentOpt.isPresent() && studentOpt.get().getInstitution().equalsIgnoreCase(institution)) {
             studentService.deleteStudent(userId);
