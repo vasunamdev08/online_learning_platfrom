@@ -1,5 +1,6 @@
 package com.vena.learning.model;
 
+import com.vena.learning.dto.requestDto.CourseRequest;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -22,6 +23,7 @@ public class Course{
     private String id;
     private boolean isApproved;
     private boolean isDeleted;
+    private boolean isComplete;
     private String description;
     private String title;
 

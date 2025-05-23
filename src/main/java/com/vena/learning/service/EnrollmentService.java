@@ -6,6 +6,8 @@ import com.vena.learning.model.Enrollment;
 import com.vena.learning.model.Student;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public interface EnrollmentService {
 
