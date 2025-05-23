@@ -232,13 +232,9 @@ public class AdminServiceImpl implements AdminService {
 
                 int courseCompletedEnrollments = (int) courseEnrollments.stream().filter(Enrollment::getIsCompleted).count();
 
-                double avgProgress = courseEnrollments.stream()
-                        .filter(e -> e.getProgress() != null)
-                        .mapToDouble(Enrollment::getProgress)
-                        .average()
-                        .orElse(0.0);
+                int noOfModules = course.getModules() != null ? course.getModules().size() : 0;
 
-                return mapToCourseStats(course.getId(), course.getTitle(), course.isApproved(), courseEnrollments.size(), courseCompletedEnrollments, avgProgress);
+                return mapToCourseStats(course.getId(), course.getTitle(), course.isApproved(), courseEnrollments.size(), courseCompletedEnrollments, noOfModules);
             }).toList();
 
             return mapToInstructorResponse(instructor.getId(), instructor.getName(), instructorCourses.size(), courseStats);
@@ -270,14 +266,14 @@ public class AdminServiceImpl implements AdminService {
         return instructorDto;
     }
 
-    private CourseStats mapToCourseStats(String courseId, String courseName, boolean isApproved, int totalEnrollments, int completedEnrollments, double avgProgress) {
+    private CourseStats mapToCourseStats(String courseId, String courseName, boolean isApproved, int totalEnrollments, int completedEnrollments, int noOfModules) {
         CourseStats courseDto = new CourseStats();
         courseDto.setCourseId(courseId);
         courseDto.setTitle(courseName);
         courseDto.setApproved(isApproved);
         courseDto.setTotalEnrollments(totalEnrollments);
         courseDto.setCompletedEnrollments(completedEnrollments);
-        courseDto.setAverageProgress(avgProgress);
+        courseDto.setNoOfModules(noOfModules);
         return courseDto;
     }
 }

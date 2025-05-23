@@ -9,5 +9,5 @@ public class CourseStats {
     private boolean isApproved;
     private int totalEnrollments;
     private int completedEnrollments;
-    private double averageProgress;
+    private int noOfModules;
 }
