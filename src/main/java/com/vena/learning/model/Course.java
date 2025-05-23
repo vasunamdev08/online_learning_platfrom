@@ -16,8 +16,6 @@ import java.util.List;
 @Entity
 @Data
 public class Course{
-
-
     @Id
     @GeneratedValue(strategy= GenerationType.UUID)
     private String id;
@@ -39,4 +37,19 @@ public class Course{
 
     @OneToMany(mappedBy="course", cascade = CascadeType.ALL)
     private List<Quiz> quizzes;
+
+    public Course() {
+    }
+
+    public Course(CourseRequest courseRequest) {
+        this.title = courseRequest.getTitle();
+        this.description = courseRequest.getDescription();
+        this.isApproved= false;
+        this.isDeleted = false;
+        this.isComplete = false;
+        this.modules = courseRequest.getModules().stream()
+                .map(moduleRequest -> new Module(moduleRequest, this))
+                .toList();
+    }
+
 }
