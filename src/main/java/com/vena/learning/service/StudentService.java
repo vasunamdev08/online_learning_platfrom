@@ -29,5 +29,7 @@ public interface StudentService {
 
     void deleteStudent(String userId);
 
-    Optional<Student> findById(String userId);
+    Optional<Student> findById(String adminID);
+
+    List<Student> getAllStudents();
 }

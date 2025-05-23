@@ -103,4 +103,9 @@ public class StudentServiceImpl implements StudentService {
     public Optional<Student> findById(String userId) {
         return studentRepository.findById(userId);
     }
+
+    @Override
+    public List<Student> getAllStudents() {
+        return studentRepository.findAll();
+    }
 }
