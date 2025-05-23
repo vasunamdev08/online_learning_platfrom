@@ -3,8 +3,6 @@ package com.vena.learning.service;
 import com.vena.learning.dto.requestDto.RegisterRequest;
 import com.vena.learning.dto.responseDto.CourseResponse;
 import com.vena.learning.dto.responseDto.UserResponse;
-import com.vena.learning.model.Course;
-import com.vena.learning.model.User;
 import com.vena.learning.model.Admin;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -14,12 +12,12 @@ import java.util.List;
 public interface AdminService {
     void registerAdmin(RegisterRequest adminRequest);
     void saveAdmin(RegisterRequest adminRequest);
-    boolean isExists(String email,String username);
 
+    boolean isExists(String email,String username);
     boolean isExistsByEmail(String email);
     boolean isExistsByUsername(String username);
-    Admin getAdminByEmail(String email);
 
+    Admin getAdminByEmail(String email);
     Admin getAdminById(String id);
     Admin getAdminByUsername(String username);
 
@@ -28,5 +26,7 @@ public interface AdminService {
 
     String getInstitutionByAdminId(String adminId);
 
-    void deleteUser(String userId);
+    void deleteCourse(String courseId, String adminId);
+    void approveCourse(String courseId, String adminId);
+    void deleteUser(String adminId, String userId);
 }

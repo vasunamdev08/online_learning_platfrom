@@ -11,6 +11,7 @@ import com.vena.learning.model.Admin;
 import com.vena.learning.enums.Role;
 import com.vena.learning.repository.AdminRepository;
 import com.vena.learning.service.AdminService;
+import com.vena.learning.service.CourseService;
 import com.vena.learning.service.InstructorService;
 import com.vena.learning.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,8 @@ public class AdminServiceImpl implements AdminService {
     @Autowired
     private InstructorService instructorService;
 
+    @Autowired
+    private CourseService courseService;
 
     private List<UserResponse> mapToUserResponse(List<User> users) {
         return users.stream()
@@ -65,7 +68,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public boolean isExists(String email, String username) {
-        return adminRepository.existsByEmail(email) || adminRepository.existsByUsername(username);
+        return isExistsByEmail(email)|| isExistsByUsername(username);
     }
 
     @Override
@@ -129,28 +132,66 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public String getInstitutionByAdminId(String adminId) {
-        Admin admin = adminRepository.findById(adminId).orElseThrow(
-                () -> new RuntimeException("Admin not found with id: " + adminId)
-        );
+        Admin admin = getAdminById(adminId);
         return admin.getInstitution();
     }
 
     @Override
-    public void deleteUser(String userId) {
+    public void deleteUser(String adminID, String userId) {
+        System.out.println("Admin ID: " + adminID);
+        System.out.println("User ID: " + userId);
         Optional<Student> studentOpt = studentService.findById(userId);
-        if (studentOpt.isPresent()) {
+        Optional<Instructor> instructorOpt = instructorService.findById(userId);
+
+        String institution = getInstitutionByAdminId(adminID);
+
+        System.out.println("Admin Institution: " + institution);
+        System.out.println("Student Institution: " + (studentOpt.isPresent() ? studentOpt.get().getInstitution() : "N/A"));
+
+        if (studentOpt.isPresent() && studentOpt.get().getInstitution().equalsIgnoreCase(institution)) {
             studentService.deleteStudent(userId);
             return;
         }
-
-        Optional<Instructor> instructorOpt = instructorService.findById(userId);
-        if (instructorOpt.isPresent()) {
+        else if (instructorOpt.isPresent() && instructorOpt.get().getInstitution().equalsIgnoreCase(institution)) {
             instructorService.deleteInstructor(userId);
             return;
         }
-
-        throw new RuntimeException("User not found with id: " + userId);
+        else {
+            throw new UnsupportedOperationException("You are not authorized to delete this user");
+        }
     }
 
+
+    @Override
+    public void deleteCourse(String courseId, String adminId) {
+        Course course = courseService.getCourseById(courseId);
+        Instructor instructor = course.getInstructor();
+
+        String instructorInstitution = instructor.getInstitution();
+        String adminInstitution = getInstitutionByAdminId(adminId);
+
+        if (!instructorInstitution.equalsIgnoreCase(adminInstitution)) {
+            throw new UnsupportedOperationException("You are not authorized to delete this course");
+        }
+        course.setDeleted(true);
+        courseService.addCourse(course);
+    }
+
+    @Override
+    public void approveCourse(String courseId, String adminId) {
+        Course course = courseService.getCourseById(courseId);
+        Instructor instructor = course.getInstructor();
+        if (instructor == null) {
+            throw new RuntimeException("Instructor not found for this course");
+        }
+        String instructorInstitution = instructor.getInstitution();
+        String adminInstitution = getInstitutionByAdminId(adminId);
+
+        if (!instructorInstitution.equalsIgnoreCase(adminInstitution)) {
+            throw new UnsupportedOperationException("You are not authorized to approve this course");
+        }
+        course.setApproved(true);
+        courseService.addCourse(course);
+    }
 
 }
