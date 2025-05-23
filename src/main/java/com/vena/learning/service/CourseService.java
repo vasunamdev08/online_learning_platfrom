@@ -16,4 +16,6 @@ public interface CourseService {
 
     List<CourseResponse> getApprovedCourses();
     List<CourseResponse> getCoursesByInstructorId(String instructorId);
+
+    Course addCourse(Course course);
 }

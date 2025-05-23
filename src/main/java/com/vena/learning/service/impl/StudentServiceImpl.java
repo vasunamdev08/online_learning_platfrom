@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -90,5 +91,21 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public List<Student> getAllStudentByInstitute(String institution){
         return studentRepository.findByInstitution(institution).orElseThrow(()-> new RuntimeException("Student not found"));
+    }
+
+    @Override
+    public void deleteStudent(String userId) {
+        Student student = getStudentById(userId);
+        studentRepository.delete(student);
+    }
+
+    @Override
+    public Optional<Student> findById(String userId) {
+        return studentRepository.findById(userId);
+    }
+
+    @Override
+    public List<Student> getAllStudents() {
+        return studentRepository.findAll();
     }
 }

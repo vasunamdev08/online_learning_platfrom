@@ -21,8 +21,17 @@ import java.util.stream.Collectors;
 public class CourseServiceImpl implements CourseService {
     @Autowired
     private CourseRepository courseRepository;
+
     @Autowired
-    private InstructorServiceImpl instructorService;
+    private InstructorService instructorService;
+
+    @Override
+    public Course addCourse(Course course) {
+        if (course.getTitle() == null || course.getDescription() == null || course.getInstructor() == null) {
+            throw new RuntimeException("Course details are incomplete");
+        }
+        return courseRepository.save(course);
+    }
 
     @Override
     public List<CourseResponse> getApprovedCourses() {
@@ -109,4 +118,5 @@ public class CourseServiceImpl implements CourseService {
             throw new RuntimeException("Modules must include INTRODUCTION, at least one LESSON, and CONCLUSION.");
         }
     }
+
 }

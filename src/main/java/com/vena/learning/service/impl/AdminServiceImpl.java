@@ -1,15 +1,22 @@
 package com.vena.learning.service.impl;
 
 import com.vena.learning.dto.responseDto.CourseResponse;
+import com.vena.learning.dto.responseDto.CourseStats;
+import com.vena.learning.dto.responseDto.InstructorStats;
+import com.vena.learning.dto.responseDto.StatisticsResponse;
 import com.vena.learning.dto.responseDto.UserResponse;
 import com.vena.learning.model.Course;
+import com.vena.learning.model.Enrollment;
 import com.vena.learning.model.Instructor;
+import com.vena.learning.model.Student;
 import com.vena.learning.model.User;
 import com.vena.learning.dto.requestDto.RegisterRequest;
 import com.vena.learning.model.Admin;
 import com.vena.learning.enums.Role;
 import com.vena.learning.repository.AdminRepository;
 import com.vena.learning.service.AdminService;
+import com.vena.learning.service.CourseService;
+import com.vena.learning.service.EnrollmentService;
 import com.vena.learning.service.InstructorService;
 import com.vena.learning.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,6 +39,11 @@ public class AdminServiceImpl implements AdminService {
     @Autowired
     private InstructorService instructorService;
 
+    @Autowired
+    private CourseService courseService;
+
+    @Autowired
+    private EnrollmentService enrollmentService;
 
     private List<UserResponse> mapToUserResponse(List<User> users) {
         return users.stream()
@@ -63,7 +76,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public boolean isExists(String email, String username) {
-        return adminRepository.existsByEmail(email) || adminRepository.existsByUsername(username);
+        return isExistsByEmail(email)|| isExistsByUsername(username);
     }
 
     @Override
@@ -127,12 +140,144 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public String getInstitutionByAdminId(String adminId) {
-        Admin admin = adminRepository.findById(adminId).orElseThrow(
-                () -> new RuntimeException("Admin not found with id: " + adminId)
-        );
+        Admin admin = getAdminById(adminId);
         return admin.getInstitution();
     }
 
+    @Override
+    public void deleteUser(String adminID, String userId) {
+        Optional<Student> studentOpt = studentService.findById(userId);
+        Optional<Instructor> instructorOpt = instructorService.findById(userId);
 
+        String institution = getInstitutionByAdminId(adminID);
 
+        if (studentOpt.isPresent() && studentOpt.get().getInstitution().equalsIgnoreCase(institution)) {
+            studentService.deleteStudent(userId);
+            return;
+        }
+        else if (instructorOpt.isPresent() && instructorOpt.get().getInstitution().equalsIgnoreCase(institution)) {
+            instructorService.deleteInstructor(userId);
+            return;
+        }
+        else {
+            throw new UnsupportedOperationException("You are not authorized to delete this user");
+        }
+    }
+
+    @Override
+    public void deleteCourse(String adminId,String courseId) {
+        Course course = courseService.getCourseById(courseId);
+        if(course.isDeleted()){
+            throw new RuntimeException("Course already deleted");
+        }
+        Instructor instructor = course.getInstructor();
+
+        String instructorInstitution = instructor.getInstitution();
+        String adminInstitution = getInstitutionByAdminId(adminId);
+
+        if (!instructorInstitution.equalsIgnoreCase(adminInstitution)) {
+            throw new UnsupportedOperationException("You are not authorized to delete this course");
+        }
+        course.setDeleted(true);
+        courseService.addCourse(course);
+    }
+
+    @Override
+    public void approveCourse(String courseId, String adminId) {
+        Course course = courseService.getCourseById(courseId);
+        if(course.isApproved()){
+            throw new RuntimeException("Course already approved");
+        }
+        Instructor instructor = course.getInstructor();
+        if (instructor == null) {
+            throw new RuntimeException("Instructor not found for this course");
+        }
+        String instructorInstitution = instructor.getInstitution();
+        String adminInstitution = getInstitutionByAdminId(adminId);
+
+        if (!instructorInstitution.equalsIgnoreCase(adminInstitution)) {
+            throw new UnsupportedOperationException("You are not authorized to approve this course");
+        }
+        course.setApproved(true);
+        courseService.addCourse(course);
+    }
+
+    @Override
+    public StatisticsResponse getStatistics(String adminId) {
+        List<Student> students = studentService.getAllStudents();
+        List<Instructor> instructors = instructorService.getAllInstructors();
+
+        List<Course> courses = instructors.stream().flatMap(instructor -> instructor.getCourses().stream())
+                .toList();
+        List<Enrollment> enrollments = courses.stream().flatMap(course -> course.getEnrollments().stream())
+                .toList();
+
+        long totalStudents = students.size();
+        long totalInstructors = instructors.size();
+        long totalCourses = courses.size();
+        long approvedCourses = courses.stream().filter(Course::isApproved).count();
+        long pendingCourses = totalCourses - approvedCourses;
+        long totalEnrollments = enrollments.size();
+        long completedEnrollments = enrollments.stream().filter(Enrollment::getIsCompleted).count();
+
+        List<InstructorStats> instructorStatsList = instructors.stream().map(instructor -> {
+            List<Course> instructorCourses = courses.stream()
+                    .filter(c -> c.getInstructor() != null && c.getInstructor().getId().equals(instructor.getId()))
+                    .collect(Collectors.toList());
+
+            List<CourseStats> courseStats = instructorCourses.stream().map(course -> {
+                List<Enrollment> courseEnrollments = enrollments.stream()
+                        .filter(e -> e.getCourse().getId().equals(course.getId()))
+                        .collect(Collectors.toList());
+
+                int courseCompletedEnrollments = (int) courseEnrollments.stream().filter(Enrollment::getIsCompleted).count();
+
+                double avgProgress = courseEnrollments.stream()
+                        .filter(e -> e.getProgress() != null)
+                        .mapToDouble(Enrollment::getProgress)
+                        .average()
+                        .orElse(0.0);
+
+                return mapToCourseStats(course.getId(), course.getTitle(), course.isApproved(), courseEnrollments.size(), courseCompletedEnrollments, avgProgress);
+            }).toList();
+
+            return mapToInstructorResponse(instructor.getId(), instructor.getName(), instructorCourses.size(), courseStats);
+        }).toList();
+
+        return mapToStatisticsResponse(totalStudents, totalInstructors, totalCourses, approvedCourses, pendingCourses, totalEnrollments, completedEnrollments, instructorStatsList);
+   }
+
+    private StatisticsResponse mapToStatisticsResponse(long totalStudents, long totalInstructors, long totalCourses, long approvedCourses, long pendingCourses, long totalEnrollments, long completedEnrollments, List<InstructorStats> instructors) {
+        StatisticsResponse response = new StatisticsResponse();
+        response.setTotalUsers(totalStudents + totalInstructors);
+        response.setTotalStudents(totalStudents);
+        response.setTotalInstructors(totalInstructors);
+        response.setTotalCourses(totalCourses);
+        response.setApprovedCourses(approvedCourses);
+        response.setPendingCourses(pendingCourses);
+        response.setTotalEnrollments(totalEnrollments);
+        response.setCompletedEnrollments(completedEnrollments);
+        response.setInstructors(instructors);
+        return response;
+    }
+
+    private InstructorStats mapToInstructorResponse(String instructorId, String instructorName, int totalCourses, List<CourseStats> courseStats) {
+        InstructorStats instructorDto = new InstructorStats();
+        instructorDto.setInstructorId(instructorId);
+        instructorDto.setInstructorName(instructorName);
+        instructorDto.setTotalCourses(totalCourses);
+        instructorDto.setCourses(courseStats);
+        return instructorDto;
+    }
+
+    private CourseStats mapToCourseStats(String courseId, String courseName, boolean isApproved, int totalEnrollments, int completedEnrollments, double avgProgress) {
+        CourseStats courseDto = new CourseStats();
+        courseDto.setCourseId(courseId);
+        courseDto.setTitle(courseName);
+        courseDto.setApproved(isApproved);
+        courseDto.setTotalEnrollments(totalEnrollments);
+        courseDto.setCompletedEnrollments(completedEnrollments);
+        courseDto.setAverageProgress(avgProgress);
+        return courseDto;
+    }
 }

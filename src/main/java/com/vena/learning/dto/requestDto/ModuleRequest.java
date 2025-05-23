@@ -11,4 +11,3 @@ public class ModuleRequest {
     private String content;
     private Type type;
 }
-

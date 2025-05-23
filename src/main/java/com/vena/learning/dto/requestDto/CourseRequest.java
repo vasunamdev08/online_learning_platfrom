@@ -10,4 +10,3 @@ public class CourseRequest {
     private String instructorId;
     private List<ModuleRequest> modules;
 }
-

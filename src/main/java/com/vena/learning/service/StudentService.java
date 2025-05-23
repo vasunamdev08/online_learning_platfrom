@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public interface StudentService {
@@ -25,4 +26,10 @@ public interface StudentService {
     List<Course> getStudentCources(String studentId);
 
     List<Student> getAllStudentByInstitute(String institution);
+
+    void deleteStudent(String userId);
+
+    Optional<Student> findById(String adminID);
+
+    List<Student> getAllStudents();
 }
