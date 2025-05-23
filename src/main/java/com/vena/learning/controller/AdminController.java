@@ -1,10 +1,7 @@
 package com.vena.learning.controller;
 
-import com.vena.learning.dto.requestDto.RoleUpdateRequest;
 import com.vena.learning.dto.responseDto.CourseResponse;
 import com.vena.learning.dto.responseDto.UserResponse;
-import com.vena.learning.model.Course;
-import com.vena.learning.model.User;
 import com.vena.learning.service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -36,10 +34,22 @@ public class AdminController {
         return new ResponseEntity<>(courses,HttpStatus.OK);
     }
 
-    @DeleteMapping("/deleteUser/{userId}")
-    public ResponseEntity<?> deleteUser(@PathVariable String userId){
-        adminService.deleteUser(userId);
+    @DeleteMapping("/{adminId}/delete/user/{userId}")
+    public ResponseEntity<?> deleteUser(@PathVariable String adminId, @PathVariable String userId){
+        adminService.deleteUser(adminId,userId);
         return new ResponseEntity<>("User deleted successfully",HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{adminId}/delete/course/{courseId}")
+    public ResponseEntity<?> deleteCourse(@PathVariable String adminId,@PathVariable String courseId){
+        adminService.deleteCourse(courseId,adminId);
+        return new ResponseEntity<>("Course deleted successfully",HttpStatus.OK);
+    }
+
+    @PutMapping("/{adminId}/approve/course/{courseId}")
+    public ResponseEntity<?> approveCourse(@PathVariable String adminId,@PathVariable String courseId){
+       adminService.approveCourse(courseId,adminId);
+        return new ResponseEntity<>("Course approved successfully",HttpStatus.OK);
     }
 
 
