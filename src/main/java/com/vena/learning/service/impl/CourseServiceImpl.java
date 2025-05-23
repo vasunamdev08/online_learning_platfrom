@@ -15,6 +15,14 @@ public class CourseServiceImpl implements CourseService {
     private CourseRepository courseRepository;
 
     @Override
+    public Course addCourse(Course course) {
+        if (course.getTitle() == null || course.getDescription() == null || course.getInstructor() == null) {
+            throw new RuntimeException("Course details are incomplete");
+        }
+        return courseRepository.save(course);
+    }
+
+    @Override
     public List<Course> getApprovedCourses() {
         return courseRepository.getAllApprovedCourses().orElseThrow(
                 () -> new RuntimeException("No approved courses found")
@@ -27,4 +35,5 @@ public class CourseServiceImpl implements CourseService {
                 () -> new RuntimeException("Course not found with id: " + id)
         );
     }
+
 }

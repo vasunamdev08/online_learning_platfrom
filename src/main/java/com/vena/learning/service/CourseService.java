@@ -9,4 +9,6 @@ import java.util.Optional;
 public interface CourseService {
     List<Course> getApprovedCourses();
     Course getCourseById(String id);
+
+    Course addCourse(Course course);
 }
