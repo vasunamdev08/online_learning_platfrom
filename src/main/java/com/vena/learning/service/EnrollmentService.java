@@ -1,7 +1,22 @@
 package com.vena.learning.service;
 
-import com.vena.learning.dto.EnrollmentRequestDTO;
+import com.vena.learning.dto.requestDto.EnrollmentRequest;
+import com.vena.learning.model.Course;
+import com.vena.learning.model.Enrollment;
+import com.vena.learning.model.Student;
+import org.springframework.stereotype.Service;
 
+import java.util.List;
+
+@Service
 public interface EnrollmentService {
-    public String enrollStudent(String courseId, EnrollmentRequestDTO enrollmentRequestDTO);
+
+    boolean isEnrolled(String studentId, String courseId);
+    boolean isExists(String studentId, String courseId);
+
+    void unenrollStudent(EnrollmentRequest enrollmentRequest);
+    void enrollStudent(EnrollmentRequest enrollmentRequest);
+    void addEnrollment(Student student, Course course);
+
+    Enrollment getCourseDetailsByIds(String studentId, String courseId);
 }

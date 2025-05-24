@@ -1,7 +1,7 @@
 package com.vena.learning.model;
 
 
-import com.vena.learning.model.enums.Role;
+import com.vena.learning.enums.Role;
 import jakarta.persistence.Column;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
