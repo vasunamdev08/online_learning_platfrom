@@ -1,7 +1,7 @@
 package com.vena.learning.controller;
 
 import com.vena.learning.dto.requestDto.EnrollmentRequest;
-import com.vena.learning.dto.responseDto.StudentResponse;
+import com.vena.learning.dto.responseDto.UserResponse;
 import com.vena.learning.model.Course;
 import com.vena.learning.model.Enrollment;
 import com.vena.learning.model.Module;
@@ -66,9 +66,9 @@ public class StudentController {
         return ResponseEntity.ok(module);
     }
 
-    @GetMapping("/profile/{studentId}")
+    @GetMapping("/{studentId}/profile")
     public ResponseEntity<?> getStudentProfile(@PathVariable String studentId) {
-        StudentResponse student = studentService.getStudentProfile(studentId);
+        UserResponse student = studentService.getStudentProfile(studentId);
         return ResponseEntity.ok(student);
     }
 }

@@ -1,7 +1,7 @@
 package com.vena.learning.service;
 
 import com.vena.learning.dto.requestDto.RegisterRequest;
-import com.vena.learning.dto.responseDto.StudentResponse;
+import com.vena.learning.dto.responseDto.UserResponse;
 import com.vena.learning.model.Course;
 import com.vena.learning.model.Student;
 import org.springframework.stereotype.Service;
@@ -32,5 +32,5 @@ public interface StudentService {
 
     List<Student> getAllStudents();
 
-    StudentResponse getStudentProfile(String studentId);
+    UserResponse getStudentProfile(String studentId);
 }
