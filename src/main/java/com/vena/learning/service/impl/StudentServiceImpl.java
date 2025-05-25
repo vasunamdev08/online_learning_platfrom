@@ -1,6 +1,6 @@
 package com.vena.learning.service.impl;
 
-import com.vena.learning.dto.RegisterRequest;
+import com.vena.learning.dto.requestDto.RegisterRequest;
 import com.vena.learning.model.Course;
 import com.vena.learning.model.Enrollment;
 import com.vena.learning.model.Student;
@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,8 +41,18 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
+    public boolean isExistsByUsername(String username) {
+        return studentRepository.existsByUsername(username);
+    }
+
+    @Override
+    public boolean isExistsByEmail(String email) {
+        return studentRepository.existsByEmail(email);
+    }
+
+    @Override
     public boolean isStudentExist(String email, String username) {
-        return getStudentByEmail(email) !=null || getStudentByUsername(username)!=null;
+        return isExistsByEmail(email) || isExistsByUsername(username);
     }
 
     @Override
@@ -75,5 +86,26 @@ public class StudentServiceImpl implements StudentService {
             throw new RuntimeException("No courses found for student with id: " + studentId);
         }
         return courses;
+    }
+
+    @Override
+    public List<Student> getAllStudentByInstitute(String institution){
+        return studentRepository.findByInstitution(institution).orElseThrow(()-> new RuntimeException("Student not found"));
+    }
+
+    @Override
+    public void deleteStudent(String userId) {
+        Student student = getStudentById(userId);
+        studentRepository.delete(student);
+    }
+
+    @Override
+    public Optional<Student> findById(String userId) {
+        return studentRepository.findById(userId);
+    }
+
+    @Override
+    public List<Student> getAllStudents() {
+        return studentRepository.findAll();
     }
 }

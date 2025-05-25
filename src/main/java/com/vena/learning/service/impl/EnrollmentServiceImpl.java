@@ -1,6 +1,6 @@
 package com.vena.learning.service.impl;
 
-import com.vena.learning.dto.EnrollmentRequestDto;
+import com.vena.learning.dto.requestDto.EnrollmentRequest;
 import com.vena.learning.model.Course;
 import com.vena.learning.model.Enrollment;
 import com.vena.learning.model.Student;
@@ -12,6 +12,8 @@ import com.vena.learning.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class EnrollmentServiceImpl implements EnrollmentService {
     @Autowired
@@ -22,9 +24,9 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     private EnrollmentRepository enrollmentRepository;
 
     @Override
-    public void enrollStudent(EnrollmentRequestDto enrollmentRequestDto) {
-        String studentId = enrollmentRequestDto.getStudentId();
-        String courseId = enrollmentRequestDto.getCourseId();
+    public void enrollStudent(EnrollmentRequest enrollmentRequest) {
+        String studentId = enrollmentRequest.getStudentId();
+        String courseId = enrollmentRequest.getCourseId();
         if(isEnrolled(studentId, courseId)) {
             throw new RuntimeException("Student is already enrolled in the course");
         }
@@ -49,9 +51,9 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     }
 
     @Override
-    public void unenrollStudent(EnrollmentRequestDto enrollmentRequestDto) {
-        String studentId = enrollmentRequestDto.getStudentId();
-        String courseId = enrollmentRequestDto.getCourseId();
+    public void unenrollStudent(EnrollmentRequest enrollmentRequest) {
+        String studentId = enrollmentRequest.getStudentId();
+        String courseId = enrollmentRequest.getCourseId();
         if(!isEnrolled(studentId, courseId)) {
             throw new RuntimeException("Student is not enrolled in the course");
         }
@@ -65,7 +67,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
     @Override
     public boolean isEnrolled(String studentId, String courseId) {
-        return enrollmentRepository.isEnrolledByStudentIdAndCourseId(studentId, courseId);
+        return enrollmentRepository.existsByStudentIdAndCourseIdAndIsEnrolledTrue(studentId, courseId);
     }
 
     @Override

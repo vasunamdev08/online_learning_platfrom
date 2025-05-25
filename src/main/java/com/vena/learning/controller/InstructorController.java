@@ -6,26 +6,30 @@ import com.vena.learning.dto.UpdateCourseDTO;
 import com.vena.learning.service.InstructorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/instructor")
+@RequestMapping("/instructor/courses")
 @RequiredArgsConstructor
+@Validated
 public class InstructorController {
 
     private final InstructorService instructorService;
 
     @GetMapping("/courses")
-    public List<CourseDTO> getInstructorCourses(@RequestParam String instructorId) {
-        return instructorService.getCoursesByInstructor(instructorId);
+    public ResponseEntity<List<CourseDTO>> getInstructorCourses(@RequestParam String instructorId) {
+        List<CourseDTO> courses = instructorService.getCoursesByInstructor(instructorId);
+        return ResponseEntity.ok(courses);
     }
 
     @PostMapping("/courses")
-    public CourseDTO createCourse(@RequestBody CreateCourseDTO courseDTO,
-                                  @RequestParam String instructorId) {
-        return instructorService.createCourse(courseDTO, instructorId);
+    public ResponseEntity<CourseDTO> createCourse(@RequestBody CreateCourseDTO courseDTO,
+                                                  @RequestParam String instructorId) {
+        CourseDTO createdCourse = instructorService.createCourse(courseDTO, instructorId);
+        return ResponseEntity.ok(createdCourse);
     }
 
     @PutMapping("/courses/{courseId}")
@@ -35,4 +39,3 @@ public class InstructorController {
         return ResponseEntity.ok("Course updated successfully");
     }
 }
-

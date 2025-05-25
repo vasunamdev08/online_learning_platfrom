@@ -1,6 +1,7 @@
 package com.vena.learning.repository;
 
 import com.vena.learning.model.Course;
+import com.vena.learning.model.Instructor;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -13,5 +14,8 @@ public interface CourseRepository extends JpaRepository<Course,String> {
     @Query(nativeQuery = true, value = "SELECT * FROM course WHERE is_approved = true")
     Optional<List<Course>> getAllApprovedCourses();
     List<Course> findALLByInstructorId(String instructorId);
+    Optional<List<Course>> getCoursesByInstructorId(String instructorId);
+
+    boolean existsByTitleAndInstructor(String title, Instructor instructor);
 }
 
