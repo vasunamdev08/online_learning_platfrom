@@ -1,12 +1,15 @@
 package com.vena.learning.service.impl;
 
-import com.vena.learning.dto.CourseDTO;
-import com.vena.learning.dto.CreateCourseDTO;
-import com.vena.learning.dto.UpdateCourseDTO;
+import com.vena.learning.dto.requestDto.CreateCourseDTO;
+import com.vena.learning.dto.requestDto.GradeUpdateRequest;
+import com.vena.learning.dto.requestDto.UpdateCourseDTO;
+import com.vena.learning.dto.responseDto.CourseResponse;
+import com.vena.learning.dto.responseDto.UserResponse;
 import com.vena.learning.model.Course;
+import com.vena.learning.model.Enrollment;
 import com.vena.learning.repository.CourseRepository;
+import com.vena.learning.repository.EnrollmentRepository;
 import com.vena.learning.repository.UserRepository;
-import com.vena.learning.dto.RegisterRequest;
 import com.vena.learning.dto.requestDto.RegisterRequest;
 import com.vena.learning.model.Instructor;
 import com.vena.learning.enums.Role;
@@ -18,7 +21,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import java.util.List;
+
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -28,40 +31,42 @@ public class InstructorServiceImpl implements InstructorService {
 
     @Autowired
     private InstructorRepository instructorRepository;
+    @Autowired
     private final CourseRepository courseRepository;
+    @Autowired
     private final UserRepository userRepository;
 
     @Override
-    public Instructor getInstructorById(String id) {
-        return instructorRepository.findById(id).orElseThrow(
+    public Optional<Instructor> getInstructorById(String id) {
+        return Optional.ofNullable(instructorRepository.findById(id).orElseThrow(
                 () -> new RuntimeException("Instructor not found with id: " + id)
-        );
+        ));
     }
 
     @Override
-    public Instructor getInstructorByUsername(String username) {
-        return instructorRepository.findByUsername(username).orElseThrow(
+    public Optional<Instructor> getInstructorByUsername(String username) {
+        return Optional.ofNullable(instructorRepository.findByUsername(username).orElseThrow(
                 () -> new RuntimeException("Instructor not found with username: " + username)
-        );
+        ));
     }
 
     @Override
-    public Instructor getInstructorByEmail(String email) {
-        return instructorRepository.getInstructorByEmail(email).orElseThrow(
+    public Optional<Instructor> getInstructorByEmail(String email) {
+        return Optional.ofNullable(instructorRepository.getInstructorByEmail(email).orElseThrow(
                 () -> new RuntimeException("Instructor not found with email: " + email)
-        );
+        ));
     }
 
-    public List<CourseDTO> getCoursesByInstructor(String instructorId) {
+    public List<CourseResponse> getCoursesByInstructor(String instructorId) {
         List<Course> allByInstructorId = courseRepository.findALLByInstructorId(instructorId);
         return allByInstructorId.stream()
-                .map(CourseDTO::new) // assuming such a constructor exists
+                .map(CourseResponse::new) // assuming such a constructor exists
                 .collect(Collectors.toList());
     }
 
 
     @Override
-    public CourseDTO createCourse(CreateCourseDTO courseDTO, String instructorId) {
+    public CourseResponse createCourse(CreateCourseDTO courseDTO, String instructorId) {
         Course course = new Course();
         course.setId(UUID.randomUUID().toString());
         course.setTitle(courseDTO.getTitle());
@@ -73,8 +78,8 @@ public class InstructorServiceImpl implements InstructorService {
     }
 
 
-    private CourseDTO mapToDTO(Course course) {
-            CourseDTO dto = new CourseDTO(course);
+    private CourseResponse mapToDTO(Course course) {
+            CourseResponse dto = new CourseResponse(course);
         return dto;
     }
 
@@ -121,7 +126,7 @@ public class InstructorServiceImpl implements InstructorService {
     }
     @Override
     public void deleteInstructor(String userId) {
-        Instructor instructor = getInstructorById(userId);
+        Optional<Instructor> instructor = getInstructorById(userId);
         instructorRepository.delete(instructor);
     }
 
@@ -146,4 +151,38 @@ public class InstructorServiceImpl implements InstructorService {
         courseRepository.save(course);
     }
 
+    @Override
+    public void deleteCourse(String courseId) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new RuntimeException("Course not found with ID: " + courseId));
+
+        if (course.isDeleted()) {
+            throw new RuntimeException("Course is already deleted");
+        }
+
+        course.setDeleted(true); // Soft delete
+        courseRepository.save(course);
+    }
+
+    @Autowired
+    private EnrollmentRepository enrollmentRepository;
+
+    @Override
+    public List<UserResponse> getStudentsByCourseId(String courseId) {
+        List<Enrollment> enrollments = enrollmentRepository.findByCourseId(courseId);
+        return enrollments.stream()
+                .map(Enrollment::getStudent)
+                .map(UserResponse::new)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void updateStudentGrade(String courseId, GradeUpdateRequest gradeRequest) {
+        Enrollment enrollment = enrollmentRepository
+                .findByStudentIdAndCourseId(gradeRequest.getStudentId(), courseId)
+                .orElseThrow(() -> new RuntimeException("Enrollment not found for student and course"));
+
+        enrollment.setGrade(gradeRequest.getGrade());
+        enrollmentRepository.save(enrollment);
+    }
 }

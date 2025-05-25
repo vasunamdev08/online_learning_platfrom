@@ -1,9 +1,11 @@
 package com.vena.learning.service;
 
-import com.vena.learning.dto.CourseDTO;
-import com.vena.learning.dto.CreateCourseDTO;
-import com.vena.learning.dto.UpdateCourseDTO;
+import com.vena.learning.dto.requestDto.CreateCourseDTO;
+import com.vena.learning.dto.requestDto.GradeUpdateRequest;
+import com.vena.learning.dto.requestDto.UpdateCourseDTO;
 import com.vena.learning.dto.requestDto.RegisterRequest;
+import com.vena.learning.dto.responseDto.CourseResponse;
+import com.vena.learning.dto.responseDto.UserResponse;
 import com.vena.learning.model.Instructor;
 import org.springframework.stereotype.Service;
 
@@ -12,20 +14,17 @@ import java.util.Optional;
 
 @Service
 public interface InstructorService {
-    List<CourseDTO> getCoursesByInstructor(String instructorId);
+    List<CourseResponse> getCoursesByInstructor(String instructorId);
 
     void registerInstructor(RegisterRequest instructorRequest);
     void saveInstructor(RegisterRequest instructorRequest);
 
-    CourseDTO createCourse(CreateCourseDTO courseDTO, String instructorId);
+    CourseResponse createCourse(CreateCourseDTO courseResponse, String instructorId);
     boolean isExist(String email,String username);
     Optional<Instructor> getInstructorByEmail(String email);
     Optional<Instructor> getInstructorByUsername(String username);
     Optional<Instructor> getInstructorById(String id);
     void updateCourse(String courseId, UpdateCourseDTO updateDTO);
-    Instructor getInstructorByEmail(String email);
-    Instructor getInstructorByUsername(String username);
-    Instructor getInstructorById(String id);
 
     List<Instructor> getAllInstructorByInstitute(String institution);
     boolean isExistsByEmail(String email);
@@ -35,8 +34,13 @@ public interface InstructorService {
 
     Optional<Instructor> findById(String userId);
 
-
     List<Instructor> getAllInstructors();
+
+    void deleteCourse(String courseId);
+
+    List<UserResponse> getStudentsByCourseId(String courseId);
+    void updateStudentGrade(String courseId, GradeUpdateRequest gradeRequest);
+
 }
 
 

@@ -1,12 +1,9 @@
 package com.vena.learning.repository;
 
-import com.vena.learning.model.User;
+import com.vena.learning.model.Choice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, String> {
-    // Custom queries if needed
+public interface ChoiceRepository extends JpaRepository<Choice, String> {
 }
-
-
