@@ -1,11 +1,13 @@
 package com.vena.learning.controller;
 
 import com.vena.learning.dto.requestDto.EnrollmentRequest;
+import com.vena.learning.dto.requestDto.QuizSubmissionRequest;
 import com.vena.learning.model.Course;
 import com.vena.learning.model.Enrollment;
 import com.vena.learning.model.Module;
 import com.vena.learning.service.EnrollmentService;
 import com.vena.learning.service.ModuleService;
+import com.vena.learning.service.QuizAttemptService;
 import com.vena.learning.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/students")
@@ -26,6 +29,8 @@ public class StudentController {
     private EnrollmentService enrollmentService;
     @Autowired
     private ModuleService moduleService;
+    @Autowired
+    private QuizAttemptService quizAttemptService;
 
     /*
     we can use this endpoint to get all courses that a student is enrolled in after logging in.
@@ -65,4 +70,10 @@ public class StudentController {
         return ResponseEntity.ok(module);
     }
 
+    //update the number of attempts and for the first time set the score.
+    @PostMapping("/{studentId}/courses/{courseId}/quizzes/{quizId}/submit")
+    public ResponseEntity<?> submitQuiz(@PathVariable String studentId, @PathVariable String courseId, @PathVariable String quizId, @RequestBody QuizSubmissionRequest request) {
+        quizAttemptService.submitQuiz(studentId, courseId, quizId, request);
+        return ResponseEntity.ok("Quiz submitted");
+    }
 }
