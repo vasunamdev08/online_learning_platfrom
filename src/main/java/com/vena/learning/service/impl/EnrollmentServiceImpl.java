@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class EnrollmentServiceImpl implements EnrollmentService {
@@ -82,4 +83,8 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         );
     }
 
+    @Override
+    public Optional<Grade> getGradeByCourse(String studentId, String courseId) {
+        return enrollmentRepository.findByStudentIdAndCourseId(studentId, courseId).map(Enrollment::getGrade);
+    }
 }

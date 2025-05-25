@@ -1,6 +1,7 @@
 package com.vena.learning.controller;
 
 import com.vena.learning.dto.requestDto.EnrollmentRequest;
+import com.vena.learning.enums.Grade;
 import com.vena.learning.model.Course;
 import com.vena.learning.model.Enrollment;
 import com.vena.learning.model.Module;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/students")
@@ -65,4 +67,11 @@ public class StudentController {
         return ResponseEntity.ok(module);
     }
 
+    @GetMapping("/{studentId}/courses/{courseId}/grade")
+    public ResponseEntity<?> getGrades(@PathVariable String studentId, @PathVariable String courseId) {
+        Optional<Grade> grade = enrollmentService.getGradeByCourse(studentId, courseId);
+
+        return grade.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
 }

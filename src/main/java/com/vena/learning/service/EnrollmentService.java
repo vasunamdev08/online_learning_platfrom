@@ -1,12 +1,13 @@
 package com.vena.learning.service;
 
 import com.vena.learning.dto.requestDto.EnrollmentRequest;
+import com.vena.learning.enums.Grade;
 import com.vena.learning.model.Course;
 import com.vena.learning.model.Enrollment;
 import com.vena.learning.model.Student;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.Optional;
 
 @Service
 public interface EnrollmentService {
@@ -19,4 +20,5 @@ public interface EnrollmentService {
     void addEnrollment(Student student, Course course);
 
     Enrollment getCourseDetailsByIds(String studentId, String courseId);
+    Optional<Grade> getGradeByCourse(String studentId, String courseId);
 }
