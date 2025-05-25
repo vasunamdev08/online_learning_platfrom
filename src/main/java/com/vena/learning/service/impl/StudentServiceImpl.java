@@ -2,7 +2,6 @@ package com.vena.learning.service.impl;
 
 import com.vena.learning.dto.requestDto.RegisterRequest;
 import com.vena.learning.dto.responseDto.StudentResponse;
-import com.vena.learning.dto.responseDto.UserResponse;
 import com.vena.learning.model.Course;
 import com.vena.learning.model.Enrollment;
 import com.vena.learning.model.Student;
