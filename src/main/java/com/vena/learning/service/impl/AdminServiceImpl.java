@@ -118,10 +118,10 @@ public class AdminServiceImpl implements AdminService {
         }
 
         List<Instructor> instructors= instructorService.getAllInstructorByInstitute(institution);
-        List<Course> collect = instructors.stream()
+        List<Course> courses = instructors.stream()
                 .flatMap(instructor -> instructor.getCourses().stream())
                 .collect(Collectors.toList());
-        return collect.stream()
+        return courses.stream()
                 .map(CourseResponse::new)
                 .collect(Collectors.toList());
     }
