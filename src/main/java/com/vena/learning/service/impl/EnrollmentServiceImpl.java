@@ -85,6 +85,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
     @Override
     public Optional<Grade> getGradeByCourse(String studentId, String courseId) {
-        return enrollmentRepository.findByStudentIdAndCourseId(studentId, courseId).map(Enrollment::getGrade);
+        Enrollment enrollment = getCourseDetailsByIds(studentId, courseId);
+        return Optional.ofNullable(enrollment.getGrade());
     }
 }
