@@ -13,15 +13,14 @@ public interface InstructorService {
     void registerInstructor(RegisterRequest instructorRequest);
     void saveInstructor(RegisterRequest instructorRequest);
 
+    boolean isExist(String email,String username);
     Instructor getInstructorByEmail(String email);
     Instructor getInstructorByUsername(String username);
     Instructor getInstructorById(String id);
 
-    boolean isExist(String email,String username);
+    List<Instructor> getAllInstructorByInstitute(String institution);
     boolean isExistsByEmail(String email);
     boolean isExistsByUsername(String username);
-
-    List<Instructor> getAllInstructorByInstitute(String institution);
 
     void deleteInstructor(String userId);
 
