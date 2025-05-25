@@ -1,6 +1,7 @@
 package com.vena.learning.service;
 
 import com.vena.learning.dto.requestDto.RegisterRequest;
+import com.vena.learning.dto.responseDto.StudentResponse;
 import com.vena.learning.model.Course;
 import com.vena.learning.model.Student;
 import com.vena.learning.model.User;
@@ -32,4 +33,6 @@ public interface StudentService {
     Optional<Student> findById(String adminID);
 
     List<Student> getAllStudents();
+
+    StudentResponse getStudentProfile(String studentId);
 }
