@@ -108,4 +108,14 @@ public class StudentServiceImpl implements StudentService {
     public List<Student> getAllStudents() {
         return studentRepository.findAll();
     }
+
+    @Override
+    public Student updateStudentProfile(String studentId, RegisterRequest request) {
+        Student student = studentRepository.findById(studentId).orElseThrow(() -> new RuntimeException("Student not found"));
+        student.setName(request.getName());
+        student.setEmail(request.getEmail());
+        student.setInstitution(request.getInstitution());
+        student.setPassword(request.getPassword());
+        return studentRepository.save(student);
+    }
 }

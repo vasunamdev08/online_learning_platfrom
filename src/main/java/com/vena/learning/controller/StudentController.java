@@ -1,9 +1,11 @@
 package com.vena.learning.controller;
 
 import com.vena.learning.dto.requestDto.EnrollmentRequest;
+import com.vena.learning.dto.requestDto.RegisterRequest;
 import com.vena.learning.model.Course;
 import com.vena.learning.model.Enrollment;
 import com.vena.learning.model.Module;
+import com.vena.learning.model.Student;
 import com.vena.learning.service.EnrollmentService;
 import com.vena.learning.service.ModuleService;
 import com.vena.learning.service.StudentService;
@@ -12,8 +14,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
@@ -63,6 +67,12 @@ public class StudentController {
     public ResponseEntity<?> getModuleById(@PathVariable String studentId, @PathVariable String courseId, @PathVariable String moduleId) {
         Module module = moduleService.getModuleById(studentId, courseId, moduleId);
         return ResponseEntity.ok(module);
+    }
+
+    @PutMapping("/profile")
+    public ResponseEntity<?> updateProfile(@RequestParam String studentId, @RequestBody RegisterRequest request) {
+        Student student = studentService.updateStudentProfile(studentId, request);
+        return ResponseEntity.ok(student);
     }
 
 }
