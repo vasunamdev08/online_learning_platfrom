@@ -1,9 +1,13 @@
 package com.vena.learning.service.impl;
 
+import com.vena.learning.dto.requestDto.CourseRequest;
 import com.vena.learning.dto.requestDto.RegisterRequest;
+import com.vena.learning.dto.responseDto.CourseResponse;
+import com.vena.learning.model.Course;
 import com.vena.learning.model.Instructor;
 import com.vena.learning.enums.Role;
 import com.vena.learning.repository.InstructorRepository;
+import com.vena.learning.service.CourseService;
 import com.vena.learning.service.InstructorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +20,8 @@ public class InstructorServiceImpl implements InstructorService {
 
     @Autowired
     private InstructorRepository instructorRepository;
+    @Autowired
+    private CourseService courseService;
 
     @Override
     public Instructor getInstructorById(String id) {
@@ -96,4 +102,12 @@ public class InstructorServiceImpl implements InstructorService {
         return instructorRepository.findAll();
     }
 
+    @Override
+    public CourseResponse createCourse(CourseRequest request) {
+        if (!instructorRepository.existsById(request.getInstructorId())) {
+            throw new RuntimeException("Instructor with ID " + request.getInstructorId() + " is not present");
+        }
+         Course course = courseService.addCourse(request);
+        return new CourseResponse(course);
+    }
 }
