@@ -69,9 +69,7 @@ public class StudentController {
 
     @GetMapping("/{studentId}/courses/{courseId}/grade")
     public ResponseEntity<?> getGrades(@PathVariable String studentId, @PathVariable String courseId) {
-        Optional<Grade> grade = enrollmentService.getGradeByCourse(studentId, courseId);
-
-        return grade.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        Grade grade = enrollmentService.getGradeByCourse(studentId, courseId);
+        return ResponseEntity.ok(grade);
     }
 }

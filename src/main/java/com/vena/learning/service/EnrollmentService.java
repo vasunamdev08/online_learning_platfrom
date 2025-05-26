@@ -7,8 +7,6 @@ import com.vena.learning.model.Enrollment;
 import com.vena.learning.model.Student;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Service
 public interface EnrollmentService {
 
@@ -20,5 +18,5 @@ public interface EnrollmentService {
     void addEnrollment(Student student, Course course);
 
     Enrollment getCourseDetailsByIds(String studentId, String courseId);
-    Optional<Grade> getGradeByCourse(String studentId, String courseId);
+    Grade getGradeByCourse(String studentId, String courseId);
 }
