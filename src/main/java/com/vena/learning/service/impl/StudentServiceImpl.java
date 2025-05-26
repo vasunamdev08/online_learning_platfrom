@@ -109,10 +109,4 @@ public class StudentServiceImpl implements StudentService {
     public List<Student> getAllStudents() {
         return studentRepository.findAll();
     }
-
-    @Override
-    public UserResponse getStudentProfile(String studentId) {
-        Student student = getStudentById(studentId);
-        return new UserResponse(student);
-    }
 }

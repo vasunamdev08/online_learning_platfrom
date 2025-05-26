@@ -68,7 +68,7 @@ public class StudentController {
 
     @GetMapping("/{studentId}/profile")
     public ResponseEntity<?> getStudentProfile(@PathVariable String studentId) {
-        UserResponse student = studentService.getStudentProfile(studentId);
+        UserResponse student = new UserResponse(studentService.getStudentById(studentId));
         return ResponseEntity.ok(student);
     }
 }

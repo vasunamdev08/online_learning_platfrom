@@ -31,6 +31,4 @@ public interface StudentService {
     Optional<Student> findById(String adminID);
 
     List<Student> getAllStudents();
-
-    UserResponse getStudentProfile(String studentId);
 }
