@@ -35,4 +35,10 @@ public interface AdminService {
     StatisticsResponse getStatistics(String adminId);
 
     CourseStatusResponse getCoursesByApprovalStatus(String adminId);
+
+    List<UserResponse> getAllStudentsByInstitution(String adminId);
+
+    List<UserResponse> getAllInstructorsByInstitution(String adminId);
+
+//    List<CourseResponse> getAllApprovedCoursesByInstitution(String adminId);
 }
