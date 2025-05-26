@@ -3,15 +3,13 @@ package com.vena.learning.dto.responseDto;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Map;
 
 @Data
 public class CourseStatusResponse {
-    private List<CourseResponse> allApprovedCourses;
-    private List<CourseResponse> allPendingCourses;
+    Map<String, List<CourseSummaryResponse>> courseStatusMap;
 
-    public CourseStatusResponse(){}
-    public CourseStatusResponse(List<CourseResponse> approved, List<CourseResponse> pending){
-        this.allApprovedCourses=approved;
-        this.allPendingCourses=pending;
+    public CourseStatusResponse(Map<String, List<CourseSummaryResponse>> courseStatusMap) {
+        this.courseStatusMap = courseStatusMap;
     }
 }
