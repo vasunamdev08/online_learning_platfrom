@@ -1,19 +1,19 @@
 package com.vena.learning.service.impl;
 
-import com.vena.learning.dto.requestDto.CreateCourseDTO;
+import com.vena.learning.dto.requestDto.CreateCourseRequest;
 import com.vena.learning.dto.requestDto.GradeUpdateRequest;
-import com.vena.learning.dto.requestDto.UpdateCourseDTO;
+import com.vena.learning.dto.requestDto.UpdateCourseRequest;
 import com.vena.learning.dto.responseDto.CourseResponse;
 import com.vena.learning.dto.responseDto.UserResponse;
 import com.vena.learning.model.Course;
 import com.vena.learning.model.Enrollment;
 import com.vena.learning.repository.CourseRepository;
 import com.vena.learning.repository.EnrollmentRepository;
-import com.vena.learning.repository.UserRepository;
 import com.vena.learning.dto.requestDto.RegisterRequest;
 import com.vena.learning.model.Instructor;
 import com.vena.learning.enums.Role;
 import com.vena.learning.repository.InstructorRepository;
+import com.vena.learning.service.CourseService;
 import com.vena.learning.service.InstructorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,51 +31,37 @@ public class InstructorServiceImpl implements InstructorService {
     @Autowired
     private InstructorRepository instructorRepository;
     @Autowired
-    private final CourseRepository courseRepository;
+    private CourseService courseService;
     @Autowired
-    private final UserRepository userRepository;
+    private final CourseRepository courseRepository;
 
     @Override
-    public Optional<Instructor> getInstructorById(String id) {
-        return Optional.ofNullable(instructorRepository.findById(id).orElseThrow(
-                () -> new RuntimeException("Instructor not found with id: " + id)
-        ));
+    public Instructor getInstructorById(String id) {
+        return instructorRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Instructor not found with id: " + id));
     }
 
     @Override
-    public Optional<Instructor> getInstructorByUsername(String username) {
-        return Optional.ofNullable(instructorRepository.findByUsername(username).orElseThrow(
-                () -> new RuntimeException("Instructor not found with username: " + username)
-        ));
+    public Instructor getInstructorByUsername(String username) {
+        return instructorRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Instructor not found with username: " + username));
     }
 
     @Override
-    public Optional<Instructor> getInstructorByEmail(String email) {
-        return Optional.ofNullable(instructorRepository.getInstructorByEmail(email).orElseThrow(
-                () -> new RuntimeException("Instructor not found with email: " + email)
-        ));
+    public Instructor getInstructorByEmail(String email) {
+        return instructorRepository.getInstructorByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Instructor not found with email: " + email));
     }
 
+    @Override
     public List<CourseResponse> getCoursesByInstructor(String instructorId) {
-        List<Course> allByInstructorId = courseRepository.findALLByInstructorId(instructorId);
-        return allByInstructorId.stream()
-                .map(CourseResponse::new) // assuming such a constructor exists
-                .collect(Collectors.toList());
+        return courseService.getCoursesByInstructorId(instructorId);
     }
-
 
     @Override
-    public CourseResponse createCourse(CreateCourseDTO courseDTO, String instructorId) {
-        Course course = new Course();
-        course.setId(UUID.randomUUID().toString());
-        course.setTitle(courseDTO.getTitle());
-        course.setDescription(courseDTO.getDescription());
-        course.setInstructorId(courseDTO.getInstructorId());
-
-        Course saved = courseRepository.save(course);
-        return mapToDTO(saved);
+    public CourseResponse createCourse(CreateCourseRequest courseDTO, String instructorId) {
+        return courseService.addCourseWithModules(courseDTO, instructorId);
     }
-
 
     private CourseResponse mapToDTO(Course course) {
             CourseResponse dto = new CourseResponse(course);
@@ -126,7 +111,7 @@ public class InstructorServiceImpl implements InstructorService {
     }
     @Override
     public void deleteInstructor(String userId) {
-        Optional<Instructor> instructor = getInstructorById(userId);
+        Instructor instructor = getInstructorById(userId);
         instructorRepository.delete(instructor);
     }
 
@@ -141,7 +126,7 @@ public class InstructorServiceImpl implements InstructorService {
     }
 
     @Override
-    public void updateCourse(String courseId, UpdateCourseDTO updateDTO) {
+    public void updateCourse(String courseId, UpdateCourseRequest updateDTO) {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new RuntimeException("Course not found"));
 

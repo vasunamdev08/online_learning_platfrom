@@ -1,6 +1,6 @@
 package com.vena.learning.model;
 
-import com.vena.learning.dto.requestDto.CourseRequest;
+import com.vena.learning.dto.requestDto.CreateCourseRequest;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -30,7 +30,7 @@ public class Course{
     private List<Enrollment> enrollments;
 
     @ManyToOne
-    @JoinColumn(name="instructorId")
+    @JoinColumn(name="instructor_id")
     private Instructor instructor;
 
     @OneToMany(mappedBy="course", cascade = CascadeType.ALL)
@@ -42,7 +42,7 @@ public class Course{
     public Course() {
     }
 
-    public Course(CourseRequest courseRequest) {
+    public Course(CreateCourseRequest courseRequest) {
         this.title = courseRequest.getTitle();
         this.description = courseRequest.getDescription();
         this.isApproved= false;

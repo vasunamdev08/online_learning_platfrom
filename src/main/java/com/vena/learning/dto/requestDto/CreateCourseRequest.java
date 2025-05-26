@@ -4,7 +4,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class CourseRequest {
+public class CreateCourseRequest {
     private String title;
     private String description;
     private String instructorId;

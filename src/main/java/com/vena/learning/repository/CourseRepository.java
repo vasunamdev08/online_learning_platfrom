@@ -13,9 +13,7 @@ import java.util.Optional;
 public interface CourseRepository extends JpaRepository<Course,String> {
     @Query(nativeQuery = true, value = "SELECT * FROM course WHERE is_approved = true")
     Optional<List<Course>> getAllApprovedCourses();
-    List<Course> findALLByInstructorId(String instructorId);
     Optional<List<Course>> getCoursesByInstructorId(String instructorId);
-
     boolean existsByTitleAndInstructor(String title, Instructor instructor);
 }
 

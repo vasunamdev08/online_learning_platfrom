@@ -1,6 +1,6 @@
 package com.vena.learning.service;
 
-import com.vena.learning.dto.requestDto.CourseRequest;
+import com.vena.learning.dto.requestDto.CreateCourseRequest;
 import com.vena.learning.dto.responseDto.CourseResponse;
 import com.vena.learning.model.Course;
 import org.springframework.stereotype.Service;
@@ -17,10 +17,10 @@ public interface CourseService {
     Course getCourseById(String id);
 
     // Add a course along with its modules and return a response DTO
-    CourseResponse addCourseWithModules(CourseRequest courseRequest);
+    CourseResponse addCourseWithModules(CreateCourseRequest courseRequest);
 
     // Add a course using a request DTO and return the entity
-    Course addCourse(CourseRequest courseRequest);
+    Course addCourse(CreateCourseRequest courseRequest);
 
     // Add a course using a Course entity (for internal use)
     Course addCourse(Course course);
@@ -30,4 +30,6 @@ public interface CourseService {
 
     // Get all courses by instructor ID
     List<CourseResponse> getCoursesByInstructorId(String instructorId);
+
+    CourseResponse addCourseWithModules(CreateCourseRequest courseDTO, String instructorId);
 }

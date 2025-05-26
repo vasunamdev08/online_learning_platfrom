@@ -1,32 +1,28 @@
 package com.vena.learning.controller;
 
 import com.vena.learning.dto.requestDto.CreateChoiceRequest;
-import com.vena.learning.dto.requestDto.CreateCourseDTO;
+import com.vena.learning.dto.requestDto.CreateCourseRequest;
 import com.vena.learning.dto.requestDto.CreateQuestionRequest;
 import com.vena.learning.dto.requestDto.CreateQuizRequest;
 import com.vena.learning.dto.requestDto.GradeUpdateRequest;
 import com.vena.learning.dto.requestDto.ModuleRequest;
 import com.vena.learning.dto.requestDto.ReorderModulesRequest;
-import com.vena.learning.dto.requestDto.UpdateCourseDTO;
+import com.vena.learning.dto.requestDto.UpdateCourseRequest;
 import com.vena.learning.dto.responseDto.CourseResponse;
 import com.vena.learning.dto.responseDto.UserResponse;
 import com.vena.learning.service.InstructorService;
 import com.vena.learning.service.ModuleService;
 import com.vena.learning.service.QuestionService;
 import com.vena.learning.service.QuizService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/instructor/courses")
-@RequiredArgsConstructor
-@Validated
+@RequestMapping("/instructor")
 public class InstructorController {
 
     @Autowired
@@ -38,7 +34,8 @@ public class InstructorController {
     @Autowired
     private QuestionService questionService;
 
-    private final InstructorService instructorService;
+    @Autowired
+    private InstructorService instructorService;
 
     @GetMapping("/courses")
     public ResponseEntity<List<CourseResponse>> getInstructorCourses(@RequestParam String instructorId) {
@@ -47,15 +44,15 @@ public class InstructorController {
     }
 
     @PostMapping("/courses")
-    public ResponseEntity<CourseResponse> createCourse(@RequestBody CreateCourseDTO courseDTO,
-                                                  @RequestParam String instructorId) {
-        CourseResponse createdCourse = instructorService.createCourse(courseDTO, instructorId);
+    public ResponseEntity<CourseResponse> createCourse(@RequestBody CreateCourseRequest courseDTO) {
+        CourseResponse createdCourse = instructorService.createCourse(courseDTO, courseDTO.getInstructorId());
         return ResponseEntity.ok(createdCourse);
     }
 
+
     @PutMapping("/courses/{courseId}")
     public ResponseEntity<String> updateCourse(@PathVariable String courseId,
-                                               @RequestBody UpdateCourseDTO updateDTO) {
+                                               @RequestBody UpdateCourseRequest updateDTO) {
         instructorService.updateCourse(courseId, updateDTO);
         return ResponseEntity.status(HttpStatus.OK).body("Course updated successfully");
     }

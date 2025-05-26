@@ -12,7 +12,6 @@ public class CourseResponse {
     private String description;
     private boolean isApproved;
     private boolean isComplete;
-    private boolean isDeleted;
     private String instructorName;
     private List<ModuleResponse> modules;
 
@@ -22,7 +21,6 @@ public class CourseResponse {
         this.description = course.getDescription();
         this.isApproved = course.isApproved();
         this.isComplete = course.isComplete();
-        this.isDeleted = course.isDeleted();
         this.instructorName = course.getInstructor().getName();
         this.modules = course.getModules().stream()
                 .map(ModuleResponse::new)

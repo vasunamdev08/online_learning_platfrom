@@ -1,6 +1,6 @@
 package com.vena.learning.service.impl;
 
-import com.vena.learning.dto.requestDto.CourseRequest;
+import com.vena.learning.dto.requestDto.CreateCourseRequest;
 import com.vena.learning.dto.requestDto.ModuleRequest;
 import com.vena.learning.dto.responseDto.CourseResponse;
 import com.vena.learning.enums.Type;
@@ -31,9 +31,8 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public Course addCourse(CourseRequest courseRequest) {
-        Instructor instructor = instructorService.getInstructorById(courseRequest.getInstructorId())
-                .orElseThrow(() -> new IllegalArgumentException("Instructor not found with ID: " + courseRequest.getInstructorId()));
+    public Course addCourse(CreateCourseRequest courseRequest) {
+        Instructor instructor = instructorService.getInstructorById(courseRequest.getInstructorId());
 
         Course course = new Course(courseRequest);
         course.setInstructor(instructor);
@@ -41,7 +40,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public CourseResponse addCourseWithModules(CourseRequest courseRequest) {
+    public CourseResponse addCourseWithModules(CreateCourseRequest courseRequest) {
         validateCourseRequest(courseRequest);
         Course savedCourse = addCourse(courseRequest);
         return new CourseResponse(savedCourse);
@@ -76,9 +75,17 @@ public class CourseServiceImpl implements CourseService {
                 .collect(Collectors.toList());
     }
 
-    // --- Private Helpers ---
+    @Override
+    public CourseResponse addCourseWithModules(CreateCourseRequest courseDTO, String instructorId) {
+        CreateCourseRequest courseRequest = new CreateCourseRequest();
+        courseRequest.setTitle(courseDTO.getTitle());
+        courseRequest.setDescription(courseDTO.getDescription());
+        courseRequest.setInstructorId(instructorId);
+        courseRequest.setModules(courseDTO.getModules());
+        return addCourseWithModules(courseRequest);
+    }
 
-    private void validateCourseRequest(CourseRequest course) {
+    private void validateCourseRequest(CreateCourseRequest course) {
         if (course.getTitle() == null || course.getTitle().isEmpty()) {
             throw new IllegalArgumentException("Course title cannot be empty");
         }
@@ -92,8 +99,7 @@ public class CourseServiceImpl implements CourseService {
             throw new IllegalArgumentException("Course must have at least 3 modules");
         }
 
-        Instructor instructor = instructorService.getInstructorById(course.getInstructorId())
-                .orElseThrow(() -> new IllegalArgumentException("Instructor not found with ID: " + course.getInstructorId()));
+        Instructor instructor = instructorService.getInstructorById(course.getInstructorId());
 
         boolean courseExists = courseRepository.existsByTitleAndInstructor(course.getTitle(), instructor);
         if (courseExists) {
@@ -102,6 +108,7 @@ public class CourseServiceImpl implements CourseService {
 
         validateModuleStructure(course.getModules());
     }
+
 
     private void validateModuleStructure(List<ModuleRequest> modules) {
         Set<Integer> sequences = new HashSet<>();
