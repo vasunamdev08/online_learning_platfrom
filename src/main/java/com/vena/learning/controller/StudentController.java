@@ -2,6 +2,7 @@ package com.vena.learning.controller;
 
 import com.vena.learning.dto.requestDto.EnrollmentRequest;
 import com.vena.learning.dto.responseDto.UserResponse;
+import com.vena.learning.enums.Grade;
 import com.vena.learning.model.Course;
 import com.vena.learning.model.Enrollment;
 import com.vena.learning.model.Module;
@@ -70,5 +71,10 @@ public class StudentController {
     public ResponseEntity<?> getStudentProfile(@PathVariable String studentId) {
         UserResponse student = new UserResponse(studentService.getStudentById(studentId));
         return ResponseEntity.ok(student);
+    }
+    @GetMapping("/{studentId}/courses/{courseId}/grade")
+    public ResponseEntity<?> getGrades(@PathVariable String studentId, @PathVariable String courseId) {
+        Grade grade = enrollmentService.getGradeByCourse(studentId, courseId);
+        return ResponseEntity.ok(grade);
     }
 }
