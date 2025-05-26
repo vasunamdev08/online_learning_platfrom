@@ -1,7 +1,5 @@
 package com.vena.learning.dto.responseDto;
 
-import com.vena.learning.model.Instructor;
-import com.vena.learning.model.Student;
 import com.vena.learning.model.User;
 import lombok.Data;
 
