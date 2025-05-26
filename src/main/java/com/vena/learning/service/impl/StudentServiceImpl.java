@@ -1,6 +1,7 @@
 package com.vena.learning.service.impl;
 
 import com.vena.learning.dto.requestDto.RegisterRequest;
+import com.vena.learning.dto.requestDto.StudentUpdateRequest;
 import com.vena.learning.dto.responseDto.UserResponse;
 import com.vena.learning.model.Course;
 import com.vena.learning.model.Enrollment;
@@ -111,8 +112,8 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public UserResponse updateStudentProfile(String studentId, RegisterRequest request) {
-        Student student = studentRepository.findById(studentId).orElseThrow(() -> new RuntimeException("Student not found"));
+    public UserResponse updateStudentProfile(StudentUpdateRequest request) {
+        Student student = studentRepository.findById(request.getId()).orElseThrow(() -> new RuntimeException("Student not found"));
         student.setName(request.getName());
         student.setEmail(request.getEmail());
         student.setInstitution(request.getInstitution());
