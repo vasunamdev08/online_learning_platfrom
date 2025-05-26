@@ -60,4 +60,16 @@ public class AdminController {
         StatisticsResponse statistics = adminService.getStatistics(adminId);
         return new ResponseEntity<>(statistics, HttpStatus.OK);
     }
+
+    @GetMapping("/{adminId}/students")
+    public ResponseEntity<?> getStudents(@PathVariable String adminId) {
+        List<UserResponse> students = adminService.getAllStudentsByInstitution(adminId);
+        return new ResponseEntity<>(students, HttpStatus.OK);
+    }
+
+    @GetMapping("/{adminId}/instructors")
+    public ResponseEntity<?> getInstructors(@PathVariable String adminId) {
+        List<UserResponse> instructors = adminService.getAllInstructorsByInstitution(adminId);
+        return new ResponseEntity<>(instructors, HttpStatus.OK);
+    }
 }
