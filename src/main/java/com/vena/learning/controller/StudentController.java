@@ -2,6 +2,7 @@ package com.vena.learning.controller;
 
 import com.vena.learning.dto.requestDto.EnrollmentRequest;
 import com.vena.learning.dto.requestDto.RegisterRequest;
+import com.vena.learning.dto.responseDto.UserResponse;
 import com.vena.learning.model.Course;
 import com.vena.learning.model.Enrollment;
 import com.vena.learning.model.Module;
@@ -69,9 +70,9 @@ public class StudentController {
         return ResponseEntity.ok(module);
     }
 
-    @PutMapping("/profile")
+    @PutMapping("update/profile")
     public ResponseEntity<?> updateProfile(@RequestParam String studentId, @RequestBody RegisterRequest request) {
-        Student student = studentService.updateStudentProfile(studentId, request);
+        UserResponse student = studentService.updateStudentProfile(studentId, request);
         return ResponseEntity.ok(student);
     }
 
