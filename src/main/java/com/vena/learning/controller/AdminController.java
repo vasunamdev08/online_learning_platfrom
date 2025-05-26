@@ -1,6 +1,7 @@
 package com.vena.learning.controller;
 
 import com.vena.learning.dto.responseDto.CourseResponse;
+import com.vena.learning.dto.responseDto.CourseStatusResponse;
 import com.vena.learning.dto.responseDto.StatisticsResponse;
 import com.vena.learning.dto.responseDto.UserResponse;
 import com.vena.learning.service.AdminService;
@@ -32,8 +33,8 @@ public class AdminController {
 
     @GetMapping("/{adminId}/courses")
     public ResponseEntity<?> getCourses(@PathVariable String adminId) {
-        List<CourseResponse> courses = adminService.getAllCoursesByInstitution(adminId);
-        return new ResponseEntity<>(courses, HttpStatus.OK);
+        CourseStatusResponse response = adminService.getCoursesByApprovalStatus(adminId);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @DeleteMapping("/{adminId}/delete/user/{userId}")
