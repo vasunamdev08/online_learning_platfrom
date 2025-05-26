@@ -2,6 +2,7 @@ package com.vena.learning.service.impl;
 
 import com.vena.learning.dto.responseDto.CourseResponse;
 import com.vena.learning.dto.responseDto.CourseStats;
+import com.vena.learning.dto.responseDto.CourseStatusResponse;
 import com.vena.learning.dto.responseDto.InstructorStats;
 import com.vena.learning.dto.responseDto.StatisticsResponse;
 import com.vena.learning.dto.responseDto.UserResponse;
@@ -276,4 +277,20 @@ public class AdminServiceImpl implements AdminService {
         courseDto.setNoOfModules(noOfModules);
         return courseDto;
     }
+
+    @Override
+    public CourseStatusResponse getCoursesByApprovalStatus(String adminId) {
+        List<CourseResponse> allCourses = getAllCoursesByInstitution(adminId);
+
+        List<CourseResponse> approvedCourses = allCourses.stream()
+                .filter(CourseResponse::isApproved)
+                .collect(Collectors.toList());
+
+        List<CourseResponse> pendingCourses = allCourses.stream()
+                .filter(course-> !course.isApproved())
+                .collect(Collectors.toList());
+
+        return new CourseStatusResponse(approvedCourses, pendingCourses);
+    }
+
 }

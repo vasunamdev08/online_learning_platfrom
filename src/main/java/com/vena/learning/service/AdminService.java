@@ -2,6 +2,7 @@ package com.vena.learning.service;
 
 import com.vena.learning.dto.requestDto.RegisterRequest;
 import com.vena.learning.dto.responseDto.CourseResponse;
+import com.vena.learning.dto.responseDto.CourseStatusResponse;
 import com.vena.learning.dto.responseDto.StatisticsResponse;
 import com.vena.learning.dto.responseDto.UserResponse;
 import com.vena.learning.model.Admin;
@@ -32,4 +33,6 @@ public interface AdminService {
     void deleteUser(String adminId, String userId);
 
     StatisticsResponse getStatistics(String adminId);
+
+    CourseStatusResponse getCoursesByApprovalStatus(String adminId);
 }
