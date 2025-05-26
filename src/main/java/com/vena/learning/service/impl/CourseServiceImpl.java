@@ -7,6 +7,7 @@ import com.vena.learning.enums.Type;
 import com.vena.learning.model.Course;
 import com.vena.learning.model.Instructor;
 import com.vena.learning.repository.CourseRepository;
+import com.vena.learning.repository.InstructorRepository;
 import com.vena.learning.service.CourseService;
 import com.vena.learning.service.InstructorService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -24,6 +26,9 @@ public class CourseServiceImpl implements CourseService {
 
     @Autowired
     private InstructorService instructorService;
+
+    @Autowired
+    private InstructorRepository instructorRepository;
 
     @Override
     public Course addCourse(Course course) {
@@ -117,6 +122,17 @@ public class CourseServiceImpl implements CourseService {
         if (!types.containsAll(Set.of(Type.Introduction, Type.Lesson, Type.Conclusion))) {
             throw new RuntimeException("Modules must include INTRODUCTION, at least one LESSON, and CONCLUSION.");
         }
+    }
+
+    @Override
+    public  CourseResponse updateCourse(String courseId, CourseRequest request) {
+        Course course = courseRepository.findById(courseId).orElseThrow(() -> new RuntimeException("Course with ID " + courseId + " does not exist."));
+        Instructor instructor = instructorRepository.findById(request.getInstructorId()).orElseThrow(() -> new RuntimeException("Instructor with ID " + request.getInstructorId() + " does not exist."));
+        course.setTitle(request.getTitle());
+        course.setDescription(request.getDescription());
+        course.setInstructor(instructor);
+        Course updatedCourse = courseRepository.save(course);
+        return new CourseResponse(updatedCourse);
     }
 
 }
