@@ -1,6 +1,8 @@
 package com.vena.learning.controller;
 
 import com.vena.learning.dto.requestDto.EnrollmentRequest;
+import com.vena.learning.dto.responseDto.UserResponse;
+import com.vena.learning.enums.Grade;
 import com.vena.learning.dto.requestDto.QuizSubmissionRequest;
 import com.vena.learning.model.Course;
 import com.vena.learning.model.Enrollment;
@@ -70,6 +72,16 @@ public class StudentController {
         return ResponseEntity.ok(module);
     }
 
+    @GetMapping("/{studentId}/profile")
+    public ResponseEntity<?> getStudentProfile(@PathVariable String studentId) {
+        UserResponse student = new UserResponse(studentService.getStudentById(studentId));
+        return ResponseEntity.ok(student);
+    }
+    @GetMapping("/{studentId}/courses/{courseId}/grade")
+    public ResponseEntity<?> getGrades(@PathVariable String studentId, @PathVariable String courseId) {
+        Grade grade = enrollmentService.getGradeByCourse(studentId, courseId);
+        return ResponseEntity.ok(grade);
+    }
     //update the number of attempts and for the first time set the score.
     @PostMapping("/{studentId}/courses/{courseId}/quizzes/{quizId}/submit")
     public ResponseEntity<?> submitQuiz(@PathVariable String studentId, @PathVariable String courseId, @PathVariable String quizId, @RequestBody QuizSubmissionRequest request) {
