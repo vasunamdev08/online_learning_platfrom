@@ -337,20 +337,4 @@ public class AdminServiceImpl implements AdminService {
                 .collect(Collectors.toList());
     }
 
-//    @Override
-//    public List<CourseResponse> getAllApprovedCoursesByInstitution(String adminId) {
-//    String institution = getInstitutionByAdminId(adminId);
-//    if (institution == null || institution.trim().isEmpty()) {
-//        throw new IllegalArgumentException("Institution cannot be null or empty");
-//    }
-//    List<Instructor> instructors = instructorService.getAllInstructorByInstitute(institution);
-//    List<Course> courses = instructors.stream()
-//            .flatMap(instructor -> instructor.getCourses().stream())
-//            .filter(Course::isApproved)
-//            .collect(Collectors.toList());
-//    if (courses.isEmpty()) {
-//        throw new RuntimeException("No approved courses found for the institution: " + institution);
-//
-//    }
-//    }
 }
