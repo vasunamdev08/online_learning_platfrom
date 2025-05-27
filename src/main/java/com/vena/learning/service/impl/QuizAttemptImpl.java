@@ -7,9 +7,9 @@ import com.vena.learning.model.QuizAttempt;
 import com.vena.learning.model.Student;
 import com.vena.learning.repository.ChoiceRepository;
 import com.vena.learning.repository.QuizAttemptRepository;
-import com.vena.learning.repository.QuizRepository;
-import com.vena.learning.repository.StudentRepository;
 import com.vena.learning.service.QuizAttemptService;
+import com.vena.learning.service.QuizService;
+import com.vena.learning.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
@@ -21,10 +21,10 @@ public class QuizAttemptImpl implements QuizAttemptService {
     private QuizAttemptRepository quizAttemptRepo;
 
     @Autowired
-    private StudentRepository studentRepo;
+    private StudentService studentService;
 
     @Autowired
-    private QuizRepository quizRepo;
+    private QuizService quizService;
 
     @Autowired
     private ChoiceRepository choiceRepo;
@@ -33,29 +33,40 @@ public class QuizAttemptImpl implements QuizAttemptService {
     public void submitQuiz(String studentId, String courseId, String quizId, QuizSubmissionRequest request) {
         //so here we need to attemptNumber++ and set the score if(attemptNumber == 1)
         //also set the attemptDate
+        Student student = studentService.getStudentById(studentId);
+        Quiz quiz = quizService.getQuizById(quizId);
+        int newAttemptNumber = calculateNewAttemptNumber(studentId, quizId);
+        int score = calculateScore(request);
+        QuizAttempt attempt = createQuizAttempt(student, quiz, newAttemptNumber, score);
+        quizAttemptRepo.save(attempt);
+    }
 
-        Student student = studentRepo.findById(studentId).orElseThrow(() -> new RuntimeException("Student not found"));
-        Quiz quiz = quizRepo.findById(quizId).orElseThrow(() -> new RuntimeException("Quiz not found"));
+    public int calculateNewAttemptNumber(String studentId, String quizId) {
         Integer attempts = quizAttemptRepo.findMaxAttemptNumberByStudentIdAndQuizId(studentId, quizId);
-        int newAttemptNumber = (attempts == null) ? 1 : attempts + 1;
+        return (attempts == null) ? 1 : attempts + 1;
+    }
 
+    public QuizAttempt createQuizAttempt(Student student, Quiz quiz, int attemptNumber, int score) {
         QuizAttempt attempt = new QuizAttempt();
         attempt.setStudent(student);
         attempt.setQuiz(quiz);
+        attempt.setAttemptNumber(attemptNumber);
         attempt.setAttemptDate(LocalDateTime.now());
-        attempt.setAttemptNumber(newAttemptNumber);
+        attempt.setScore(score);
+        return attempt;
+    }
 
-        if (newAttemptNumber == 1) {
-            int score = 0;
-            for (QuizSubmissionRequest.AnswerSubmission answer : request.getAnswers()) {
-                Choice choice = choiceRepo.findById(answer.getSelectedChoiceId())
-                        .orElseThrow(() -> new RuntimeException("Choice not found"));
-                if (choice.isCorrect()) {
-                    score++;
-                }
+    public int calculateScore(QuizSubmissionRequest request) {
+        //here we are setting the score for each attempt, and we can retrieve the value
+        //when required to evaluate grade where attempt number is one.
+        int score = 0;
+        for (QuizSubmissionRequest.AnswerSubmission answer : request.getAnswers()) {
+            Choice choice = choiceRepo.findById(answer.getSelectedChoiceId())
+                    .orElseThrow(() -> new RuntimeException("Choice not found"));
+            if (choice.isCorrect()) {
+                score++;
             }
-            attempt.setScore(score);
         }
-        quizAttemptRepo.save(attempt);
+        return score;
     }
 }
