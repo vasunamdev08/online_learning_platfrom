@@ -1,7 +1,7 @@
 package com.vena.learning.controller;
 
 import com.vena.learning.dto.requestDto.EnrollmentRequest;
-import com.vena.learning.dto.requestDto.QuestionRequest;
+import com.vena.learning.dto.responseDto.QuestionResponse;
 import com.vena.learning.dto.responseDto.UserResponse;
 import com.vena.learning.enums.Grade;
 import com.vena.learning.model.Course;
@@ -71,9 +71,9 @@ public class StudentController {
         return ResponseEntity.ok(module);
     }
 
-    @GetMapping("/courses/{courseId}/quizzes/{quizId}")
-    public ResponseEntity<List<QuestionRequest>> getQuizQuestions(@PathVariable String courseId, @PathVariable String quizId) {
-        List<QuestionRequest> questions = quizService.getQuizQuestions(courseId, quizId);
+    @GetMapping("/{studentId}/courses/{courseId}/quizzes/{quizId}")
+    public ResponseEntity<List<QuestionResponse>> getQuizQuestions(@PathVariable String studentId, @PathVariable String courseId, @PathVariable String quizId) {
+        List<QuestionResponse> questions = quizService.getQuizQuestions(studentId, courseId, quizId);
         return ResponseEntity.ok(questions);
     }
 

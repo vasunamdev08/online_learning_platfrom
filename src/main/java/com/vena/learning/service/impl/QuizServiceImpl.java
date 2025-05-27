@@ -1,10 +1,11 @@
 package com.vena.learning.service.impl;
 
-import com.vena.learning.dto.requestDto.ChoiceRequest;
-import com.vena.learning.dto.requestDto.QuestionRequest;
+import com.vena.learning.dto.responseDto.QuestionResponse;
 import com.vena.learning.model.Course;
 import com.vena.learning.model.Quiz;
+import com.vena.learning.repository.EnrollmentRepository;
 import com.vena.learning.repository.QuizRepository;
+import com.vena.learning.repository.StudentRepository;
 import com.vena.learning.service.QuizService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,30 +17,26 @@ import java.util.stream.Collectors;
 public class QuizServiceImpl implements QuizService {
     @Autowired
     private QuizRepository quizRepo;
+    @Autowired
+    private StudentRepository studentRepo;
+    @Autowired
+    private EnrollmentRepository enrollmentRepo;
 
     @Override
-    public List<QuestionRequest> getQuizQuestions(String courseId, String quizId) {
+    public List<QuestionResponse> getQuizQuestions(String studentId, String courseId, String quizId) {
+
+        //apply check if the student exists and is enrolled in the course.
+        studentRepo.findById(studentId).orElseThrow(() -> new RuntimeException ("Student with the id " +  studentId +" do not exsits."));
+        enrollmentRepo.findByStudentIdAndCourseId(studentId, courseId).orElseThrow(() -> new RuntimeException("Student with id " + studentId + " is not enrolled in the course."));
+
+        //apply check for the course module completion.
+
         Quiz quiz = quizRepo.findByIdAndCourseId(quizId, courseId).orElseThrow(() -> new RuntimeException("Quiz not found."));
         Course course = quiz.getCourse();
 
         if (!course.isApproved() || course.isDeleted()) {
-            throw new RuntimeException("Cannot access questions: Course is either not approved ordeleted.");
+            throw new RuntimeException("Cannot access questions: Course is either not approved or deleted.");
         }
-
-        return quiz.getQuestions().stream().map(question -> {
-            QuestionRequest response = new QuestionRequest();
-            response.setId(question.getId());
-            response.setQuestionText(question.getQuestion());
-
-            response.setChoices(question.getChoices().stream().map(
-            choice -> {
-                ChoiceRequest resOptions = new ChoiceRequest();
-                resOptions.setId(choice.getId());
-                resOptions.setOptionText(choice.getOptionText());
-                resOptions.setCorrect(choice.isCorrect());
-                return resOptions;
-            }).collect(Collectors.toList()));
-            return response;
-        }).collect(Collectors.toList());
+        return quiz.getQuestions().stream().map(QuestionResponse::new).collect(Collectors.toList());
     }
 }
