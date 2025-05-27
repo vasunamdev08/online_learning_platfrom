@@ -1,13 +1,12 @@
 package com.vena.learning.controller;
 
 import com.vena.learning.dto.requestDto.EnrollmentRequest;
-import com.vena.learning.dto.requestDto.RegisterRequest;
 import com.vena.learning.dto.requestDto.StudentUpdateRequest;
 import com.vena.learning.dto.responseDto.UserResponse;
+import com.vena.learning.enums.Grade;
 import com.vena.learning.model.Course;
 import com.vena.learning.model.Enrollment;
 import com.vena.learning.model.Module;
-import com.vena.learning.model.Student;
 import com.vena.learning.service.EnrollmentService;
 import com.vena.learning.service.ModuleService;
 import com.vena.learning.service.StudentService;
@@ -77,4 +76,14 @@ public class StudentController {
         return ResponseEntity.ok(student);
     }
 
+    @GetMapping("/{studentId}/profile")
+    public ResponseEntity<?> getStudentProfile(@PathVariable String studentId) {
+        UserResponse student = new UserResponse(studentService.getStudentById(studentId));
+        return ResponseEntity.ok(student);
+    }
+    @GetMapping("/{studentId}/courses/{courseId}/grade")
+    public ResponseEntity<?> getGrades(@PathVariable String studentId, @PathVariable String courseId) {
+        Grade grade = enrollmentService.getGradeByCourse(studentId, courseId);
+        return ResponseEntity.ok(grade);
+    }
 }
