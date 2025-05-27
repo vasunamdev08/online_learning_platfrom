@@ -283,16 +283,10 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public CourseStatusResponse getCoursesByApprovalStatus(String adminId) {
-        String institution = getInstitutionByAdminId(adminId);
-
-        if (institution == null || institution.trim().isEmpty()) {
-            throw new IllegalArgumentException("Institution cannot be null or empty");
-        }
-
         List<CourseResponse> allCourses = getAllCoursesByInstitution(adminId);
 
         if (allCourses == null || allCourses.isEmpty()) {
-            return new CourseStatusResponse(new HashMap<>()); // or return empty approved/pending keys
+            throw new RuntimeException("No courses found for the institution");
         }
 
         Map<String, List<CourseResponse>> coursesByStatus = allCourses.stream()
