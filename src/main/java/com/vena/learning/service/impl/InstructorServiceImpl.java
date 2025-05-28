@@ -120,4 +120,10 @@ public class InstructorServiceImpl implements InstructorService {
         }
         return courseService.addCourseWithModules(request);
     }
+
+    @Override
+    public void deleteInstructorCourse(String courseId) {
+        courseService.deleteCourse(courseId);
+    }
+
 }

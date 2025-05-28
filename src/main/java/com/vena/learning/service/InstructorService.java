@@ -32,4 +32,5 @@ public interface InstructorService {
     List<CourseResponse> getCoursesByInstructor(String instructorId);
 
     CourseResponse createCourse(CourseRequest request);
+    void deleteInstructorCourse(String courseId);
 }

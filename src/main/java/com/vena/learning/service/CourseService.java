@@ -18,4 +18,5 @@ public interface CourseService {
     List<CourseResponse> getCoursesByInstructorId(String instructorId);
 
     Course addCourse(Course course);
+    void deleteCourse(String courseId);
 }
