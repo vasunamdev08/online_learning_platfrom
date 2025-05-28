@@ -1,7 +1,9 @@
 package com.vena.learning.service.impl;
 
+import com.vena.learning.dto.requestDto.CourseRequest;
 import com.vena.learning.dto.requestDto.RegisterRequest;
 import com.vena.learning.dto.responseDto.CourseResponse;
+import com.vena.learning.model.Course;
 import com.vena.learning.model.Instructor;
 import com.vena.learning.enums.Role;
 import com.vena.learning.repository.InstructorRepository;
@@ -109,5 +111,13 @@ public class InstructorServiceImpl implements InstructorService {
             throw new RuntimeException("Instructor with ID " + instructorId + " does not exist");
         }
         return courseService.getCoursesByInstructorId(instructorId);
+    }
+
+    @Override
+    public CourseResponse createCourse(CourseRequest request) {
+        if (!instructorRepository.existsById(request.getInstructorId())) {
+            throw new RuntimeException("Instructor with ID " + request.getInstructorId() + " is not present");
+        }
+        return courseService.addCourseWithModules(request);
     }
 }
