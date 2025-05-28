@@ -8,6 +8,7 @@ import com.vena.learning.repository.InstructorRepository;
 import com.vena.learning.service.CourseService;
 import com.vena.learning.service.InstructorService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,6 +21,7 @@ public class InstructorServiceImpl implements InstructorService {
     private InstructorRepository instructorRepository;
 
     @Autowired
+    @Lazy
     private CourseService courseService;
 
     @Override
