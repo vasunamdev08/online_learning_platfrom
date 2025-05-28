@@ -1,6 +1,8 @@
 package com.vena.learning.service;
 
+import com.vena.learning.dto.requestDto.CourseRequest;
 import com.vena.learning.dto.requestDto.RegisterRequest;
+import com.vena.learning.dto.responseDto.CourseResponse;
 import com.vena.learning.model.Instructor;
 import org.springframework.stereotype.Service;
 
@@ -27,4 +29,9 @@ public interface InstructorService {
 
 
     List<Instructor> getAllInstructors();
+    List<CourseResponse> getCoursesByInstructor(String instructorId);
+
+    CourseResponse createCourse(CourseRequest request);
+    CourseResponse updateInstructorCourse(CourseRequest request);
+
 }

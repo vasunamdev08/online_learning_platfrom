@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -125,12 +124,17 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public  CourseResponse updateCourse(String courseId, CourseRequest request) {
-        Course course = courseRepository.findById(courseId).orElseThrow(() -> new RuntimeException("Course with ID " + courseId + " does not exist."));
-        Instructor instructor = instructorRepository.findById(request.getInstructorId()).orElseThrow(() -> new RuntimeException("Instructor with ID " + request.getInstructorId() + " does not exist."));
+    public CourseResponse updateCourse(CourseRequest request) {
+        Course course = courseRepository.findById(request.getCourseId())
+                .orElseThrow(() -> new RuntimeException("Course with ID " + request.getCourseId() + " does not exist."));
+
+        Instructor instructor = instructorService.findById(request.getInstructorId())
+                .orElseThrow(() -> new RuntimeException("Instructor with ID " + request.getInstructorId() + " does not exist."));
+
         course.setTitle(request.getTitle());
         course.setDescription(request.getDescription());
         course.setInstructor(instructor);
+
         Course updatedCourse = courseRepository.save(course);
         return new CourseResponse(updatedCourse);
     }
