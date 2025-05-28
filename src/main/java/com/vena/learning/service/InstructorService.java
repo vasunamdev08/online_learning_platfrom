@@ -29,6 +29,7 @@ public interface InstructorService {
 
 
     List<Instructor> getAllInstructors();
+    List<CourseResponse> getCoursesByInstructor(String instructorId);
 
     CourseResponse createCourse(CourseRequest request);
 }
