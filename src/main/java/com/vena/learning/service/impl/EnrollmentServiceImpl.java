@@ -12,8 +12,6 @@ import com.vena.learning.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 public class EnrollmentServiceImpl implements EnrollmentService {
     @Autowired
@@ -82,4 +80,9 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         );
     }
 
+    @Override
+    public Grade getGradeByCourse(String studentId, String courseId) {
+        Enrollment enrollment = getCourseDetailsByIds(studentId, courseId);
+        return enrollment.getGrade();
+    }
 }

@@ -2,6 +2,8 @@ package com.vena.learning.service.impl;
 
 import com.vena.learning.dto.responseDto.CourseResponse;
 import com.vena.learning.dto.responseDto.CourseStats;
+import com.vena.learning.dto.responseDto.CourseStatusResponse;
+import com.vena.learning.dto.responseDto.CourseSummaryResponse;
 import com.vena.learning.dto.responseDto.InstructorStats;
 import com.vena.learning.dto.responseDto.StatisticsResponse;
 import com.vena.learning.dto.responseDto.UserResponse;
@@ -23,7 +25,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -276,4 +280,55 @@ public class AdminServiceImpl implements AdminService {
         courseDto.setNoOfModules(noOfModules);
         return courseDto;
     }
+
+    @Override
+    public CourseStatusResponse getCoursesByApprovalStatus(String adminId) {
+        List<CourseResponse> allCourses = getAllCoursesByInstitution(adminId);
+
+        if (allCourses == null || allCourses.isEmpty()) {
+            throw new RuntimeException("No courses found for the institution");
+        }
+
+        Map<String, List<CourseResponse>> coursesByStatus = allCourses.stream()
+                .collect(Collectors.groupingBy(
+                        course -> course.isApproved() ? "Approved Courses" : "Pending Courses"
+                ));
+
+        Map<String, List<CourseSummaryResponse>> summaryMap = new HashMap<>();
+
+        for (Map.Entry<String, List<CourseResponse>> entry : coursesByStatus.entrySet()) {
+            List<CourseSummaryResponse> summaries = entry.getValue().stream()
+                    .map(CourseSummaryResponse::new)
+                    .collect(Collectors.toList());
+
+            summaryMap.put(entry.getKey(), summaries);
+        }
+
+        return new CourseStatusResponse(summaryMap);
+    }
+
+    @Override
+    public List<UserResponse> getAllStudentsByInstitution(String adminId) {
+        String institution = getInstitutionByAdminId(adminId);
+        if (institution == null || institution.trim().isEmpty()) {
+            throw new IllegalArgumentException("Institution cannot be null or empty");
+        }
+        List<Student> students = studentService.getAllStudentByInstitute(institution);
+        return students.stream()
+                .map(UserResponse::new)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<UserResponse> getAllInstructorsByInstitution(String adminId) {
+        String institution = getInstitutionByAdminId(adminId);
+        if (institution == null || institution.trim().isEmpty()) {
+            throw new IllegalArgumentException("Institution cannot be null or empty");
+        }
+        List<Instructor> instructors = instructorService.getAllInstructorByInstitute(institution);
+        return instructors.stream()
+                .map(UserResponse::new)
+                .collect(Collectors.toList());
+    }
+
 }

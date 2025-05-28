@@ -1,6 +1,8 @@
 package com.vena.learning.service.impl;
 
 import com.vena.learning.dto.requestDto.RegisterRequest;
+import com.vena.learning.dto.requestDto.StudentUpdateRequest;
+import com.vena.learning.dto.responseDto.UserResponse;
 import com.vena.learning.model.Course;
 import com.vena.learning.model.Enrollment;
 import com.vena.learning.model.Student;
@@ -107,5 +109,16 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public List<Student> getAllStudents() {
         return studentRepository.findAll();
+    }
+
+    @Override
+    public UserResponse updateStudentProfile(StudentUpdateRequest request) {
+        Student student = studentRepository.findById(request.getId()).orElseThrow(() -> new RuntimeException("Student not found"));
+        student.setName(request.getName());
+        student.setEmail(request.getEmail());
+        student.setInstitution(request.getInstitution());
+        student.setPassword(request.getPassword());
+        studentRepository.save(student);
+        return new UserResponse(student);
     }
 }
