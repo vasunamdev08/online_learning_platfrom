@@ -112,12 +112,12 @@ public class InstructorServiceImpl implements InstructorService {
         }
         return courseService.getCoursesByInstructorId(instructorId);
     }
+
     @Override
     public CourseResponse createCourse(CourseRequest request) {
         if (!instructorRepository.existsById(request.getInstructorId())) {
             throw new RuntimeException("Instructor with ID " + request.getInstructorId() + " is not present");
         }
-         Course course = courseService.addCourse(request);
-        return new CourseResponse(course);
+        return courseService.addCourseWithModules(request);
     }
 }
