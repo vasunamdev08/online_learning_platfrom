@@ -24,9 +24,6 @@ public class InstructorController {
     @Autowired
     private InstructorService instructorService;
 
-    @Autowired
-    private CourseService courseService;
-
     @GetMapping("/{instructorId}/courses")
     public ResponseEntity<List<CourseResponse>> getInstructorCourses(@PathVariable String instructorId) {
         List<CourseResponse> courses = instructorService.getCoursesByInstructor(instructorId);
