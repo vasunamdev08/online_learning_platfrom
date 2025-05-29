@@ -121,11 +121,8 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public CourseResponse updateCourse(CourseRequest request) {
-        Course course = courseRepository.findById(request.getCourseId())
-                .orElseThrow(() -> new RuntimeException("Course with ID " + request.getCourseId() + " does not exist."));
-
-        Instructor instructor = instructorService.findById(request.getInstructorId())
-                .orElseThrow(() -> new RuntimeException("Instructor with ID " + request.getInstructorId() + " does not exist."));
+        Course course = getCourseById(request.getCourseId());
+        Instructor instructor = instructorService.getInstructorById(request.getInstructorId());
 
         course.setTitle(request.getTitle());
         course.setDescription(request.getDescription());
