@@ -4,7 +4,9 @@ import com.vena.learning.model.Quiz;
 import com.vena.learning.repository.QuizRepository;
 import com.vena.learning.service.QuizService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+@Service
 public class QuizServiceImpl implements QuizService {
     @Autowired
     QuizRepository quizRepo;

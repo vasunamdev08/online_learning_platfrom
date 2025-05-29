@@ -1,5 +1,6 @@
 package com.vena.learning.service.impl;
 
+import com.vena.learning.dto.requestDto.AnswerSubmissionRequest;
 import com.vena.learning.dto.requestDto.QuizSubmissionRequest;
 import com.vena.learning.model.Choice;
 import com.vena.learning.model.Quiz;
@@ -35,15 +36,19 @@ public class QuizAttemptImpl implements QuizAttemptService {
         //also set the attemptDate
         Student student = studentService.getStudentById(studentId);
         Quiz quiz = quizService.getQuizById(quizId);
-        int newAttemptNumber = calculateNewAttemptNumber(studentId, quizId);
+        Integer attemptNumber = calculateAttemptNumber(studentId, quizId);
+        int newAttemptNumber = (attemptNumber == null) ? 1 : attemptNumber + 1;
+        //allowing user to take max 2 attempts.
+        if (newAttemptNumber > 2) {
+            throw new RuntimeException("Maximum of 2 attempts reached. You cannot take the quiz again.");
+        }
         int score = calculateScore(request);
         QuizAttempt attempt = createQuizAttempt(student, quiz, newAttemptNumber, score);
         quizAttemptRepo.save(attempt);
     }
 
-    public int calculateNewAttemptNumber(String studentId, String quizId) {
-        Integer attempts = quizAttemptRepo.findMaxAttemptNumberByStudentIdAndQuizId(studentId, quizId);
-        return (attempts == null) ? 1 : attempts + 1;
+    public Integer calculateAttemptNumber(String studentId, String quizId) {
+        return quizAttemptRepo.findMaxAttemptNumberByStudentIdAndQuizId(studentId, quizId);
     }
 
     public QuizAttempt createQuizAttempt(Student student, Quiz quiz, int attemptNumber, int score) {
@@ -58,9 +63,9 @@ public class QuizAttemptImpl implements QuizAttemptService {
 
     public int calculateScore(QuizSubmissionRequest request) {
         //here we are setting the score for each attempt, and we can retrieve the value
-        //when required to evaluate grade where attempt number is one.
+        //when required to evaluate grade then fetch attempt number one.
         int score = 0;
-        for (QuizSubmissionRequest.AnswerSubmission answer : request.getAnswers()) {
+        for (AnswerSubmissionRequest answer : request.getAnswers()) {
             Choice choice = choiceRepo.findById(answer.getSelectedChoiceId())
                     .orElseThrow(() -> new RuntimeException("Choice not found"));
             if (choice.isCorrect()) {

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 @Service
 public interface QuizAttemptService {
     void submitQuiz(String studentId, String courseId, String quizId, QuizSubmissionRequest request);
-    int calculateNewAttemptNumber(String studentId, String quizId);
+    Integer calculateAttemptNumber(String studentId, String quizId);
     QuizAttempt createQuizAttempt(Student student, Quiz quiz, int attemptNumber, int score);
     int calculateScore(QuizSubmissionRequest request);
 }
