@@ -15,6 +15,7 @@ import java.util.List;
 import com.vena.learning.dto.requestDto.CourseRequest;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PutMapping;
 
 @RestController
 @RequestMapping("/instructor")
@@ -32,6 +33,12 @@ public class InstructorController {
     @PostMapping("/courses")
     public ResponseEntity<?> createCourse (@RequestBody CourseRequest request){
         CourseResponse response = instructorService.createCourse(request);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/courses")
+    public ResponseEntity<?> updateCourse(@RequestBody CourseRequest request) {
+        CourseResponse response = instructorService.updateInstructorCourse(request);
         return ResponseEntity.ok(response);
     }
 

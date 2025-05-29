@@ -122,6 +122,11 @@ public class InstructorServiceImpl implements InstructorService {
     }
 
     @Override
+    public CourseResponse updateInstructorCourse(CourseRequest request) {
+        return courseService.updateCourse(request);
+    }
+
+    @Override
     public void deleteInstructorCourse(String courseId) {
         courseService.deleteCourse(courseId);
     }
