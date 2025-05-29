@@ -8,6 +8,7 @@ import com.vena.learning.model.QuizAttempt;
 import com.vena.learning.model.Student;
 import com.vena.learning.repository.ChoiceRepository;
 import com.vena.learning.repository.QuizAttemptRepository;
+import com.vena.learning.service.EnrollmentService;
 import com.vena.learning.service.QuizAttemptService;
 import com.vena.learning.service.QuizService;
 import com.vena.learning.service.StudentService;
@@ -30,12 +31,19 @@ public class QuizAttemptImpl implements QuizAttemptService {
     @Autowired
     private ChoiceRepository choiceRepo;
 
+    @Autowired
+    private EnrollmentService enrollmentService;
+
     @Override
     public void submitQuiz(String studentId, String courseId, String quizId, QuizSubmissionRequest request) {
         //so here we need to attemptNumber++ and set the score if(attemptNumber == 1)
         //also set the attemptDate
         Student student = studentService.getStudentById(studentId);
         Quiz quiz = quizService.getQuizById(quizId);
+        //applying check that the student is enrolled in the course.
+        if (!enrollmentService.isEnrolled(studentId, courseId)) {
+            throw new RuntimeException("Student is not enrolled in the course. Cannot attempt the quiz.");
+        }
         Integer attemptNumber = calculateAttemptNumber(studentId, quizId);
         int newAttemptNumber = (attemptNumber == null) ? 1 : attemptNumber + 1;
         //allowing user to take max 2 attempts.
