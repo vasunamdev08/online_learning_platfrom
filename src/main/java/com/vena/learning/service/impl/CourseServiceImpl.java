@@ -119,4 +119,17 @@ public class CourseServiceImpl implements CourseService {
         }
     }
 
+    @Override
+    public CourseResponse updateCourse(CourseRequest request) {
+        Course course = getCourseById(request.getCourseId());
+        Instructor instructor = instructorService.getInstructorById(request.getInstructorId());
+
+        course.setTitle(request.getTitle());
+        course.setDescription(request.getDescription());
+        course.setInstructor(instructor);
+
+        Course updatedCourse = courseRepository.save(course);
+        return new CourseResponse(updatedCourse);
+    }
+
 }
