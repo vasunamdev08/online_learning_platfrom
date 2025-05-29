@@ -1,6 +1,7 @@
 package com.vena.learning.controller;
 
 import com.vena.learning.dto.requestDto.EnrollmentRequest;
+import com.vena.learning.dto.requestDto.StudentUpdateRequest;
 import com.vena.learning.dto.responseDto.UserResponse;
 import com.vena.learning.enums.Grade;
 import com.vena.learning.dto.requestDto.QuizSubmissionRequest;
@@ -16,8 +17,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
@@ -69,6 +72,12 @@ public class StudentController {
     public ResponseEntity<?> getModuleById(@PathVariable String studentId, @PathVariable String courseId, @PathVariable String moduleId) {
         Module module = moduleService.getModuleById(studentId, courseId, moduleId);
         return ResponseEntity.ok(module);
+    }
+
+    @PutMapping("update/profile")
+    public ResponseEntity<?> updateProfile(@RequestBody StudentUpdateRequest request) {
+        UserResponse student = studentService.updateStudentProfile(request);
+        return ResponseEntity.ok(student);
     }
 
     @GetMapping("/{studentId}/profile")

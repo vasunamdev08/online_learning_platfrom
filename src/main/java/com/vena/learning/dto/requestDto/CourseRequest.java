@@ -5,6 +5,7 @@ import java.util.List;
 
 @Data
 public class CourseRequest {
+    private String courseId;
     private String title;
     private String description;
     private String instructorId;
