@@ -132,4 +132,14 @@ public class CourseServiceImpl implements CourseService {
         return new CourseResponse(updatedCourse);
     }
 
+    @Override
+    public void deleteCourse(String courseId) {
+        Course course = getCourseById(courseId);
+
+        // Perform soft delete
+        course.setDeleted(true);
+
+        courseRepository.save(course);
+    }
+
 }
