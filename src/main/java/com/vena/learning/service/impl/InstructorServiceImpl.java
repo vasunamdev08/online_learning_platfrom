@@ -120,4 +120,10 @@ public class InstructorServiceImpl implements InstructorService {
         }
         return courseService.addCourseWithModules(request);
     }
+
+    @Override
+    public CourseResponse updateInstructorCourse(CourseRequest request) {
+        return courseService.updateCourse(request);
+    }
+
 }
