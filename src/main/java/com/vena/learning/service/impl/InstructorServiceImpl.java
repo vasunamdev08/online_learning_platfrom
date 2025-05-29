@@ -123,10 +123,6 @@ public class InstructorServiceImpl implements InstructorService {
 
     @Override
     public CourseResponse updateInstructorCourse(CourseRequest request) {
-        if (!instructorRepository.existsById(request.getInstructorId())) {
-            throw new RuntimeException("Instructor with ID " + request.getInstructorId() + " is not present");
-        }
-
         return courseService.updateCourse(request);
     }
 
