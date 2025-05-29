@@ -134,9 +134,12 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public void deleteCourse(String courseId) {
-        Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new RuntimeException("Course with ID " + courseId + " not found."));
-        courseRepository.delete(course);
+        Course course = getCourseById(courseId);
+
+        // Perform soft delete
+        course.setDeleted(true);
+
+        courseRepository.save(course);
     }
 
 }
