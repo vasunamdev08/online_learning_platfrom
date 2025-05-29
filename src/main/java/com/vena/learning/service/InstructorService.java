@@ -34,4 +34,5 @@ public interface InstructorService {
     CourseResponse createCourse(CourseRequest request);
     CourseResponse updateInstructorCourse(CourseRequest request);
 
+    void deleteInstructorCourse(String courseId);
 }

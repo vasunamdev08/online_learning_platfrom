@@ -19,4 +19,5 @@ public interface CourseService {
 
     Course addCourse(Course course);
     CourseResponse updateCourse(CourseRequest request);
+    void deleteCourse(String courseId);
 }
