@@ -3,12 +3,16 @@ package com.vena.learning.service.impl;
 import com.vena.learning.dto.requestDto.CourseRequest;
 import com.vena.learning.dto.requestDto.ModuleRequest;
 import com.vena.learning.dto.responseDto.CourseResponse;
+import com.vena.learning.dto.responseDto.QuizResponse;
+import com.vena.learning.dto.responseDto.QuizResponseWrapper;
 import com.vena.learning.enums.Type;
 import com.vena.learning.model.Course;
 import com.vena.learning.model.Instructor;
+import com.vena.learning.model.Quiz;
 import com.vena.learning.repository.CourseRepository;
 import com.vena.learning.service.CourseService;
 import com.vena.learning.service.InstructorService;
+import com.vena.learning.service.QuizService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +28,9 @@ public class CourseServiceImpl implements CourseService {
 
     @Autowired
     private InstructorService instructorService;
+
+    @Autowired
+    private QuizService quizService;
 
     @Override
     public Course addCourse(Course course) {
@@ -142,4 +149,13 @@ public class CourseServiceImpl implements CourseService {
         courseRepository.save(course);
     }
 
+    @Override
+    public QuizResponseWrapper getAllQuizzesForCourse(String courseId) {
+        //validate course existence
+        if (!courseRepository.existsById(courseId)) {
+            throw new RuntimeException("Course not found with ID: " + courseId);
+        }
+        List<QuizResponse> quizResponsesList = quizService.getQuizzesByCourseId(courseId);
+        return new QuizResponseWrapper(quizResponsesList);
+    }
 }
