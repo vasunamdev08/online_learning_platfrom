@@ -2,10 +2,8 @@ package com.vena.learning.service;
 
 import com.vena.learning.dto.requestDto.CourseRequest;
 import com.vena.learning.dto.responseDto.CourseResponse;
-import com.vena.learning.dto.responseDto.QuizResponse;
 import com.vena.learning.dto.responseDto.QuizResponseWrapper;
 import com.vena.learning.model.Course;
-import com.vena.learning.model.Quiz;
 import org.springframework.stereotype.Service;
 import java.util.List;
 

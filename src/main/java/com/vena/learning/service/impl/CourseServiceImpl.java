@@ -8,7 +8,6 @@ import com.vena.learning.dto.responseDto.QuizResponseWrapper;
 import com.vena.learning.enums.Type;
 import com.vena.learning.model.Course;
 import com.vena.learning.model.Instructor;
-import com.vena.learning.model.Quiz;
 import com.vena.learning.repository.CourseRepository;
 import com.vena.learning.service.CourseService;
 import com.vena.learning.service.InstructorService;

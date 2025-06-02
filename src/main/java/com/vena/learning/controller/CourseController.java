@@ -1,9 +1,7 @@
 package com.vena.learning.controller;
 
 import com.vena.learning.dto.responseDto.CourseResponse;
-import com.vena.learning.dto.responseDto.QuizResponse;
 import com.vena.learning.dto.responseDto.QuizResponseWrapper;
-import com.vena.learning.model.Quiz;
 import com.vena.learning.service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
