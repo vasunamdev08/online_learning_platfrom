@@ -150,21 +150,24 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public void deleteUser(String adminID, String userId) {
-        Optional<Student> studentOpt = studentService.findById(userId);
-        Optional<Instructor> instructorOpt = instructorService.findById(userId);
-
-        String institution = getInstitutionByAdminId(adminID);
-
-        if (studentOpt.isPresent() && studentOpt.get().getInstitution().equalsIgnoreCase(institution)) {
-            studentService.deleteStudent(userId);
-            return;
-        }
-        else if (instructorOpt.isPresent() && instructorOpt.get().getInstitution().equalsIgnoreCase(institution)) {
-            instructorService.deleteInstructor(userId);
-            return;
-        }
-        else {
-            throw new UnsupportedOperationException("You are not authorized to delete this user");
+        if(studentService.isStudentExist(userId)){
+            Student student = studentService.getStudentById(userId);
+            if(student.getInstitution().equals(getInstitutionByAdminId(adminID))) {
+                // Only delete if the student belongs to the same institution as the admin
+                studentService.deleteStudent(userId);
+            }else{
+                throw new RuntimeException("You are not authorized to delete this user");
+            }
+        }else if(instructorService.isInstructorExist(userId)) {
+            Instructor instructor  = instructorService.getInstructorById(userId);
+            if(instructor.getInstitution().equals(getInstitutionByAdminId(adminID))) {
+                // Only delete if the instructor belongs to the same institution as the admin
+                instructorService.deleteInstructor(userId);
+            } else {
+                throw new RuntimeException("You are not authorized to delete this user");
+            }
+        } else {
+            throw new RuntimeException("You are not authorized to delete this user");
         }
     }
 

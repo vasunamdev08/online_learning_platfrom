@@ -87,17 +87,13 @@ public class InstructorServiceImpl implements InstructorService {
 
     @Override
     public List<Instructor> getAllInstructorByInstitute(String institution){
+
         return instructorRepository.findByInstitution(institution).orElseThrow(()-> new RuntimeException("Instructor not found"));
     }
     @Override
     public void deleteInstructor(String userId) {
         Instructor instructor = getInstructorById(userId);
         instructorRepository.delete(instructor);
-    }
-
-    @Override
-    public Optional<Instructor> findById(String userId) {
-        return instructorRepository.findById(userId);
     }
 
     @Override
@@ -131,4 +127,8 @@ public class InstructorServiceImpl implements InstructorService {
         courseService.deleteCourse(courseId);
     }
 
+    @Override
+    public boolean isInstructorExist(String userId) {
+        return instructorRepository.existsById(userId);
+    }
 }

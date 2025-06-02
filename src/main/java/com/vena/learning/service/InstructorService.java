@@ -25,9 +25,6 @@ public interface InstructorService {
 
     void deleteInstructor(String userId);
 
-    Optional<Instructor> findById(String userId);
-
-
     List<Instructor> getAllInstructors();
     List<CourseResponse> getCoursesByInstructor(String instructorId);
 
@@ -35,4 +32,6 @@ public interface InstructorService {
     CourseResponse updateInstructorCourse(CourseRequest request);
 
     void deleteInstructorCourse(String courseId);
+
+    boolean isInstructorExist(String userId);
 }
