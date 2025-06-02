@@ -19,7 +19,7 @@ public class ModuleServiceImpl implements ModuleService {
         if(!enrollmentService.isEnrolled(studentId, courseId)) {
             throw new RuntimeException("Student is not enrolled in the course");
         }
-        //update for course id also
+
         return moduleRepository.findByIdAndCourseId(moduleId, courseId)
                 .orElseThrow(() -> new RuntimeException("Module not found with ID: " + moduleId + " and Course ID: " + courseId));
     }
