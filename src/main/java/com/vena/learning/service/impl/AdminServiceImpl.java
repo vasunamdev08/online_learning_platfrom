@@ -166,7 +166,8 @@ public class AdminServiceImpl implements AdminService {
             } else {
                 throw new RuntimeException("You are not authorized to delete this user");
             }
-        } else {
+        }
+        else {
             throw new RuntimeException("You are not authorized to delete this user");
         }
     }
@@ -334,4 +335,33 @@ public class AdminServiceImpl implements AdminService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public Student getStudentById(String adminId,String studentId) {
+        Student student= studentService.getStudentById(studentId);
+        if(student.getInstitution().equals(getInstitutionByAdminId(adminId))){
+            return student;
+        }else {
+            throw new RuntimeException("Not authorized to view student with id: "+studentId);
+        }
+    }
+
+    @Override
+    public Instructor getInstructorById(String adminId,String instructorId) {
+        Instructor instructor= instructorService.getInstructorById(instructorId);
+        if(instructor.getInstitution().equals(getInstitutionByAdminId(adminId))){
+            return instructor;
+        }else{
+            throw new RuntimeException("Not authorized to view instructor with id: " + instructorId);
+        }
+    }
+
+    @Override
+    public CourseResponse getCourseById(String adminId, String courseId) {
+        Course course = courseService.getCourseById(courseId);
+        if(course.getInstructor().getInstitution().equals(getInstitutionByAdminId(adminId))) {
+            return new CourseResponse(course);
+        } else {
+            throw new RuntimeException("Not authorized to view course with id: " + courseId);
+        }
+    }
 }
