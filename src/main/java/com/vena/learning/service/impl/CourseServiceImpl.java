@@ -9,12 +9,20 @@ import com.vena.learning.model.Instructor;
 import com.vena.learning.repository.CourseRepository;
 import com.vena.learning.service.CourseService;
 import com.vena.learning.service.InstructorService;
+import com.vena.learning.service.ModuleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,6 +32,10 @@ public class CourseServiceImpl implements CourseService {
 
     @Autowired
     private InstructorService instructorService;
+
+    @Autowired
+    @Lazy
+    private ModuleService moduleService;
 
     @Override
     public Course addCourse(Course course) {
@@ -85,37 +97,66 @@ public class CourseServiceImpl implements CourseService {
         return new CourseResponse(addCourse(course));
     }
 
-    private void validateCourseRequest(CourseRequest course) {
-        if (course.getModules() == null || course.getModules().isEmpty()) {
-            throw new RuntimeException("Course must have at least 3 modules");
+    @Override
+    public void validateCourseRequest(CourseRequest course) {
+        // 1. Basic field validation
+        if (course.getTitle() == null || course.getTitle().trim().isEmpty()) {
+            throw new RuntimeException("Course title cannot be empty.");
         }
-        boolean courseExists = courseRepository.existsByTitleAndInstructor(course.getTitle(), instructorService.getInstructorById(course.getInstructorId()));
+        if (course.getDescription() == null || course.getDescription().trim().isEmpty()) {
+            throw new RuntimeException("Course description cannot be empty.");
+        }
+        if (course.getInstructorId() == null || course.getInstructorId().trim().isEmpty()) {
+            throw new RuntimeException("Instructor ID cannot be empty.");
+        }
+
+        // 2. Duplicate course title check for instructor
+        boolean courseExists = courseRepository.existsByTitleAndInstructor(
+                course.getTitle(),
+                instructorService.getInstructorById(course.getInstructorId())
+        );
         if (courseExists) {
             throw new RuntimeException("Course already exists with this title for the instructor.");
         }
-        if (course.getTitle() == null || course.getTitle().isEmpty()) {
-            throw new RuntimeException("Course title cannot be empty");
-        }
-        if (course.getDescription() == null || course.getDescription().isEmpty()) {
-            throw new RuntimeException("Course description cannot be empty");
-        }
-        if (course.getInstructorId() == null || course.getInstructorId().isEmpty()) {
-            throw new RuntimeException("Instructor ID cannot be empty");
+
+        // 3. Module-level validation
+        List<ModuleRequest> modules = course.getModules();
+        if (modules == null || modules.size() < 3) {
+            throw new RuntimeException("Course must have at least 3 modules.");
         }
 
-        Set<Integer> sequences = new HashSet<>();
+        Set<Integer> seenSequences = new HashSet<>();
+        Map<Type, Long> typeCounts = new EnumMap<>(Type.class);
 
-        Set<Type> types = course.getModules().stream()
-                .peek(module -> {
-                    if (!sequences.add(module.getSequence())) {
-                        throw new RuntimeException("Duplicate module sequence number found: " + module.getSequence());
-                    }
-                })
-                .map(ModuleRequest::getType)
-                .collect(Collectors.toSet());
+        for (ModuleRequest module : modules) {
+            // Check duplicate sequence in request
+            if (!seenSequences.add(module.getSequence())) {
+                throw new RuntimeException("Duplicate sequence number in request: " + module.getSequence());
+            }
 
-        if (!types.containsAll(Set.of(Type.Introduction, Type.Lesson, Type.Conclusion))) {
-            throw new RuntimeException("Modules must include INTRODUCTION, at least one LESSON, and CONCLUSION.");
+            // Count module types
+            typeCounts.merge(module.getType(), 1L, Long::sum);
+        }
+
+        if (typeCounts.getOrDefault(Type.Introduction, 0L) != 1) {
+            throw new RuntimeException("Course must have exactly one INTRODUCTION module.");
+        }
+        if (typeCounts.getOrDefault(Type.Lesson, 0L) < 1) {
+            throw new RuntimeException("Course must have at least one LESSON module.");
+        }
+        if (typeCounts.getOrDefault(Type.Conclusion, 0L) != 1) {
+            throw new RuntimeException("Course must have exactly one CONCLUSION module.");
+        }
+
+        // 4. Check for duplicate sequence numbers in DB
+        if (course.getCourseId() != null && !course.getCourseId().isBlank()) {
+            List<Integer> existingSequences = moduleService.getSequencesByCourseId(course.getCourseId());
+
+            for (Integer sequence : seenSequences) {
+                if (existingSequences.contains(sequence)) {
+                    throw new RuntimeException("Module sequence " + sequence + " already exists in the course.");
+                }
+            }
         }
     }
 
