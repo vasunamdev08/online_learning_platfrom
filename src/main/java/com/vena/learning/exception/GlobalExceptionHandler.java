@@ -2,6 +2,7 @@ package com.vena.learning.exception;
 
 import com.vena.learning.exception.customException.AdminException.AdminNotFoundByEmailException;
 import com.vena.learning.exception.customException.AdminException.AdminNotFoundByIdException;
+import com.vena.learning.exception.customException.CourseExceptions.CourseAlreadyDeletedException;
 import com.vena.learning.exception.customException.CourseExceptions.CourseAlreadyExistsForInstructorException;
 import com.vena.learning.exception.customException.CourseExceptions.CourseApprovalNotAuthorizedException;
 import com.vena.learning.exception.customException.CourseExceptions.CourseDescriptionEmptyException;
@@ -81,6 +82,23 @@ public class GlobalExceptionHandler {
         problemDetail.setProperty("id", ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).contentType(MediaType.APPLICATION_PROBLEM_JSON).body(problemDetail);
     }
+
+    @ExceptionHandler(CourseAlreadyDeletedException.class)
+    public ResponseEntity<ProblemDetail> handleCourseAlreadyDeletedException(CourseAlreadyDeletedException e,
+                                                                              HttpServletRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.GONE);
+        problemDetail.setTitle("Course Already Deleted");
+        problemDetail.setDetail(e.getMessage()); // assuming the exception has a message
+        problemDetail.setProperty("errorCode", "COURSE_ALREADY_DELETED");
+        problemDetail.setProperty("path", request.getRequestURI());
+
+        return ResponseEntity
+                .status(HttpStatus.GONE)
+                .body(problemDetail);
+    }
+
+
+
 
     @ExceptionHandler(CourseAlreadyExistsForInstructorException.class)
     public ResponseEntity<ProblemDetail> handleCourseAlreadyExistsForInstructorException(CourseAlreadyExistsForInstructorException e,
