@@ -9,6 +9,7 @@ import com.vena.learning.model.Course;
 import com.vena.learning.model.Instructor;
 import com.vena.learning.model.Module;
 import com.vena.learning.enums.Role;
+import com.vena.learning.enums.Type;
 import com.vena.learning.repository.InstructorRepository;
 import com.vena.learning.service.CourseService;
 import com.vena.learning.service.InstructorService;
@@ -173,6 +174,17 @@ public class InstructorServiceImpl implements InstructorService {
         // Persist changes
         Module updated = moduleService.updateModule(existingModule, moduleRequest);
         return new ModuleResponse(updated);
+    }
+
+    @Override
+    public void deleteModule(String moduleId) {
+        Module module = moduleService.fetchModuleByIdOrThrow(moduleId);
+
+        if (module.getType() != Type.Lesson) {
+            throw new RuntimeException("Cannot delete module of type " + module.getType() + ". Only LESSON modules can be deleted.");
+        }
+
+        moduleService.deleteModuleById(moduleId);
     }
 
 }

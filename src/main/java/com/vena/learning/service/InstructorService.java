@@ -39,4 +39,5 @@ public interface InstructorService {
 
     boolean isInstructorExist(String userId);
     ModuleResponse updateModule(ModuleRequest moduleRequest);
+    void deleteModule(String moduleId);
 }

@@ -62,4 +62,10 @@ public class InstructorController {
         return ResponseEntity.ok(updatedModule);
     }
 
+    @DeleteMapping("/courses/modules/{moduleId}")
+    public ResponseEntity<Void> deleteModule(@PathVariable String moduleId) {
+        instructorService.deleteModule(moduleId);
+        return ResponseEntity.noContent().build();
+    }
+
 }

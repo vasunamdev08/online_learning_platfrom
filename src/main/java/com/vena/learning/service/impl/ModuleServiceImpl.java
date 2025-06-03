@@ -147,4 +147,9 @@ public class ModuleServiceImpl implements ModuleService {
         }
     }
 
+    @Override
+    public void deleteModuleById(String moduleId) {
+        moduleRepository.deleteById(moduleId);
+    }
+
 }
