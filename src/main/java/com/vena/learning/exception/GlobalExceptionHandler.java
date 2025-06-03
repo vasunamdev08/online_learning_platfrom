@@ -18,6 +18,7 @@ import com.vena.learning.exception.customException.ModuleExceptions.FirstModuleM
 import com.vena.learning.exception.customException.ModuleExceptions.LastModuleMustBeConclusionException;
 import com.vena.learning.exception.customException.ModuleExceptions.ModuleNotFoundByIdAndCourseIdException;
 import com.vena.learning.exception.customException.ModuleExceptions.MultipleConclusionModulesException;
+import com.vena.learning.exception.customException.ModuleExceptions.MultipleIntroductionModulesException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -287,6 +288,20 @@ public class GlobalExceptionHandler {
         problemDetail.setTitle("Multiple Conclusion Modules Found");
         problemDetail.setDetail(e.getMessage()); // assuming the exception has a message
         problemDetail.setProperty("errorCode", "MULTIPLE_CONCLUSION_MODULES");
+        problemDetail.setProperty("path", request.getRequestURI());
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(problemDetail);
+    }
+
+    @ExceptionHandler(MultipleIntroductionModulesException.class)
+    public ResponseEntity<ProblemDetail> handleMultipleIntroductionModulesException(MultipleIntroductionModulesException e,
+                                                                                     HttpServletRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problemDetail.setTitle("Multiple Introduction Modules Found");
+        problemDetail.setDetail(e.getMessage()); // assuming the exception has a message
+        problemDetail.setProperty("errorCode", "MULTIPLE_INTRODUCTION_MODULES");
         problemDetail.setProperty("path", request.getRequestURI());
 
         return ResponseEntity
