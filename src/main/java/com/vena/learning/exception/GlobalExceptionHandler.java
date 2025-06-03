@@ -1,5 +1,6 @@
 package com.vena.learning.exception;
 
+import com.vena.learning.exception.customException.AdminException.AdminAlreadyExistsException;
 import com.vena.learning.exception.customException.AdminException.AdminNotFoundByEmailException;
 import com.vena.learning.exception.customException.AdminException.AdminNotFoundByIdException;
 import com.vena.learning.exception.customException.AdminException.AdminNotFoundByUsernameException;
@@ -106,6 +107,20 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
+                .body(problemDetail);
+    }
+
+    @ExceptionHandler(AdminAlreadyExistsException.class)
+    public ResponseEntity<ProblemDetail> handleAdminAlreadyExistsException(AdminAlreadyExistsException e,
+                                                                           HttpServletRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.CONFLICT);
+        problemDetail.setTitle("Admin Already Exists");
+        problemDetail.setDetail(e.getMessage()); // assuming the exception has a message
+        problemDetail.setProperty("errorCode", "ADMIN_ALREADY_EXISTS");
+        problemDetail.setProperty("path", request.getRequestURI());
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
                 .body(problemDetail);
     }
 
