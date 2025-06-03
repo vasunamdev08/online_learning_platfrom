@@ -1,7 +1,9 @@
 package com.vena.learning.controller;
 
 import com.vena.learning.dto.requestDto.EnrollmentRequest;
+import com.vena.learning.dto.responseDto.QuestionResponse;
 import com.vena.learning.dto.requestDto.StudentUpdateRequest;
+import com.vena.learning.dto.responseDto.QuestionResponseWrapper;
 import com.vena.learning.dto.responseDto.UserResponse;
 import com.vena.learning.enums.Grade;
 import com.vena.learning.model.Course;
@@ -9,6 +11,7 @@ import com.vena.learning.model.Enrollment;
 import com.vena.learning.model.Module;
 import com.vena.learning.service.EnrollmentService;
 import com.vena.learning.service.ModuleService;
+import com.vena.learning.service.QuizService;
 import com.vena.learning.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +21,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
@@ -31,6 +33,8 @@ public class StudentController {
     private EnrollmentService enrollmentService;
     @Autowired
     private ModuleService moduleService;
+    @Autowired
+    private QuizService quizService;
 
     /*
     we can use this endpoint to get all courses that a student is enrolled in after logging in.
@@ -68,6 +72,12 @@ public class StudentController {
     public ResponseEntity<?> getModuleById(@PathVariable String studentId, @PathVariable String courseId, @PathVariable String moduleId) {
         Module module = moduleService.getModuleById(studentId, courseId, moduleId);
         return ResponseEntity.ok(module);
+    }
+
+    @GetMapping("/{studentId}/courses/{courseId}/quizzes/{quizId}")
+    public ResponseEntity<QuestionResponseWrapper> getQuizQuestions(@PathVariable String studentId, @PathVariable String courseId, @PathVariable String quizId) {
+        List<QuestionResponse> questions = quizService.getQuizQuestions(studentId, courseId, quizId);
+        return ResponseEntity.ok(new QuestionResponseWrapper(questions));
     }
 
     @PutMapping("update/profile")

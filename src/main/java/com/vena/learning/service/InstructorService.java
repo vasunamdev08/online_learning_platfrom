@@ -33,5 +33,7 @@ public interface InstructorService {
 
     void deleteInstructorCourse(String courseId);
 
+    CourseResponse addModuleToCourse(CourseRequest courseRequest);
+
     boolean isInstructorExist(String userId);
 }
