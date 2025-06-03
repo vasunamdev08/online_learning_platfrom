@@ -1,5 +1,5 @@
 package com.vena.learning.enums;
 
 public enum Role {
-    STUDENT, INSTRUCTOR, ADMIN
+    ROLE_STUDENT, ROLE_INSTRUCTOR, ROLE_ADMIN
 }
