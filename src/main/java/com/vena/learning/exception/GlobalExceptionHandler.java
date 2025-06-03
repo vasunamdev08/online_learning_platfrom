@@ -7,6 +7,7 @@ import com.vena.learning.exception.customException.CourseExceptions.CourseAlread
 import com.vena.learning.exception.customException.CourseExceptions.CourseAlreadyDeletedException;
 import com.vena.learning.exception.customException.CourseExceptions.CourseAlreadyExistsForInstructorException;
 import com.vena.learning.exception.customException.CourseExceptions.CourseApprovalNotAuthorizedException;
+import com.vena.learning.exception.customException.CourseExceptions.CourseDeletionNotAuthorizedException;
 import com.vena.learning.exception.customException.CourseExceptions.CourseDescriptionEmptyException;
 import com.vena.learning.exception.customException.CourseExceptions.CourseNotFoundByIdException;
 import com.vena.learning.exception.customException.CourseExceptions.CourseQuizAccessDeniedDueToDeletionException;
@@ -118,6 +119,20 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.GONE)
+                .body(problemDetail);
+    }
+
+    @ExceptionHandler(CourseDeletionNotAuthorizedException.class)
+    public ResponseEntity<ProblemDetail> handleCourseDeletionNotAuthorizedException(CourseDeletionNotAuthorizedException e,
+                                                                                     HttpServletRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
+        problemDetail.setTitle("Course Deletion Not Authorized");
+        problemDetail.setDetail(e.getMessage()); // assuming the exception has a message
+        problemDetail.setProperty("errorCode", "COURSE_DELETION_NOT_AUTHORIZED");
+        problemDetail.setProperty("path", request.getRequestURI());
+
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
                 .body(problemDetail);
     }
 
