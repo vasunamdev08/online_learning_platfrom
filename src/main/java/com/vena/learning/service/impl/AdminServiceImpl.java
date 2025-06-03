@@ -13,9 +13,22 @@ import com.vena.learning.dto.responseDto.QuizSummary;
 import com.vena.learning.dto.responseDto.StatisticsResponse;
 import com.vena.learning.dto.responseDto.StudentStatResponse;
 import com.vena.learning.dto.responseDto.UserResponse;
+import com.vena.learning.exception.customException.AdminException.AdminAlreadyExistsException;
 import com.vena.learning.exception.customException.AdminException.AdminNotFoundByEmailException;
 import com.vena.learning.exception.customException.AdminException.AdminNotFoundByIdException;
 import com.vena.learning.exception.customException.AdminException.AdminNotFoundByUsernameException;
+import com.vena.learning.exception.customException.AdminException.IncompleteAdminDetailsException;
+import com.vena.learning.exception.customException.CourseExceptions.CourseAlreadyApprovedException;
+import com.vena.learning.exception.customException.CourseExceptions.CourseAlreadyDeletedException;
+import com.vena.learning.exception.customException.CourseExceptions.CourseApprovalNotAuthorizedException;
+import com.vena.learning.exception.customException.CourseExceptions.CourseDeletionNotAuthorizedException;
+import com.vena.learning.exception.customException.CourseExceptions.CourseViewNotAuthorizedException;
+import com.vena.learning.exception.customException.InstitutionExceptions.InstitutionDetailsMissingException;
+import com.vena.learning.exception.customException.InstitutionExceptions.NoCoursesFoundForInstitutionException;
+import com.vena.learning.exception.customException.InstructorExceptions.InstructorNotFoundForCourseException;
+import com.vena.learning.exception.customException.InstructorExceptions.InstructorViewNotAuthorizedException;
+import com.vena.learning.exception.customException.StudentExceptions.StudentViewNotAuthorizedException;
+import com.vena.learning.exception.customException.UserExceptions.UserDeletionNotAuthorizedException;
 import com.vena.learning.model.Course;
 import com.vena.learning.model.Enrollment;
 import com.vena.learning.model.Instructor;
@@ -66,10 +79,10 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public void registerAdmin(RegisterRequest adminRequest) {
         if(adminRequest.getName() == null || adminRequest.getEmail() == null || adminRequest.getUsername() == null || adminRequest.getPassword() == null) {
-            throw new RuntimeException("Admin details are incomplete");
+            throw new IncompleteAdminDetailsException("Admin details are incomplete");
         }
         if(isExists(adminRequest.getEmail(), adminRequest.getUsername())) {
-            throw new RuntimeException("Admin already exists with email: " + adminRequest.getEmail() + " or username: " + adminRequest.getUsername());
+            throw new AdminAlreadyExistsException("Admin already exists with email: " + adminRequest.getEmail() + " or username: " + adminRequest.getUsername());
         }
         saveAdmin(adminRequest);
     }
@@ -104,21 +117,21 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public Admin getAdminByEmail(String email) {
         return adminRepository.findByEmail(email).orElseThrow(
-                () -> new AdminNotFoundByEmailException(email)
+                () -> new AdminNotFoundByEmailException("Admin not found with email: " + email)
         );
     }
 
     @Override
     public Admin getAdminById(String id) {
         return adminRepository.findById(id).orElseThrow(
-                () -> new AdminNotFoundByIdException(id)
+                () -> new AdminNotFoundByIdException("Admin not found with id: " + id)
         );
     }
 
     @Override
     public Admin getAdminByUsername(String username) {
         return adminRepository.findByUsername(username).orElseThrow(
-                () -> new AdminNotFoundByUsernameException(username)
+                () -> new AdminNotFoundByUsernameException("Admin not found with username: " + username)
         );
     }
 
@@ -126,7 +139,7 @@ public class AdminServiceImpl implements AdminService {
     public List<CourseResponse> getAllCoursesByInstitution(String adminId){
         String institution = getInstitutionByAdminId(adminId);
         if(institution==null || institution.trim().isEmpty()){
-            throw new IllegalArgumentException("Institution cannot be null or empty");
+            throw new InstitutionDetailsMissingException("Institution cannot be null or empty");
         }
 
         List<Instructor> instructors= instructorService.getAllInstructorByInstitute(institution);
@@ -142,7 +155,7 @@ public class AdminServiceImpl implements AdminService {
     public List<UserResponse> getAllUsersByInstitution(String adminId) {
         String institution = getInstitutionByAdminId(adminId);
         if(institution==null || institution.trim().isEmpty()){
-            throw new IllegalArgumentException("Institution cannot be null or empty");
+            throw new InstitutionDetailsMissingException("Institution cannot be null or empty");
         }
         List<User> allUsers=new ArrayList<>();
         allUsers.addAll(studentService.getAllStudentByInstitute(institution));
@@ -164,7 +177,7 @@ public class AdminServiceImpl implements AdminService {
                 // Only delete if the student belongs to the same institution as the admin
                 studentService.deleteStudent(userId);
             }else{
-                throw new RuntimeException("You are not authorized to delete this user");
+                throw new UserDeletionNotAuthorizedException("You are not authorized to delete this user");
             }
         }else if(instructorService.isInstructorExist(userId)) {
             Instructor instructor  = instructorService.getInstructorById(userId);
@@ -172,11 +185,11 @@ public class AdminServiceImpl implements AdminService {
                 // Only delete if the instructor belongs to the same institution as the admin
                 instructorService.deleteInstructor(userId);
             } else {
-                throw new RuntimeException("You are not authorized to delete this user");
+                throw new UserDeletionNotAuthorizedException("You are not authorized to delete this user");
             }
         }
         else {
-            throw new RuntimeException("You are not authorized to delete this user");
+            throw new UserDeletionNotAuthorizedException("You are not authorized to delete this user");
         }
     }
 
@@ -184,7 +197,7 @@ public class AdminServiceImpl implements AdminService {
     public void deleteCourse(String adminId,String courseId) {
         Course course = courseService.getCourseById(courseId);
         if(course.isDeleted()){
-            throw new RuntimeException("Course already deleted");
+            throw new CourseAlreadyDeletedException("Course already deleted");
         }
         Instructor instructor = course.getInstructor();
 
@@ -192,7 +205,7 @@ public class AdminServiceImpl implements AdminService {
         String adminInstitution = getInstitutionByAdminId(adminId);
 
         if (!instructorInstitution.equalsIgnoreCase(adminInstitution)) {
-            throw new UnsupportedOperationException("You are not authorized to delete this course");
+            throw new CourseDeletionNotAuthorizedException("You are not authorized to delete this course");
         }
         course.setDeleted(true);
         courseService.addCourse(course);
@@ -205,17 +218,17 @@ public class AdminServiceImpl implements AdminService {
 
         Course course = courseService.getCourseById(courseId);
         if(course.isApproved()){
-            throw new RuntimeException("Course already approved");
+            throw new CourseAlreadyApprovedException("Course already approved");
         }
         Instructor instructor = course.getInstructor();
         if (instructor == null) {
-            throw new RuntimeException("Instructor not found for this course");
+            throw new InstructorNotFoundForCourseException("Instructor not found for this course");
         }
         String instructorInstitution = instructor.getInstitution();
         String adminInstitution = getInstitutionByAdminId(adminId);
 
         if (!instructorInstitution.equalsIgnoreCase(adminInstitution)) {
-            throw new UnsupportedOperationException("You are not authorized to approve this course");
+            throw new CourseApprovalNotAuthorizedException("You are not authorized to approve this course");
         }
         course.setApproved(true);
         courseService.addCourse(course);
@@ -301,7 +314,7 @@ public class AdminServiceImpl implements AdminService {
         List<CourseResponse> allCourses = getAllCoursesByInstitution(adminId);
 
         if (allCourses == null || allCourses.isEmpty()) {
-            throw new RuntimeException("No courses found for the institution");
+            throw new NoCoursesFoundForInstitutionException("No courses found for the institution");
         }
 
         Map<String, List<CourseResponse>> coursesByStatus = allCourses.stream()
@@ -331,7 +344,7 @@ public class AdminServiceImpl implements AdminService {
     public List<UserResponse> getAllStudentsByInstitution(String adminId) {
         String institution = getInstitutionByAdminId(adminId);
         if (institution == null || institution.trim().isEmpty()) {
-            throw new IllegalArgumentException("Institution cannot be null or empty");
+            throw new InstitutionDetailsMissingException("Institution cannot be null or empty");
         }
         List<Student> students = studentService.getAllStudentByInstitute(institution);
         return students.stream()
@@ -343,7 +356,7 @@ public class AdminServiceImpl implements AdminService {
     public List<UserResponse> getAllInstructorsByInstitution(String adminId) {
         String institution = getInstitutionByAdminId(adminId);
         if (institution == null || institution.trim().isEmpty()) {
-            throw new IllegalArgumentException("Institution cannot be null or empty");
+            throw new InstitutionDetailsMissingException("Institution cannot be null or empty");
         }
         List<Instructor> instructors = instructorService.getAllInstructorByInstitute(institution);
         return instructors.stream()
@@ -357,7 +370,7 @@ public class AdminServiceImpl implements AdminService {
         if(student.getInstitution().equals(getInstitutionByAdminId(adminId))){
             return mapToShortStudentResponse(student);
         }else {
-            throw new RuntimeException("Not authorized to view student with id: "+studentId);
+            throw new StudentViewNotAuthorizedException("Not authorized to view student with id: "+studentId);
         }
     }
 
@@ -367,7 +380,7 @@ public class AdminServiceImpl implements AdminService {
         if(instructor.getInstitution().equals(getInstitutionByAdminId(adminId))){
             return new InstructorStatResponse(instructor);
         }else{
-            throw new RuntimeException("Not authorized to view instructor with id: " + instructorId);
+            throw new InstructorViewNotAuthorizedException("Not authorized to view instructor with id: " + instructorId);
         }
     }
 
@@ -377,7 +390,7 @@ public class AdminServiceImpl implements AdminService {
         if(course.getInstructor().getInstitution().equals(getInstitutionByAdminId(adminId))) {
             return new CourseStats(course);
         } else {
-            throw new RuntimeException("Not authorized to view course with id: " + courseId);
+            throw new CourseViewNotAuthorizedException("Not authorized to view course with id: " + courseId);
         }
     }
 
