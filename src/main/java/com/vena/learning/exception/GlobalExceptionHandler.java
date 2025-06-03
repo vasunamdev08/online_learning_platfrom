@@ -16,6 +16,7 @@ import com.vena.learning.exception.customException.InstructorExceptions.Instruct
 import com.vena.learning.exception.customException.ModuleExceptions.EmptyModulesListException;
 import com.vena.learning.exception.customException.ModuleExceptions.FirstModuleMustBeIntroductionException;
 import com.vena.learning.exception.customException.ModuleExceptions.LastModuleMustBeConclusionException;
+import com.vena.learning.exception.customException.ModuleExceptions.ModuleNotFoundByIdAndCourseIdException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -261,6 +262,20 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
+                .body(problemDetail);
+    }
+
+    @ExceptionHandler(ModuleNotFoundByIdAndCourseIdException.class)
+    public ResponseEntity<ProblemDetail> handleModuleNotFoundByIdAndCourseIdException(ModuleNotFoundByIdAndCourseIdException e,
+                                                                                         HttpServletRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+        problemDetail.setTitle("Module Not Found");
+        problemDetail.setDetail(e.getMessage()); // assuming the exception has a message
+        problemDetail.setProperty("errorCode", "MODULE_NOT_FOUND");
+        problemDetail.setProperty("path", request.getRequestURI());
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
                 .body(problemDetail);
     }
 }
