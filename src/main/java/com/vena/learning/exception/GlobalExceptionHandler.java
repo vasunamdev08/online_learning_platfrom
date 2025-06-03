@@ -3,6 +3,7 @@ package com.vena.learning.exception;
 import com.vena.learning.exception.customException.AdminException.AdminNotFoundByEmailException;
 import com.vena.learning.exception.customException.AdminException.AdminNotFoundByIdException;
 import com.vena.learning.exception.customException.AdminException.AdminNotFoundByUsernameException;
+import com.vena.learning.exception.customException.AdminException.IncompleteAdminDetailsException;
 import com.vena.learning.exception.customException.CourseExceptions.CourseAlreadyApprovedException;
 import com.vena.learning.exception.customException.CourseExceptions.CourseAlreadyDeletedException;
 import com.vena.learning.exception.customException.CourseExceptions.CourseAlreadyExistsForInstructorException;
@@ -92,6 +93,20 @@ public class GlobalExceptionHandler {
         problemDetail.setTitle("Admin Not Found");
         problemDetail.setProperty("username", ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).contentType(MediaType.APPLICATION_PROBLEM_JSON).body(problemDetail);
+    }
+
+    @ExceptionHandler(IncompleteAdminDetailsException.class)
+    public ResponseEntity<ProblemDetail> handleIncompleteAdminDetailsException(IncompleteAdminDetailsException e,
+                                                                               HttpServletRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problemDetail.setTitle("Incomplete Admin Details");
+        problemDetail.setDetail(e.getMessage()); // assuming the exception has a message
+        problemDetail.setProperty("errorCode", "INCOMPLETE_ADMIN_DETAILS");
+        problemDetail.setProperty("path", request.getRequestURI());
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(problemDetail);
     }
 
     @ExceptionHandler(CourseAlreadyApprovedException.class)
