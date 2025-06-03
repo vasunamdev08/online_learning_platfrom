@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ModuleRepository extends JpaRepository<Module, String> {
-    List<Module> findByCourse_Id(String courseId);
-
     Optional<Module> findByIdAndCourseId(String moduleId, String courseId);
     List<Module> findByCourseId(String courseId);
 }

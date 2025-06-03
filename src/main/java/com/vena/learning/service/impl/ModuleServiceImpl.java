@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class ModuleServiceImpl implements ModuleService {
     @Autowired
     private ModuleRepository moduleRepository;
@@ -56,7 +55,7 @@ public class ModuleServiceImpl implements ModuleService {
 
     @Override
     public List<Integer> getSequencesByCourseId(String courseId) {
-        return moduleRepository.findByCourse_Id(courseId)
+        return moduleRepository.findByCourseId(courseId)
                 .stream()
                 .map(Module::getSequence)
                 .toList();

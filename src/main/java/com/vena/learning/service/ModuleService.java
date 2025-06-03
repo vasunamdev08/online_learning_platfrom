@@ -11,7 +11,7 @@ import java.util.List;
 public interface ModuleService {
     Module getModuleById(String studentId, String courseId, String moduleId);
     CourseResponse addModuleToCourse(CourseRequest courseRequest);
-    public List<Integer> getSequencesByCourseId(String courseId);
+    List<Integer> getSequencesByCourseId(String courseId);
     List<Module> getModulesByCourseId(String courseId);
 
 }
