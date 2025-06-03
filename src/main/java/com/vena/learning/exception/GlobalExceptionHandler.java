@@ -2,6 +2,7 @@ package com.vena.learning.exception;
 
 import com.vena.learning.exception.customException.AdminException.AdminNotFoundByEmailException;
 import com.vena.learning.exception.customException.AdminException.AdminNotFoundByIdException;
+import com.vena.learning.exception.customException.CourseExceptions.CourseAlreadyApprovedException;
 import com.vena.learning.exception.customException.CourseExceptions.CourseAlreadyDeletedException;
 import com.vena.learning.exception.customException.CourseExceptions.CourseAlreadyExistsForInstructorException;
 import com.vena.learning.exception.customException.CourseExceptions.CourseApprovalNotAuthorizedException;
@@ -83,6 +84,20 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).contentType(MediaType.APPLICATION_PROBLEM_JSON).body(problemDetail);
     }
 
+    @ExceptionHandler(CourseAlreadyApprovedException.class)
+    public ResponseEntity<ProblemDetail> handleCourseAlreadyApprovedException(CourseAlreadyApprovedException e,
+                                                                               HttpServletRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.CONFLICT);
+        problemDetail.setTitle("Course Already Approved");
+        problemDetail.setDetail(e.getMessage()); // assuming the exception has a message
+        problemDetail.setProperty("errorCode", "COURSE_ALREADY_APPROVED");
+        problemDetail.setProperty("path", request.getRequestURI());
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(problemDetail);
+    }
+
     @ExceptionHandler(CourseAlreadyDeletedException.class)
     public ResponseEntity<ProblemDetail> handleCourseAlreadyDeletedException(CourseAlreadyDeletedException e,
                                                                               HttpServletRequest request) {
@@ -96,9 +111,6 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.GONE)
                 .body(problemDetail);
     }
-
-
-
 
     @ExceptionHandler(CourseAlreadyExistsForInstructorException.class)
     public ResponseEntity<ProblemDetail> handleCourseAlreadyExistsForInstructorException(CourseAlreadyExistsForInstructorException e,
