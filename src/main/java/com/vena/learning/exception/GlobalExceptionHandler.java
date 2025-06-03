@@ -5,6 +5,7 @@ import com.vena.learning.exception.customException.AdminException.AdminNotFoundB
 import com.vena.learning.exception.customException.CourseExceptions.CourseDescriptionEmptyException;
 import com.vena.learning.exception.customException.CourseExceptions.CourseNotFoundByIdException;
 import com.vena.learning.exception.customException.CourseExceptions.CourseQuizAccessDeniedDueToDeletionException;
+import com.vena.learning.exception.customException.CourseExceptions.CourseQuizAccessDeniedDueToUnapprovedStatusException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -98,4 +99,19 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.FORBIDDEN)
                 .body(problemDetail);
     }
+
+    @ExceptionHandler(CourseQuizAccessDeniedDueToUnapprovedStatusException.class)
+    public ResponseEntity<ProblemDetail> handleCourseQuizAccessDeniedDueToUnapprovedStatusException(CourseQuizAccessDeniedDueToUnapprovedStatusException e,
+                                                                                                       HttpServletRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
+        problemDetail.setTitle("Quiz Access Denied");
+        problemDetail.setDetail(e.getMessage()); // assuming the exception has a message
+        problemDetail.setProperty("errorCode", "QUIZ_ACCESS_DENIED_UNAPPROVED");
+        problemDetail.setProperty("path", request.getRequestURI());
+
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(problemDetail);
+    }
+
 }
