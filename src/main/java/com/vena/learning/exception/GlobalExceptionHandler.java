@@ -2,6 +2,7 @@ package com.vena.learning.exception;
 
 import com.vena.learning.exception.customException.AdminException.AdminNotFoundByEmailException;
 import com.vena.learning.exception.customException.AdminException.AdminNotFoundByIdException;
+import com.vena.learning.exception.customException.CourseExceptions.CourseAlreadyExistsForInstructorException;
 import com.vena.learning.exception.customException.CourseExceptions.CourseApprovalNotAuthorizedException;
 import com.vena.learning.exception.customException.CourseExceptions.CourseDescriptionEmptyException;
 import com.vena.learning.exception.customException.CourseExceptions.CourseNotFoundByIdException;
@@ -79,6 +80,20 @@ public class GlobalExceptionHandler {
         problemDetail.setTitle("Admin Not Found");
         problemDetail.setProperty("id", ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).contentType(MediaType.APPLICATION_PROBLEM_JSON).body(problemDetail);
+    }
+
+    @ExceptionHandler(CourseAlreadyExistsForInstructorException.class)
+    public ResponseEntity<ProblemDetail> handleCourseAlreadyExistsForInstructorException(CourseAlreadyExistsForInstructorException e,
+                                                                                          HttpServletRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.CONFLICT);
+        problemDetail.setTitle("Course Already Exists for Instructor");
+        problemDetail.setDetail(e.getMessage()); // assuming the exception has a message
+        problemDetail.setProperty("errorCode", "COURSE_ALREADY_EXISTS");
+        problemDetail.setProperty("path", request.getRequestURI());
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(problemDetail);
     }
 
     @ExceptionHandler(CourseApprovalNotAuthorizedException.class)
