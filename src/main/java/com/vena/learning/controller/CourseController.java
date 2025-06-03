@@ -1,6 +1,7 @@
 package com.vena.learning.controller;
 
 import com.vena.learning.dto.responseDto.CourseResponse;
+import com.vena.learning.dto.responseDto.QuizResponseWrapper;
 import com.vena.learning.service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -29,4 +30,9 @@ public class CourseController {
         return ResponseEntity.ok(course);
     }
 
+    @GetMapping("/{courseId}/quizzes")
+    public ResponseEntity<?> fetchAllQuizzes(@PathVariable String courseId) {
+        QuizResponseWrapper quizzes = courseService.getAllQuizzesForCourse(courseId);
+        return ResponseEntity.ok(quizzes);
+    }
 }
