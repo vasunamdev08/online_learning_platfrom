@@ -13,6 +13,9 @@ import com.vena.learning.dto.responseDto.QuizSummary;
 import com.vena.learning.dto.responseDto.StatisticsResponse;
 import com.vena.learning.dto.responseDto.StudentStatResponse;
 import com.vena.learning.dto.responseDto.UserResponse;
+import com.vena.learning.exception.customException.AdminException.AdminNotFoundByEmailException;
+import com.vena.learning.exception.customException.AdminException.AdminNotFoundByIdException;
+import com.vena.learning.exception.customException.AdminException.AdminNotFoundByUsernameException;
 import com.vena.learning.model.Course;
 import com.vena.learning.model.Enrollment;
 import com.vena.learning.model.Instructor;
@@ -101,21 +104,21 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public Admin getAdminByEmail(String email) {
         return adminRepository.findByEmail(email).orElseThrow(
-                () -> new RuntimeException("Admin not found with email: " + email)
+                () -> new AdminNotFoundByEmailException(email)
         );
     }
 
     @Override
     public Admin getAdminById(String id) {
         return adminRepository.findById(id).orElseThrow(
-                () -> new RuntimeException("Admin not found with id: " + id)
+                () -> new AdminNotFoundByIdException(id)
         );
     }
 
     @Override
     public Admin getAdminByUsername(String username) {
         return adminRepository.findByUsername(username).orElseThrow(
-                () -> new RuntimeException("Admin not found with username: " + username)
+                () -> new AdminNotFoundByUsernameException(username)
         );
     }
 
