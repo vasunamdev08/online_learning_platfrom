@@ -2,6 +2,8 @@ package com.vena.learning.exception;
 
 import com.vena.learning.exception.customException.AdminException.AdminNotFoundByEmailException;
 import com.vena.learning.exception.customException.AdminException.AdminNotFoundByIdException;
+import com.vena.learning.exception.customException.CourseExceptions.CourseDescriptionEmptyException;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
@@ -37,7 +39,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(500).body("An error occurred: " + e.getMessage());
     }
 
-
     @ExceptionHandler(AdminNotFoundByEmailException.class)
     public ResponseEntity<ProblemDetail> handleAdminNotFoundByEmailException(AdminNotFoundByEmailException ex, WebRequest request) {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
@@ -54,5 +55,18 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).contentType(MediaType.APPLICATION_PROBLEM_JSON).body(problemDetail);
     }
 
+    @ExceptionHandler(CourseDescriptionEmptyException.class)
+    public ResponseEntity<ProblemDetail> handleCourseDescriptionEmptyException(CourseDescriptionEmptyException e,
+                                                                               HttpServletRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problemDetail.setTitle("Course Description Missing");
+        problemDetail.setDetail(e.getMessage()); // assuming the exception has a message
+        problemDetail.setProperty("errorCode", "COURSE_DESC_EMPTY");
+        problemDetail.setProperty("path", request.getRequestURI());
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(problemDetail);
+    }
 
 }
