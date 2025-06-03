@@ -10,6 +10,7 @@ import com.vena.learning.exception.customException.CourseExceptions.CourseTitleE
 import com.vena.learning.exception.customException.CourseExceptions.CourseViewNotAuthorizedException;
 import com.vena.learning.exception.customException.InstitutionExceptions.InstitutionDetailsMissingException;
 import com.vena.learning.exception.customException.InstitutionExceptions.NoCoursesFoundForInstitutionException;
+import com.vena.learning.exception.customException.InstructorExceptions.InstructorNotFoundForCourseException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -167,6 +168,20 @@ public class GlobalExceptionHandler {
         problemDetail.setTitle("No Courses Found for Institution");
         problemDetail.setDetail(e.getMessage()); // assuming the exception has a message
         problemDetail.setProperty("errorCode", "NO_COURSES_FOUND");
+        problemDetail.setProperty("path", request.getRequestURI());
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(problemDetail);
+    }
+
+    @ExceptionHandler(InstructorNotFoundForCourseException.class)
+    public ResponseEntity<ProblemDetail> handleInstructorNotFoundForCourseException(InstructorNotFoundForCourseException e,
+                                                                                     HttpServletRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+        problemDetail.setTitle("Instructor Not Found for Course");
+        problemDetail.setDetail(e.getMessage()); // assuming the exception has a message
+        problemDetail.setProperty("errorCode", "INSTRUCTOR_NOT_FOUND");
         problemDetail.setProperty("path", request.getRequestURI());
 
         return ResponseEntity
