@@ -26,6 +26,7 @@ import com.vena.learning.exception.customException.StudentExceptions.NoCoursesFo
 import com.vena.learning.exception.customException.StudentExceptions.StudentAlreadyEnrolledException;
 import com.vena.learning.exception.customException.StudentExceptions.StudentNotEnrolledInCourseException;
 import com.vena.learning.exception.customException.StudentExceptions.StudentNotFoundByIdException;
+import com.vena.learning.exception.customException.StudentExceptions.StudentViewNotAuthorizedException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -413,4 +414,20 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.NOT_FOUND)
                 .body(problemDetail);
     }
+
+    @ExceptionHandler(StudentViewNotAuthorizedException.class)
+    public ResponseEntity<ProblemDetail> handleStudentViewNotAuthorizedException(StudentViewNotAuthorizedException e,
+                                                                                 HttpServletRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.UNAUTHORIZED);
+        problemDetail.setTitle("Unauthorized Student View");
+        problemDetail.setDetail(e.getMessage()); // assuming the exception has a message
+        problemDetail.setProperty("errorCode", "STUDENT_VIEW_UNAUTHORIZED");
+        problemDetail.setProperty("path", request.getRequestURI());
+
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(problemDetail);
+    }
+
+
 }
