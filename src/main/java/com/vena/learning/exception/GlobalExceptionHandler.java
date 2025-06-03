@@ -20,6 +20,7 @@ import com.vena.learning.exception.customException.ModuleExceptions.ModuleNotFou
 import com.vena.learning.exception.customException.ModuleExceptions.MultipleConclusionModulesException;
 import com.vena.learning.exception.customException.ModuleExceptions.MultipleIntroductionModulesException;
 import com.vena.learning.exception.customException.QuizExceptions.QuizNotFoundException;
+import com.vena.learning.exception.customException.StudentExceptions.EnrollmentDoesNotExistException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -317,6 +318,20 @@ public class GlobalExceptionHandler {
         problemDetail.setTitle("Quiz Not Found");
         problemDetail.setDetail(e.getMessage()); // assuming the exception has a message
         problemDetail.setProperty("errorCode", "QUIZ_NOT_FOUND");
+        problemDetail.setProperty("path", request.getRequestURI());
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(problemDetail);
+    }
+
+    @ExceptionHandler(EnrollmentDoesNotExistException.class)
+    public ResponseEntity<ProblemDetail> handleEnrollmentDoesNotExistException(EnrollmentDoesNotExistException e,
+                                                                                HttpServletRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+        problemDetail.setTitle("Enrollment Not Found");
+        problemDetail.setDetail(e.getMessage()); // assuming the exception has a message
+        problemDetail.setProperty("errorCode", "ENROLLMENT_NOT_FOUND");
         problemDetail.setProperty("path", request.getRequestURI());
 
         return ResponseEntity
