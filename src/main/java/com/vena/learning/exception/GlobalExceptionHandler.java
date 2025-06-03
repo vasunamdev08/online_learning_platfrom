@@ -3,6 +3,8 @@ package com.vena.learning.exception;
 import com.vena.learning.exception.customException.AdminException.AdminNotFoundByEmailException;
 import com.vena.learning.exception.customException.AdminException.AdminNotFoundByIdException;
 import com.vena.learning.exception.customException.CourseExceptions.CourseDescriptionEmptyException;
+import com.vena.learning.exception.customException.CourseExceptions.CourseNotFoundByIdException;
+import com.vena.learning.exception.customException.CourseExceptions.CourseQuizAccessDeniedDueToDeletionException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -69,4 +71,17 @@ public class GlobalExceptionHandler {
                 .body(problemDetail);
     }
 
+    @ExceptionHandler(CourseNotFoundByIdException.class)
+    public ResponseEntity<ProblemDetail> handleCourseNotFoundByIdException(CourseNotFoundByIdException e,
+                                                                           HttpServletRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+        problemDetail.setTitle("Course Not Found");
+        problemDetail.setDetail(e.getMessage()); // assuming the exception has a message
+        problemDetail.setProperty("errorCode", "COURSE_NOT_FOUND");
+        problemDetail.setProperty("path", request.getRequestURI());
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(problemDetail);
+    }
 }
