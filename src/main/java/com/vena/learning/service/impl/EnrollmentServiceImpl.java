@@ -21,6 +21,7 @@ import java.util.List;
 @Service
 public class EnrollmentServiceImpl implements EnrollmentService {
     @Autowired
+    @Lazy
     private CourseService courseService;
     @Autowired
     private StudentService studentService;

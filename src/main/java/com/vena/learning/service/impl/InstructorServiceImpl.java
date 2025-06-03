@@ -1,20 +1,27 @@
 package com.vena.learning.service.impl;
 
 import com.vena.learning.dto.requestDto.CourseRequest;
+import com.vena.learning.dto.requestDto.ModuleRequest;
 import com.vena.learning.dto.requestDto.RegisterRequest;
 import com.vena.learning.dto.responseDto.CourseResponse;
+import com.vena.learning.dto.responseDto.ModuleResponse;
+import com.vena.learning.model.Course;
 import com.vena.learning.model.Instructor;
+import com.vena.learning.model.Module;
 import com.vena.learning.enums.Role;
 import com.vena.learning.repository.InstructorRepository;
 import com.vena.learning.service.CourseService;
 import com.vena.learning.service.InstructorService;
 import com.vena.learning.service.ModuleService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class InstructorServiceImpl implements InstructorService {
@@ -144,4 +151,33 @@ public class InstructorServiceImpl implements InstructorService {
     public boolean isInstructorExist(String userId) {
         return instructorRepository.existsById(userId);
     }
+
+    @Override
+    public ModuleResponse updateModule(ModuleRequest moduleRequest) {
+        if (moduleRequest.getId() == null || moduleRequest.getCourseId() == null) {
+            throw new IllegalArgumentException("Module ID and Course ID must not be null.");
+        }
+
+        // Validate course exists
+        Course course = courseService.getCourseById(moduleRequest.getCourseId());
+
+        // Validate module exists
+        Module existingModule = moduleService.fetchModuleByIdOrThrow(moduleRequest.getId());
+
+        // Ensure module belongs to the course
+        if (!existingModule.getCourse().getId().equals(moduleRequest.getCourseId())) {
+            throw new IllegalArgumentException("Module does not belong to the specified course.");
+        }
+
+        // Fetch all modules for the course
+        List<Module> allModules = moduleService.getModulesByCourseId(moduleRequest.getCourseId());
+
+        // Validate based on sequence position
+        moduleService.validateModuleTypeBySequence(moduleRequest, allModules);
+
+        // Persist changes
+        Module updated = moduleService.updateModule(existingModule, moduleRequest);
+        return new ModuleResponse(updated);
+    }
+
 }

@@ -23,6 +23,7 @@ public class QuizServiceImpl implements QuizService {
     @Autowired
     private EnrollmentService enrollmentService;
     @Autowired
+    @Lazy
     private CourseService courseService;
 
     @Override
