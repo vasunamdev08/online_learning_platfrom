@@ -13,25 +13,27 @@ import java.util.Optional;
 public interface InstructorService {
     void registerInstructor(RegisterRequest instructorRequest);
     void saveInstructor(RegisterRequest instructorRequest);
+    void deleteInstructor(String userId);
+    void deleteInstructorCourse(String courseId);
+
 
     boolean isExist(String email,String username);
+    boolean isExistsByEmail(String email);
+    boolean isExistsByUsername(String username);
+
     Instructor getInstructorByEmail(String email);
     Instructor getInstructorByUsername(String username);
     Instructor getInstructorById(String id);
 
+
+    Optional<Instructor> findById(String userId);
+
     List<Instructor> getAllInstructorByInstitute(String institution);
-    boolean isExistsByEmail(String email);
-    boolean isExistsByUsername(String username);
-
-    void deleteInstructor(String userId);
-
     List<Instructor> getAllInstructors();
     List<CourseResponse> getCoursesByInstructor(String instructorId);
 
     CourseResponse createCourse(CourseRequest request);
     CourseResponse updateInstructorCourse(CourseRequest request);
-
-    void deleteInstructorCourse(String courseId);
 
     CourseResponse addModuleToCourse(CourseRequest courseRequest);
 

@@ -1,5 +1,6 @@
 package com.vena.learning.service.impl;
 
+import com.vena.learning.dto.requestDto.AdminApproveCourse;
 import com.vena.learning.dto.responseDto.CourseResponse;
 import com.vena.learning.dto.responseDto.CourseStats;
 import com.vena.learning.dto.responseDto.CourseStatusResponse;
@@ -28,13 +29,11 @@ import com.vena.learning.service.InstructorService;
 import com.vena.learning.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -80,7 +79,7 @@ public class AdminServiceImpl implements AdminService {
         admin.setUsername(adminRequest.getUsername());
         admin.setPassword(adminRequest.getPassword());
         admin.setInstitution(adminRequest.getInstitution());
-        admin.setRole(Role.ADMIN);
+        admin.setRole(Role.ROLE_ADMIN);
         adminRepository.save(admin);
     }
 
@@ -128,10 +127,10 @@ public class AdminServiceImpl implements AdminService {
         }
 
         List<Instructor> instructors= instructorService.getAllInstructorByInstitute(institution);
-        List<Course> collect = instructors.stream()
+        List<Course> courses = instructors.stream()
                 .flatMap(instructor -> instructor.getCourses().stream())
                 .collect(Collectors.toList());
-        return collect.stream()
+        return courses.stream()
                 .map(CourseResponse::new)
                 .collect(Collectors.toList());
     }
@@ -197,7 +196,10 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public void approveCourse(String courseId, String adminId) {
+    public void approveCourse(AdminApproveCourse adminApproveCourse) {
+        String courseId = adminApproveCourse.getCourseId();
+        String adminId = adminApproveCourse.getAdminId();
+
         Course course = courseService.getCourseById(courseId);
         if(course.isApproved()){
             throw new RuntimeException("Course already approved");

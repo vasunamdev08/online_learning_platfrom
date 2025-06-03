@@ -29,6 +29,11 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
+    public Optional<Student> findById(String adminID) {
+        return studentRepository.findById(adminID);
+    }
+
+    @Override
     public Student getStudentById(String id) {
         return studentRepository.findById(id).orElseThrow(
                 () -> new RuntimeException("Student not found with id: " + id)
@@ -76,7 +81,7 @@ public class StudentServiceImpl implements StudentService {
         student.setPassword(user.getPassword());
         student.setName(user.getName());
         student.setInstitution(user.getInstitution());
-        student.setRole(Role.STUDENT);
+        student.setRole(Role.ROLE_STUDENT);
         studentRepository.save(student);
     }
 
