@@ -184,4 +184,9 @@ public class ModuleServiceImpl implements ModuleService {
         moduleRepository.deleteById(moduleId);
     }
 
+    @Override
+    public void saveAllModules(List<Module> modules) {
+        moduleRepository.saveAll(modules);
+    }
+
 }

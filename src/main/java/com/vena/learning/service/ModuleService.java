@@ -18,5 +18,6 @@ public interface ModuleService {
     Module fetchModuleByIdOrThrow(String moduleId);
     void validateModuleTypeBySequence(ModuleRequest request, List<Module> existingModules);
     void deleteModuleById(String moduleId);
+    void saveAllModules(List<Module> modules);
 
 }

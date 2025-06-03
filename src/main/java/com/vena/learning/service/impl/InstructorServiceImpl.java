@@ -20,6 +20,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -183,13 +184,34 @@ public class InstructorServiceImpl implements InstructorService {
 
     @Override
     public void deleteModule(String moduleId) {
+        // Fetch the module
         Module module = moduleService.fetchModuleByIdOrThrow(moduleId);
 
+        // Only allow deletion if the type is LESSON
         if (module.getType() != Type.Lesson) {
             throw new RuntimeException("Cannot delete module of type " + module.getType() + ". Only LESSON modules can be deleted.");
         }
 
+        // Get the courseId from the module
+        String courseId = module.getCourse().getId();
+
+        // Delete the module
         moduleService.deleteModuleById(moduleId);
+
+        // Fetch remaining modules for the course
+        List<Module> remainingModules = moduleService.getModulesByCourseId(courseId);
+
+        // Sort by current sequence
+        remainingModules.sort(Comparator.comparingInt(Module::getSequence));
+
+        // Reassign sequence numbers starting from 1
+        int newSequence = 1;
+        for (Module m : remainingModules) {
+            m.setSequence(newSequence++);
+        }
+
+        // Save updated modules
+        moduleService.saveAllModules(remainingModules);
     }
 
 }
