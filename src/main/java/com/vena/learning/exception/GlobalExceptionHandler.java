@@ -84,4 +84,18 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.NOT_FOUND)
                 .body(problemDetail);
     }
+
+    @ExceptionHandler(CourseQuizAccessDeniedDueToDeletionException.class)
+    public ResponseEntity<ProblemDetail> handleCourseQuizAccessDeniedDueToDeletionException(CourseQuizAccessDeniedDueToDeletionException e,
+                                                                                             HttpServletRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
+        problemDetail.setTitle("Quiz Access Denied");
+        problemDetail.setDetail(e.getMessage()); // assuming the exception has a message
+        problemDetail.setProperty("errorCode", "QUIZ_ACCESS_DENIED");
+        problemDetail.setProperty("path", request.getRequestURI());
+
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(problemDetail);
+    }
 }
