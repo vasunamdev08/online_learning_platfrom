@@ -8,6 +8,7 @@ import com.vena.learning.exception.customException.CourseExceptions.CourseQuizAc
 import com.vena.learning.exception.customException.CourseExceptions.CourseQuizAccessDeniedDueToUnapprovedStatusException;
 import com.vena.learning.exception.customException.CourseExceptions.CourseTitleEmptyException;
 import com.vena.learning.exception.customException.CourseExceptions.CourseViewNotAuthorizedException;
+import com.vena.learning.exception.customException.InstitutionExceptions.InstitutionDetailsMissingException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -143,4 +144,20 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.UNAUTHORIZED)
                 .body(problemDetail);
     }
+
+    @ExceptionHandler(InstitutionDetailsMissingException.class)
+    public ResponseEntity<ProblemDetail> handleInstitutionDetailsMissingException(InstitutionDetailsMissingException e,
+                                                                                   HttpServletRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problemDetail.setTitle("Institution Details Missing");
+        problemDetail.setDetail(e.getMessage()); // assuming the exception has a message
+        problemDetail.setProperty("errorCode", "INSTITUTION_DETAILS_MISSING");
+        problemDetail.setProperty("path", request.getRequestURI());
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(problemDetail);
+    }
+
+
 }
