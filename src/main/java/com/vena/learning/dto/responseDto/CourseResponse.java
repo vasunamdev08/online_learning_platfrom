@@ -34,6 +34,5 @@ public class CourseResponse {
                 .collect(Collectors.toList())
                 : new ArrayList<>();
     }
-
 }
 

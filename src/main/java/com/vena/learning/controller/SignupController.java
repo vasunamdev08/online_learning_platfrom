@@ -27,11 +27,13 @@ public class SignupController {
         studentService.registerStudent(studentRequest);
         return ResponseEntity.ok("Student registered successfully");
     }
+
     @PostMapping("/admin")
     public ResponseEntity<?> registerAdmin(@RequestBody RegisterRequest adminRequest) {
         adminService.registerAdmin(adminRequest);
         return ResponseEntity.ok("Admin registered successfully");
     }
+
     @PostMapping("/instructor")
     public ResponseEntity<?> registerInstructor(@RequestBody RegisterRequest instructorRequest) {
         instructorService.registerInstructor(instructorRequest);

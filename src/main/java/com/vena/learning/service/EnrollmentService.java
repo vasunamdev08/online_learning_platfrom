@@ -17,6 +17,7 @@ public interface EnrollmentService {
     void enrollStudent(EnrollmentRequest enrollmentRequest);
     void addEnrollment(Student student, Course course);
 
+    Enrollment saveEnrollment(Enrollment enrollment);
     Enrollment getCourseDetailsByIds(String studentId, String courseId);
     Grade getGradeByCourse(String studentId, String courseId);
     void setGradeBasedOnBestAttempt(String studentId, String courseId, String quizId, int attemptNumber);

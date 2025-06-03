@@ -24,6 +24,7 @@ public class Course{
     private boolean isComplete;
     private String description;
     private String title;
+    private long completionMask;
 
     @OneToMany(mappedBy="course", cascade = CascadeType.ALL)
     private List<Enrollment> enrollments;
@@ -50,6 +51,12 @@ public class Course{
         this.modules = courseRequest.getModules().stream()
                 .map(moduleRequest -> new Module(moduleRequest, this))
                 .toList();
+        initializeModuleTracking();
+        System.out.println("Course Completion Mask: " + completionMask);
+    }
+
+    public void initializeModuleTracking() {
+        this.completionMask = (1L << modules.size()) - 1;
     }
 
 }

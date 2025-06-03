@@ -1,5 +1,7 @@
 package com.vena.learning.service.impl;
 
+import com.vena.learning.model.Course;
+import com.vena.learning.model.Enrollment;
 import com.vena.learning.dto.requestDto.CourseRequest;
 import com.vena.learning.dto.requestDto.ModuleRequest;
 import com.vena.learning.dto.responseDto.CourseResponse;
@@ -38,14 +40,44 @@ public class ModuleServiceImpl implements ModuleService {
     @Lazy
     private CourseService courseService;
 
+    private void completeModule(String studentId, String courseId, int moduleSequence) {
+        Enrollment enrollment = enrollmentService.getCourseDetailsByIds(studentId, courseId);
+
+        Course course = enrollment.getCourse();
+
+        System.out.println("Completing module: " + moduleSequence + " for student: " + studentId);
+
+        if (moduleSequence < 0 || moduleSequence >= course.getModules().size()) {
+            throw new IllegalArgumentException("Invalid module sequence");
+        }
+
+        int mask = enrollment.getProgressMask();
+        mask |= (1 << moduleSequence); // Set the bit at the sequence index
+
+        enrollment.setProgressMask(mask);
+        if (isCourseComplete(enrollment)) {
+            enrollment.setIsCompleted(true);
+            enrollment.setCompletionDate(new java.util.Date());
+        }
+        enrollmentService.saveEnrollment(enrollment);
+    }
     @Override
     public Module getModuleById(String studentId, String courseId, String moduleId) {
         if(!enrollmentService.isEnrolled(studentId, courseId)) {
             throw new RuntimeException("Student is not enrolled in the course");
         }
+        Module module = moduleRepository.findById(moduleId).orElseThrow(
+                () -> new RuntimeException("Module not found with id: " + moduleId)
+        );
+        completeModule(studentId,courseId, module.getSequence());
+        return module;
+    }
 
-        return moduleRepository.findByIdAndCourseId(moduleId, courseId)
-                .orElseThrow(() -> new RuntimeException("Module not found with ID: " + moduleId + " and Course ID: " + courseId));
+    private boolean isCourseComplete(Enrollment enrollment) {
+        System.out.println("Checking if course is complete for student: " + enrollment.getStudent().getId());
+        System.out.println("Progress Mask: " + enrollment.getProgressMask());
+        System.out.println("Course Completion Mask: " + enrollment.getCourse().getCompletionMask());
+        return enrollment.getProgressMask() == enrollment.getCourse().getCompletionMask();
     }
 
     @Override

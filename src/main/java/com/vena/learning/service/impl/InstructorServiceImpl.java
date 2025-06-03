@@ -81,7 +81,7 @@ public class InstructorServiceImpl implements InstructorService {
         instructor.setUsername(instructorRequest.getUsername());
         instructor.setPassword(instructorRequest.getPassword());
         instructor.setInstitution(instructorRequest.getInstitution());
-        instructor.setRole(Role.INSTRUCTOR);
+        instructor.setRole(Role.ROLE_INSTRUCTOR);
         instructorRepository.save(instructor);
     }
 
@@ -104,6 +104,11 @@ public class InstructorServiceImpl implements InstructorService {
     public void deleteInstructor(String userId) {
         Instructor instructor = getInstructorById(userId);
         instructorRepository.delete(instructor);
+    }
+
+    @Override
+    public Optional<Instructor> findById(String userId) {
+        return instructorRepository.findById(userId);
     }
 
     @Override
