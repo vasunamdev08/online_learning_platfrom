@@ -10,6 +10,7 @@ import com.vena.learning.exception.customException.CourseExceptions.CourseTitleE
 import com.vena.learning.exception.customException.CourseExceptions.CourseViewNotAuthorizedException;
 import com.vena.learning.exception.customException.InstitutionExceptions.InstitutionDetailsMissingException;
 import com.vena.learning.exception.customException.InstitutionExceptions.NoCoursesFoundForInstitutionException;
+import com.vena.learning.exception.customException.InstructorExceptions.InstructorIdMissingException;
 import com.vena.learning.exception.customException.InstructorExceptions.InstructorNotFoundForCourseException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
@@ -186,6 +187,20 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
+                .body(problemDetail);
+    }
+
+    @ExceptionHandler(InstructorIdMissingException.class)
+    public ResponseEntity<ProblemDetail> handleInstructorIdMissingException(InstructorIdMissingException e,
+                                                                             HttpServletRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problemDetail.setTitle("Instructor ID Missing");
+        problemDetail.setDetail(e.getMessage()); // assuming the exception has a message
+        problemDetail.setProperty("errorCode", "INSTRUCTOR_ID_MISSING");
+        problemDetail.setProperty("path", request.getRequestURI());
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
                 .body(problemDetail);
     }
 }
