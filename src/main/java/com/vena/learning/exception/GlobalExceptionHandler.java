@@ -27,6 +27,7 @@ import com.vena.learning.exception.customException.StudentExceptions.StudentAlre
 import com.vena.learning.exception.customException.StudentExceptions.StudentNotEnrolledInCourseException;
 import com.vena.learning.exception.customException.StudentExceptions.StudentNotFoundByIdException;
 import com.vena.learning.exception.customException.StudentExceptions.StudentViewNotAuthorizedException;
+import com.vena.learning.exception.customException.UserExceptions.UserDeletionNotAuthorizedException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -429,5 +430,17 @@ public class GlobalExceptionHandler {
                 .body(problemDetail);
     }
 
+    @ExceptionHandler(UserDeletionNotAuthorizedException.class)
+    public ResponseEntity<ProblemDetail> handleUserDeletionNotAuthorizedException(UserDeletionNotAuthorizedException e,
+                                                                                   HttpServletRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
+        problemDetail.setTitle("User Deletion Not Authorized");
+        problemDetail.setDetail(e.getMessage()); // assuming the exception has a message
+        problemDetail.setProperty("errorCode", "USER_DELETION_NOT_AUTHORIZED");
+        problemDetail.setProperty("path", request.getRequestURI());
 
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(problemDetail);
+    }
 }
