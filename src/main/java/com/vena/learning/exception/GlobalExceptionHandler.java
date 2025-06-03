@@ -17,6 +17,7 @@ import com.vena.learning.exception.customException.ModuleExceptions.EmptyModules
 import com.vena.learning.exception.customException.ModuleExceptions.FirstModuleMustBeIntroductionException;
 import com.vena.learning.exception.customException.ModuleExceptions.LastModuleMustBeConclusionException;
 import com.vena.learning.exception.customException.ModuleExceptions.ModuleNotFoundByIdAndCourseIdException;
+import com.vena.learning.exception.customException.ModuleExceptions.MultipleConclusionModulesException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -276,6 +277,20 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
+                .body(problemDetail);
+    }
+
+    @ExceptionHandler(MultipleConclusionModulesException.class)
+    public ResponseEntity<ProblemDetail> handleMultipleConclusionModulesException(MultipleConclusionModulesException e,
+                                                                                   HttpServletRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problemDetail.setTitle("Multiple Conclusion Modules Found");
+        problemDetail.setDetail(e.getMessage()); // assuming the exception has a message
+        problemDetail.setProperty("errorCode", "MULTIPLE_CONCLUSION_MODULES");
+        problemDetail.setProperty("path", request.getRequestURI());
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
                 .body(problemDetail);
     }
 }
