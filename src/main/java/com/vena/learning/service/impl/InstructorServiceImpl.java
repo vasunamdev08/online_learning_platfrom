@@ -9,6 +9,7 @@ import com.vena.learning.enums.Role;
 import com.vena.learning.repository.InstructorRepository;
 import com.vena.learning.service.CourseService;
 import com.vena.learning.service.InstructorService;
+import com.vena.learning.service.ModuleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,10 @@ public class InstructorServiceImpl implements InstructorService {
     @Autowired
     @Lazy
     private CourseService courseService;
+
+    @Autowired
+    @Lazy
+    private ModuleService moduleService;
 
     @Override
     public Instructor getInstructorById(String id) {
@@ -129,6 +134,11 @@ public class InstructorServiceImpl implements InstructorService {
     @Override
     public void deleteInstructorCourse(String courseId) {
         courseService.deleteCourse(courseId);
+    }
+
+    @Override
+    public CourseResponse addModuleToCourse(CourseRequest courseRequest) {
+        return moduleService.addModuleToCourse(courseRequest);
     }
 
 }

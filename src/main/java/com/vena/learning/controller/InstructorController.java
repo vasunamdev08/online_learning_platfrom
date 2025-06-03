@@ -48,4 +48,10 @@ public class InstructorController {
         return ResponseEntity.ok("Course with ID " + courseId + " has been deleted successfully.");
     }
 
+    @PostMapping("/courses/modules")
+    public ResponseEntity<CourseResponse> addModuleToCourse(@RequestBody CourseRequest courseRequest) {
+        CourseResponse response = instructorService.addModuleToCourse(courseRequest);
+        return ResponseEntity.ok(response);
+    }
+
 }

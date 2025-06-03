@@ -1,21 +1,25 @@
 package com.vena.learning.service.impl;
 
 import com.vena.learning.dto.requestDto.CourseRequest;
-import com.vena.learning.dto.requestDto.ModuleRequest;
 import com.vena.learning.dto.responseDto.CourseResponse;
+import com.vena.learning.dto.responseDto.QuizResponse;
+import com.vena.learning.dto.responseDto.QuizResponseWrapper;
 import com.vena.learning.enums.Type;
 import com.vena.learning.model.Course;
 import com.vena.learning.model.Instructor;
+import com.vena.learning.model.Module;
 import com.vena.learning.repository.CourseRepository;
 import com.vena.learning.service.CourseService;
 import com.vena.learning.service.InstructorService;
+import com.vena.learning.service.QuizService;
+import com.vena.learning.service.ModuleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class CourseServiceImpl implements CourseService {
@@ -24,6 +28,13 @@ public class CourseServiceImpl implements CourseService {
 
     @Autowired
     private InstructorService instructorService;
+
+    @Autowired
+    private QuizService quizService;
+
+    @Autowired
+    @Lazy
+    private ModuleService moduleService;
 
     @Override
     public Course addCourse(Course course) {
@@ -85,37 +96,94 @@ public class CourseServiceImpl implements CourseService {
         return new CourseResponse(addCourse(course));
     }
 
-    private void validateCourseRequest(CourseRequest course) {
-        if (course.getModules() == null || course.getModules().isEmpty()) {
-            throw new RuntimeException("Course must have at least 3 modules");
+    @Override
+    public void validateCourseRequest(CourseRequest course) {
+        // 1. Basic field validation
+        if (course.getTitle() == null || course.getTitle().trim().isEmpty()) {
+            throw new RuntimeException("Course title cannot be empty.");
         }
-        boolean courseExists = courseRepository.existsByTitleAndInstructor(course.getTitle(), instructorService.getInstructorById(course.getInstructorId()));
+        if (course.getDescription() == null || course.getDescription().trim().isEmpty()) {
+            throw new RuntimeException("Course description cannot be empty.");
+        }
+        if (course.getInstructorId() == null || course.getInstructorId().trim().isEmpty()) {
+            throw new RuntimeException("Instructor ID cannot be empty.");
+        }
+
+        // 2. Check for duplicate course title for the instructor
+        boolean courseExists = courseRepository.existsByTitleAndInstructor(
+                course.getTitle(),
+                instructorService.getInstructorById(course.getInstructorId())
+        );
         if (courseExists) {
             throw new RuntimeException("Course already exists with this title for the instructor.");
         }
-        if (course.getTitle() == null || course.getTitle().isEmpty()) {
-            throw new RuntimeException("Course title cannot be empty");
-        }
-        if (course.getDescription() == null || course.getDescription().isEmpty()) {
-            throw new RuntimeException("Course description cannot be empty");
-        }
-        if (course.getInstructorId() == null || course.getInstructorId().isEmpty()) {
-            throw new RuntimeException("Instructor ID cannot be empty");
+
+        // 3. Convert incoming ModuleRequests to Module entities
+        List<Module> incomingModules = course.getModules().stream().map(req -> {
+            Module m = new Module();
+            m.setId(req.getId()); // for update deduplication
+            m.setTitle(req.getTitle());
+            m.setContent(req.getContent());
+            m.setType(req.getType());
+            m.setSequence(req.getSequence());
+            return m;
+        }).toList();
+
+        // 4. Fetch existing modules if updating
+        List<Module> existingModules = new ArrayList<>();
+        if (course.getCourseId() != null && !course.getCourseId().isBlank()) {
+            existingModules = moduleService.getModulesByCourseId(course.getCourseId());
         }
 
-        Set<Integer> sequences = new HashSet<>();
-
-        Set<Type> types = course.getModules().stream()
-                .peek(module -> {
-                    if (!sequences.add(module.getSequence())) {
-                        throw new RuntimeException("Duplicate module sequence number found: " + module.getSequence());
-                    }
-                })
-                .map(ModuleRequest::getType)
+        // 5. Merge incoming and existing modules (excluding overwritten ones)
+        Set<String> incomingIds = incomingModules.stream()
+                .map(Module::getId)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
 
-        if (!types.containsAll(Set.of(Type.Introduction, Type.Lesson, Type.Conclusion))) {
-            throw new RuntimeException("Modules must include INTRODUCTION, at least one LESSON, and CONCLUSION.");
+        List<Module> mergedModules = Stream.concat(
+                existingModules.stream()
+                        .filter(m -> m.getId() != null && !incomingIds.contains(m.getId())),
+                incomingModules.stream()
+        ).toList();
+
+        // 6. Run merged validation
+        validateModuleSequenceAndTypeConstraints(mergedModules);
+    }
+
+    @Override
+    public void validateModuleSequenceAndTypeConstraints(List<Module> modules) {
+        if (modules == null || modules.isEmpty()) {
+            throw new RuntimeException("Modules list cannot be empty.");
+        }
+
+        Map<Type, Long> typeCounts = modules.stream()
+                .collect(Collectors.groupingBy(Module::getType, Collectors.counting()));
+
+        // 1. Must have exactly one INTRODUCTION and one CONCLUSION
+        if (typeCounts.getOrDefault(Type.Introduction, 0L) != 1) {
+            throw new RuntimeException("There must be exactly one INTRODUCTION module.");
+        }
+        if (typeCounts.getOrDefault(Type.Conclusion, 0L) != 1) {
+            throw new RuntimeException("There must be exactly one CONCLUSION module.");
+        }
+
+        // 2. First sequence module should be INTRODUCTION
+        Module first = modules.stream()
+                .min(Comparator.comparingInt(Module::getSequence))
+                .orElseThrow(() -> new RuntimeException("No modules found."));
+
+        if (first.getType() != Type.Introduction) {
+            throw new RuntimeException("The first module (lowest sequence) must be of type INTRODUCTION.");
+        }
+
+        // 3. Last sequence module should be CONCLUSION
+        Module last = modules.stream()
+                .max(Comparator.comparingInt(Module::getSequence))
+                .orElseThrow(() -> new RuntimeException("No modules found."));
+
+        if (last.getType() != Type.Conclusion) {
+            throw new RuntimeException("The last module (highest sequence) must be of type CONCLUSION.");
         }
     }
 
@@ -142,4 +210,13 @@ public class CourseServiceImpl implements CourseService {
         courseRepository.save(course);
     }
 
+    @Override
+    public QuizResponseWrapper getAllQuizzesForCourse(String courseId) {
+        //validate course existence
+        if (!courseRepository.existsById(courseId)) {
+            throw new RuntimeException("Course not found with ID: " + courseId);
+        }
+        List<QuizResponse> quizResponsesList = quizService.getQuizzesByCourseId(courseId);
+        return new QuizResponseWrapper(quizResponsesList);
+    }
 }
