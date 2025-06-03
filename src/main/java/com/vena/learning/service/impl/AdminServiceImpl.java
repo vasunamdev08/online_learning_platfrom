@@ -1,11 +1,17 @@
 package com.vena.learning.service.impl;
 
+import com.vena.learning.dto.requestDto.AdminApproveCourse;
 import com.vena.learning.dto.responseDto.CourseResponse;
 import com.vena.learning.dto.responseDto.CourseStats;
 import com.vena.learning.dto.responseDto.CourseStatusResponse;
 import com.vena.learning.dto.responseDto.CourseSummaryResponse;
+import com.vena.learning.dto.responseDto.EnrollmentSummary;
+import com.vena.learning.dto.responseDto.InstructorStatResponse;
 import com.vena.learning.dto.responseDto.InstructorStats;
+import com.vena.learning.dto.responseDto.ModuleResponse;
+import com.vena.learning.dto.responseDto.QuizSummary;
 import com.vena.learning.dto.responseDto.StatisticsResponse;
+import com.vena.learning.dto.responseDto.StudentStatResponse;
 import com.vena.learning.dto.responseDto.UserResponse;
 import com.vena.learning.model.Course;
 import com.vena.learning.model.Enrollment;
@@ -22,9 +28,11 @@ import com.vena.learning.service.EnrollmentService;
 import com.vena.learning.service.InstructorService;
 import com.vena.learning.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +57,9 @@ public class AdminServiceImpl implements AdminService {
     @Autowired
     private EnrollmentService enrollmentService;
 
+    @Autowired
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
+
     private List<UserResponse> mapToUserResponse(List<User> users) {
         return users.stream()
                 .map(UserResponse::new)
@@ -72,9 +83,9 @@ public class AdminServiceImpl implements AdminService {
         admin.setName(adminRequest.getName());
         admin.setEmail(adminRequest.getEmail());
         admin.setUsername(adminRequest.getUsername());
-        admin.setPassword(adminRequest.getPassword());
+        admin.setPassword(bCryptPasswordEncoder.encode(adminRequest.getPassword()));
         admin.setInstitution(adminRequest.getInstitution());
-        admin.setRole(Role.ADMIN);
+        admin.setRole(Role.ROLE_ADMIN);
         adminRepository.save(admin);
     }
 
@@ -150,21 +161,25 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public void deleteUser(String adminID, String userId) {
-        Optional<Student> studentOpt = studentService.findById(userId);
-        Optional<Instructor> instructorOpt = instructorService.findById(userId);
-
-        String institution = getInstitutionByAdminId(adminID);
-
-        if (studentOpt.isPresent() && studentOpt.get().getInstitution().equalsIgnoreCase(institution)) {
-            studentService.deleteStudent(userId);
-            return;
-        }
-        else if (instructorOpt.isPresent() && instructorOpt.get().getInstitution().equalsIgnoreCase(institution)) {
-            instructorService.deleteInstructor(userId);
-            return;
+        if(studentService.isStudentExist(userId)){
+            Student student = studentService.getStudentById(userId);
+            if(student.getInstitution().equals(getInstitutionByAdminId(adminID))) {
+                // Only delete if the student belongs to the same institution as the admin
+                studentService.deleteStudent(userId);
+            }else{
+                throw new RuntimeException("You are not authorized to delete this user");
+            }
+        }else if(instructorService.isInstructorExist(userId)) {
+            Instructor instructor  = instructorService.getInstructorById(userId);
+            if(instructor.getInstitution().equals(getInstitutionByAdminId(adminID))) {
+                // Only delete if the instructor belongs to the same institution as the admin
+                instructorService.deleteInstructor(userId);
+            } else {
+                throw new RuntimeException("You are not authorized to delete this user");
+            }
         }
         else {
-            throw new UnsupportedOperationException("You are not authorized to delete this user");
+            throw new RuntimeException("You are not authorized to delete this user");
         }
     }
 
@@ -187,7 +202,10 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public void approveCourse(String courseId, String adminId) {
+    public void approveCourse(AdminApproveCourse adminApproveCourse) {
+        String courseId = adminApproveCourse.getCourseId();
+        String adminId = adminApproveCourse.getAdminId();
+
         Course course = courseService.getCourseById(courseId);
         if(course.isApproved()){
             throw new RuntimeException("Course already approved");
@@ -298,6 +316,11 @@ public class AdminServiceImpl implements AdminService {
 
         for (Map.Entry<String, List<CourseResponse>> entry : coursesByStatus.entrySet()) {
             List<CourseSummaryResponse> summaries = entry.getValue().stream()
+                    .peek(course -> {
+                        if (course.getModules() != null) {
+                            course.getModules().sort(Comparator.comparingInt(ModuleResponse::getSequence));
+                        }
+                    })
                     .map(CourseSummaryResponse::new)
                     .collect(Collectors.toList());
 
@@ -329,6 +352,56 @@ public class AdminServiceImpl implements AdminService {
         return instructors.stream()
                 .map(UserResponse::new)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public StudentStatResponse getStudentById(String adminId,String studentId) {
+        Student student= studentService.getStudentById(studentId);
+        if(student.getInstitution().equals(getInstitutionByAdminId(adminId))){
+            return mapToShortStudentResponse(student);
+        }else {
+            throw new RuntimeException("Not authorized to view student with id: "+studentId);
+        }
+    }
+
+    @Override
+    public InstructorStatResponse getInstructorById(String adminId, String instructorId) {
+        Instructor instructor= instructorService.getInstructorById(instructorId);
+        if(instructor.getInstitution().equals(getInstitutionByAdminId(adminId))){
+            return new InstructorStatResponse(instructor);
+        }else{
+            throw new RuntimeException("Not authorized to view instructor with id: " + instructorId);
+        }
+    }
+
+    @Override
+    public CourseStats getCourseById(String adminId, String courseId) {
+        Course course = courseService.getCourseById(courseId);
+        if(course.getInstructor().getInstitution().equals(getInstitutionByAdminId(adminId))) {
+            return new CourseStats(course);
+        } else {
+            throw new RuntimeException("Not authorized to view course with id: " + courseId);
+        }
+    }
+
+    public StudentStatResponse mapToShortStudentResponse(Student student) {
+        StudentStatResponse dto = new StudentStatResponse();
+        dto.setId(student.getId());
+        dto.setName(student.getName());
+        dto.setEmail(student.getEmail());
+        dto.setInstitution(student.getInstitution());
+
+        List<EnrollmentSummary> enrollments = student.getEnrollments().stream()
+                .map(EnrollmentSummary::new)
+                .toList();
+        dto.setEnrollments(enrollments);
+
+        List<QuizSummary> quizAttempts = student.getQuizAttempts().stream()
+                .map(QuizSummary::new)
+                .toList();
+        dto.setQuizAttempts(quizAttempts);
+
+        return dto;
     }
 
 }

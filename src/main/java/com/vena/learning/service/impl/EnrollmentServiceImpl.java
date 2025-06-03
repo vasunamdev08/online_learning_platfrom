@@ -12,6 +12,8 @@ import com.vena.learning.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class EnrollmentServiceImpl implements EnrollmentService {
     @Autowired
@@ -28,9 +30,15 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         if(isEnrolled(studentId, courseId)) {
             throw new RuntimeException("Student is already enrolled in the course");
         }
+        if(isExists(studentId, courseId)) {
+            Enrollment enrollment = getCourseDetailsByIds(studentId, courseId);
+            enrollment.setIsEnrolled(true);
+            enrollmentRepository.save(enrollment);
+        }else{
         Student student = studentService.getStudentById(studentId);
         Course course = courseService.getCourseById(courseId);
         addEnrollment(student, course);
+        }
     }
 
     @Override
@@ -44,7 +52,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         enrollment.setAttempts(0);
         enrollment.setGrade(Grade.Pending);
         enrollment.setCompletionDate(null);
-        enrollment.setProgress(0);
+        enrollment.setProgressMask(0);
         enrollmentRepository.save(enrollment);
     }
 
@@ -84,5 +92,9 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     public Grade getGradeByCourse(String studentId, String courseId) {
         Enrollment enrollment = getCourseDetailsByIds(studentId, courseId);
         return enrollment.getGrade();
+    }
+    @Override
+    public Enrollment saveEnrollment(Enrollment enrollment) {
+        return enrollmentRepository.save(enrollment);
     }
 }

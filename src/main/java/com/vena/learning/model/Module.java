@@ -29,6 +29,9 @@ public class Module {
     @JoinColumn(name = "course_id")
     private Course course;
 
+    public Module() {
+    }
+
     public Module(ModuleRequest moduleRequest, Course course) {
         this.title = moduleRequest.getTitle();
         this.content = moduleRequest.getContent();

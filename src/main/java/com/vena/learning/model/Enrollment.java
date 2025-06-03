@@ -22,7 +22,7 @@ public class Enrollment {
     private Date enrollmentDate;
     private Date completionDate;
     private Boolean isCompleted;
-    private Integer progress;
+    private Integer progressMask;
     private Integer attempts;
     private Boolean isEnrolled;
 

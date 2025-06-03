@@ -10,6 +10,7 @@ import com.vena.learning.enums.Role;
 import com.vena.learning.repository.StudentRepository;
 import com.vena.learning.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,6 +21,8 @@ import java.util.stream.Collectors;
 public class StudentServiceImpl implements StudentService {
     @Autowired
     private StudentRepository studentRepository;
+    @Autowired
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Override
     public Student getStudentByEmail(String email) {
@@ -73,10 +76,10 @@ public class StudentServiceImpl implements StudentService {
         Student student = new Student();
         student.setUsername(user.getUsername());
         student.setEmail(user.getEmail());
-        student.setPassword(user.getPassword());
+        student.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         student.setName(user.getName());
         student.setInstitution(user.getInstitution());
-        student.setRole(Role.STUDENT);
+        student.setRole(Role.ROLE_STUDENT);
         studentRepository.save(student);
     }
 
@@ -102,11 +105,6 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public Optional<Student> findById(String userId) {
-        return studentRepository.findById(userId);
-    }
-
-    @Override
     public List<Student> getAllStudents() {
         return studentRepository.findAll();
     }
@@ -120,5 +118,10 @@ public class StudentServiceImpl implements StudentService {
         student.setPassword(request.getPassword());
         studentRepository.save(student);
         return new UserResponse(student);
+    }
+
+    @Override
+    public boolean isStudentExist(String userId) {
+        return studentRepository.existsById(userId);
     }
 }

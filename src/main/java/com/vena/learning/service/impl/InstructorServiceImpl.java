@@ -1,11 +1,20 @@
 package com.vena.learning.service.impl;
 
+import com.vena.learning.dto.requestDto.CourseRequest;
 import com.vena.learning.dto.requestDto.RegisterRequest;
+import com.vena.learning.dto.responseDto.CourseResponse;
+import com.vena.learning.dto.responseDto.CourseResponse;
+import com.vena.learning.model.Course;
 import com.vena.learning.model.Instructor;
 import com.vena.learning.enums.Role;
 import com.vena.learning.repository.InstructorRepository;
+import com.vena.learning.service.CourseService;
 import com.vena.learning.service.InstructorService;
+import com.vena.learning.service.ModuleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,6 +25,17 @@ public class InstructorServiceImpl implements InstructorService {
 
     @Autowired
     private InstructorRepository instructorRepository;
+
+    @Autowired
+    @Lazy
+    private CourseService courseService;
+
+    @Autowired
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    @Autowired
+    @Lazy
+    private ModuleService moduleService;
 
     @Override
     public Instructor getInstructorById(String id) {
@@ -59,9 +79,9 @@ public class InstructorServiceImpl implements InstructorService {
         instructor.setName(instructorRequest.getName());
         instructor.setEmail(instructorRequest.getEmail());
         instructor.setUsername(instructorRequest.getUsername());
-        instructor.setPassword(instructorRequest.getPassword());
+        instructor.setPassword(bCryptPasswordEncoder.encode(instructorRequest.getPassword()));
         instructor.setInstitution(instructorRequest.getInstitution());
-        instructor.setRole(Role.INSTRUCTOR);
+        instructor.setRole(Role.ROLE_INSTRUCTOR);
         instructorRepository.save(instructor);
     }
 
@@ -96,4 +116,39 @@ public class InstructorServiceImpl implements InstructorService {
         return instructorRepository.findAll();
     }
 
+    @Override
+     public  List<CourseResponse> getCoursesByInstructor(String instructorId) {
+        if (!instructorRepository.existsById(instructorId)) {
+            throw new RuntimeException("Instructor with ID " + instructorId + " does not exist");
+        }
+        return courseService.getCoursesByInstructorId(instructorId);
+    }
+
+    @Override
+    public CourseResponse createCourse(CourseRequest request) {
+        if (!instructorRepository.existsById(request.getInstructorId())) {
+            throw new RuntimeException("Instructor with ID " + request.getInstructorId() + " is not present");
+        }
+        return courseService.addCourseWithModules(request);
+    }
+
+    @Override
+    public CourseResponse updateInstructorCourse(CourseRequest request) {
+        return courseService.updateCourse(request);
+    }
+
+    @Override
+    public void deleteInstructorCourse(String courseId) {
+        courseService.deleteCourse(courseId);
+    }
+
+    @Override
+    public CourseResponse addModuleToCourse(CourseRequest courseRequest) {
+        return moduleService.addModuleToCourse(courseRequest);
+    }
+
+    @Override
+    public boolean isInstructorExist(String userId) {
+        return instructorRepository.existsById(userId);
+    }
 }
