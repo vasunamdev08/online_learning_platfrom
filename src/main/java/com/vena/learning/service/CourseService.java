@@ -20,4 +20,6 @@ public interface CourseService {
     Course addCourse(Course course);
     CourseResponse updateCourse(CourseRequest request);
     void deleteCourse(String courseId);
+    void validateCourseRequest(CourseRequest course);
+    void validateModuleSequenceAndTypeConstraints(List<com.vena.learning.model.Module> modules);
 }
