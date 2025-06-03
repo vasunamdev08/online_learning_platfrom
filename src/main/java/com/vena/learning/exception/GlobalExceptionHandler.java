@@ -22,6 +22,7 @@ import com.vena.learning.exception.customException.ModuleExceptions.MultipleIntr
 import com.vena.learning.exception.customException.QuizExceptions.QuizNotFoundException;
 import com.vena.learning.exception.customException.StudentExceptions.EnrollmentDoesNotExistException;
 import com.vena.learning.exception.customException.StudentExceptions.EnrollmentNotFoundException;
+import com.vena.learning.exception.customException.StudentExceptions.NoCoursesFoundForStudentException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -353,4 +354,20 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.NOT_FOUND)
                 .body(problemDetail);
     }
+
+    @ExceptionHandler(NoCoursesFoundForStudentException.class)
+    public ResponseEntity<ProblemDetail> handleNoCoursesFoundForStudentException(NoCoursesFoundForStudentException e,
+                                                                                  HttpServletRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+        problemDetail.setTitle("No Courses Found for Student");
+        problemDetail.setDetail(e.getMessage()); // assuming the exception has a message
+        problemDetail.setProperty("errorCode", "NO_COURSES_FOUND_FOR_STUDENT");
+        problemDetail.setProperty("path", request.getRequestURI());
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(problemDetail);
+    }
+
+
 }
