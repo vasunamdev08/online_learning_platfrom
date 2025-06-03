@@ -3,19 +3,23 @@ package com.vena.learning.service.impl;
 import com.vena.learning.dto.requestDto.AnswerSubmissionRequest;
 import com.vena.learning.dto.requestDto.QuizSubmissionRequest;
 import com.vena.learning.dto.responseDto.QuizAttemptResponse;
+import com.vena.learning.enums.Grade;
 import com.vena.learning.model.Choice;
 import com.vena.learning.model.Quiz;
 import com.vena.learning.model.QuizAttempt;
 import com.vena.learning.model.Student;
 import com.vena.learning.repository.ChoiceRepository;
 import com.vena.learning.repository.QuizAttemptRepository;
+import com.vena.learning.service.CourseService;
 import com.vena.learning.service.EnrollmentService;
 import com.vena.learning.service.QuizAttemptService;
 import com.vena.learning.service.QuizService;
 import com.vena.learning.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 @Service
@@ -54,6 +58,7 @@ public class QuizAttemptImpl implements QuizAttemptService {
         int score = calculateScore(request);
         QuizAttempt attempt = createQuizAttempt(student, quiz, newAttemptNumber, score);
         quizAttemptRepo.save(attempt);
+        enrollmentService.setGradeBasedOnBestAttempt(request.getStudentId(), request.getCourseId(), request.getQuizId(), newAttemptNumber);
         return new QuizAttemptResponse(attempt);
     }
 
@@ -83,5 +88,9 @@ public class QuizAttemptImpl implements QuizAttemptService {
             }
         }
         return score;
+    }
+
+    public List<QuizAttempt> findByStudentIdAndQuizId(String studentId, String quizId) {
+        return quizAttemptRepo.findByStudentIdAndQuizId(studentId, quizId);
     }
 }
