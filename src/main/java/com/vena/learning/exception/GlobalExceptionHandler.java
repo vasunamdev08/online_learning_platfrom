@@ -13,6 +13,7 @@ import com.vena.learning.exception.customException.InstitutionExceptions.NoCours
 import com.vena.learning.exception.customException.InstructorExceptions.InstructorIdMissingException;
 import com.vena.learning.exception.customException.InstructorExceptions.InstructorNotFoundForCourseException;
 import com.vena.learning.exception.customException.InstructorExceptions.InstructorViewNotAuthorizedException;
+import com.vena.learning.exception.customException.ModuleExceptions.EmptyModulesListException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -219,5 +220,17 @@ public class GlobalExceptionHandler {
                 .body(problemDetail);
     }
 
+    @ExceptionHandler(EmptyModulesListException.class)
+    public ResponseEntity<ProblemDetail> handleEmptyModulesListException(EmptyModulesListException e,
+                                                                           HttpServletRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problemDetail.setTitle("Empty Modules List");
+        problemDetail.setDetail(e.getMessage()); // assuming the exception has a message
+        problemDetail.setProperty("errorCode", "EMPTY_MODULES_LIST");
+        problemDetail.setProperty("path", request.getRequestURI());
 
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(problemDetail);
+    }
 }
