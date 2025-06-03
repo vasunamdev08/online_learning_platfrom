@@ -62,4 +62,17 @@ public class ModuleServiceImpl implements ModuleService {
                 .toList();
     }
 
+    public ModuleServiceImpl(ModuleRepository moduleRepository) {
+        this.moduleRepository = moduleRepository;
+    }
+
+    @Override
+    public List<Module> getModulesByCourseId(String courseId) {
+        if (courseId == null || courseId.trim().isEmpty()) {
+            throw new RuntimeException("Course ID cannot be null or empty.");
+        }
+
+        return moduleRepository.findByCourseId(courseId);
+    }
+
 }

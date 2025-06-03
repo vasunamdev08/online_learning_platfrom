@@ -6,6 +6,7 @@ import com.vena.learning.dto.responseDto.CourseResponse;
 import com.vena.learning.enums.Type;
 import com.vena.learning.model.Course;
 import com.vena.learning.model.Instructor;
+import com.vena.learning.model.Module;
 import com.vena.learning.repository.CourseRepository;
 import com.vena.learning.service.CourseService;
 import com.vena.learning.service.InstructorService;
@@ -14,16 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class CourseServiceImpl implements CourseService {
@@ -110,7 +104,7 @@ public class CourseServiceImpl implements CourseService {
             throw new RuntimeException("Instructor ID cannot be empty.");
         }
 
-        // 2. Duplicate course title check for instructor
+        // 2. Check for duplicate course title for the instructor
         boolean courseExists = courseRepository.existsByTitleAndInstructor(
                 course.getTitle(),
                 instructorService.getInstructorById(course.getInstructorId())
@@ -119,44 +113,72 @@ public class CourseServiceImpl implements CourseService {
             throw new RuntimeException("Course already exists with this title for the instructor.");
         }
 
-        // 3. Module-level validation
-        List<ModuleRequest> modules = course.getModules();
-        if (modules == null || modules.size() < 3) {
-            throw new RuntimeException("Course must have at least 3 modules.");
+        // 3. Convert incoming ModuleRequests to Module entities
+        List<Module> incomingModules = course.getModules().stream().map(req -> {
+            Module m = new Module();
+            m.setId(req.getId()); // for update deduplication
+            m.setTitle(req.getTitle());
+            m.setContent(req.getContent());
+            m.setType(req.getType());
+            m.setSequence(req.getSequence());
+            return m;
+        }).toList();
+
+        // 4. Fetch existing modules if updating
+        List<Module> existingModules = new ArrayList<>();
+        if (course.getCourseId() != null && !course.getCourseId().isBlank()) {
+            existingModules = moduleService.getModulesByCourseId(course.getCourseId());
         }
 
-        Set<Integer> seenSequences = new HashSet<>();
-        Map<Type, Long> typeCounts = new EnumMap<>(Type.class);
+        // 5. Merge incoming and existing modules (excluding overwritten ones)
+        Set<String> incomingIds = incomingModules.stream()
+                .map(Module::getId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
 
-        for (ModuleRequest module : modules) {
-            // Check duplicate sequence in request
-            if (!seenSequences.add(module.getSequence())) {
-                throw new RuntimeException("Duplicate sequence number in request: " + module.getSequence());
-            }
+        List<Module> mergedModules = Stream.concat(
+                existingModules.stream()
+                        .filter(m -> m.getId() != null && !incomingIds.contains(m.getId())),
+                incomingModules.stream()
+        ).toList();
 
-            // Count module types
-            typeCounts.merge(module.getType(), 1L, Long::sum);
+        // 6. Run merged validation
+        validateModuleSequenceAndTypeConstraints(mergedModules);
+    }
+
+    @Override
+    public void validateModuleSequenceAndTypeConstraints(List<Module> modules) {
+        if (modules == null || modules.isEmpty()) {
+            throw new RuntimeException("Modules list cannot be empty.");
         }
 
+        Map<Type, Long> typeCounts = modules.stream()
+                .collect(Collectors.groupingBy(Module::getType, Collectors.counting()));
+
+        // 1. Must have exactly one INTRODUCTION and one CONCLUSION
         if (typeCounts.getOrDefault(Type.Introduction, 0L) != 1) {
-            throw new RuntimeException("Course must have exactly one INTRODUCTION module.");
-        }
-        if (typeCounts.getOrDefault(Type.Lesson, 0L) < 1) {
-            throw new RuntimeException("Course must have at least one LESSON module.");
+            throw new RuntimeException("There must be exactly one INTRODUCTION module.");
         }
         if (typeCounts.getOrDefault(Type.Conclusion, 0L) != 1) {
-            throw new RuntimeException("Course must have exactly one CONCLUSION module.");
+            throw new RuntimeException("There must be exactly one CONCLUSION module.");
         }
 
-        // 4. Check for duplicate sequence numbers in DB
-        if (course.getCourseId() != null && !course.getCourseId().isBlank()) {
-            List<Integer> existingSequences = moduleService.getSequencesByCourseId(course.getCourseId());
+        // 2. First sequence module should be INTRODUCTION
+        Module first = modules.stream()
+                .min(Comparator.comparingInt(Module::getSequence))
+                .orElseThrow(() -> new RuntimeException("No modules found."));
 
-            for (Integer sequence : seenSequences) {
-                if (existingSequences.contains(sequence)) {
-                    throw new RuntimeException("Module sequence " + sequence + " already exists in the course.");
-                }
-            }
+        if (first.getType() != Type.Introduction) {
+            throw new RuntimeException("The first module (lowest sequence) must be of type INTRODUCTION.");
+        }
+
+        // 3. Last sequence module should be CONCLUSION
+        Module last = modules.stream()
+                .max(Comparator.comparingInt(Module::getSequence))
+                .orElseThrow(() -> new RuntimeException("No modules found."));
+
+        if (last.getType() != Type.Conclusion) {
+            throw new RuntimeException("The last module (highest sequence) must be of type CONCLUSION.");
         }
     }
 
