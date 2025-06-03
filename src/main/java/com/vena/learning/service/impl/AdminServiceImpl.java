@@ -4,8 +4,13 @@ import com.vena.learning.dto.responseDto.CourseResponse;
 import com.vena.learning.dto.responseDto.CourseStats;
 import com.vena.learning.dto.responseDto.CourseStatusResponse;
 import com.vena.learning.dto.responseDto.CourseSummaryResponse;
+import com.vena.learning.dto.responseDto.EnrollmentSummary;
+import com.vena.learning.dto.responseDto.InstructorStatResponse;
 import com.vena.learning.dto.responseDto.InstructorStats;
+import com.vena.learning.dto.responseDto.ModuleResponse;
+import com.vena.learning.dto.responseDto.QuizSummary;
 import com.vena.learning.dto.responseDto.StatisticsResponse;
+import com.vena.learning.dto.responseDto.StudentStatResponse;
 import com.vena.learning.dto.responseDto.UserResponse;
 import com.vena.learning.model.Course;
 import com.vena.learning.model.Enrollment;
@@ -25,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -302,6 +308,11 @@ public class AdminServiceImpl implements AdminService {
 
         for (Map.Entry<String, List<CourseResponse>> entry : coursesByStatus.entrySet()) {
             List<CourseSummaryResponse> summaries = entry.getValue().stream()
+                    .peek(course -> {
+                        if (course.getModules() != null) {
+                            course.getModules().sort(Comparator.comparingInt(ModuleResponse::getSequence));
+                        }
+                    })
                     .map(CourseSummaryResponse::new)
                     .collect(Collectors.toList());
 
@@ -336,32 +347,53 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public Student getStudentById(String adminId,String studentId) {
+    public StudentStatResponse getStudentById(String adminId,String studentId) {
         Student student= studentService.getStudentById(studentId);
         if(student.getInstitution().equals(getInstitutionByAdminId(adminId))){
-            return student;
+            return mapToShortStudentResponse(student);
         }else {
             throw new RuntimeException("Not authorized to view student with id: "+studentId);
         }
     }
 
     @Override
-    public Instructor getInstructorById(String adminId,String instructorId) {
+    public InstructorStatResponse getInstructorById(String adminId, String instructorId) {
         Instructor instructor= instructorService.getInstructorById(instructorId);
         if(instructor.getInstitution().equals(getInstitutionByAdminId(adminId))){
-            return instructor;
+            return new InstructorStatResponse(instructor);
         }else{
             throw new RuntimeException("Not authorized to view instructor with id: " + instructorId);
         }
     }
 
     @Override
-    public CourseResponse getCourseById(String adminId, String courseId) {
+    public CourseStats getCourseById(String adminId, String courseId) {
         Course course = courseService.getCourseById(courseId);
         if(course.getInstructor().getInstitution().equals(getInstitutionByAdminId(adminId))) {
-            return new CourseResponse(course);
+            return new CourseStats(course);
         } else {
             throw new RuntimeException("Not authorized to view course with id: " + courseId);
         }
     }
+
+    public StudentStatResponse mapToShortStudentResponse(Student student) {
+        StudentStatResponse dto = new StudentStatResponse();
+        dto.setId(student.getId());
+        dto.setName(student.getName());
+        dto.setEmail(student.getEmail());
+        dto.setInstitution(student.getInstitution());
+
+        List<EnrollmentSummary> enrollments = student.getEnrollments().stream()
+                .map(EnrollmentSummary::new)
+                .toList();
+        dto.setEnrollments(enrollments);
+
+        List<QuizSummary> quizAttempts = student.getQuizAttempts().stream()
+                .map(QuizSummary::new)
+                .toList();
+        dto.setQuizAttempts(quizAttempts);
+
+        return dto;
+    }
+
 }
