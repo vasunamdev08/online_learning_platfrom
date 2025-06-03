@@ -19,4 +19,5 @@ public interface EnrollmentService {
 
     Enrollment getCourseDetailsByIds(String studentId, String courseId);
     Grade getGradeByCourse(String studentId, String courseId);
+    void setGradeBasedOnBestAttempt(String studentId, String courseId, String quizId, int attemptNumber);
 }
