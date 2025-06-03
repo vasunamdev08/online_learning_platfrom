@@ -2,8 +2,11 @@ package com.vena.learning.service;
 
 import com.vena.learning.dto.requestDto.RegisterRequest;
 import com.vena.learning.dto.responseDto.CourseResponse;
+import com.vena.learning.dto.responseDto.CourseStats;
 import com.vena.learning.dto.responseDto.CourseStatusResponse;
+import com.vena.learning.dto.responseDto.InstructorStatResponse;
 import com.vena.learning.dto.responseDto.StatisticsResponse;
+import com.vena.learning.dto.responseDto.StudentStatResponse;
 import com.vena.learning.dto.responseDto.UserResponse;
 import com.vena.learning.model.Admin;
 import com.vena.learning.model.Course;
@@ -43,9 +46,9 @@ public interface AdminService {
 
     List<UserResponse> getAllInstructorsByInstitution(String adminId);
 
-    Student getStudentById(String adminId,String studentId);
+    StudentStatResponse getStudentById(String adminId, String studentId);
 
-    Instructor getInstructorById(String adminId,String instructorId);
+    InstructorStatResponse getInstructorById(String adminId, String instructorId);
 
-    CourseResponse getCourseById(String adminId, String courseId);
+    CourseStats getCourseById(String adminId, String courseId);
 }

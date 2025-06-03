@@ -1,8 +1,11 @@
 package com.vena.learning.controller;
 
 import com.vena.learning.dto.responseDto.CourseResponse;
+import com.vena.learning.dto.responseDto.CourseStats;
 import com.vena.learning.dto.responseDto.CourseStatusResponse;
+import com.vena.learning.dto.responseDto.InstructorStatResponse;
 import com.vena.learning.dto.responseDto.StatisticsResponse;
+import com.vena.learning.dto.responseDto.StudentStatResponse;
 import com.vena.learning.dto.responseDto.UserResponse;
 import com.vena.learning.model.Course;
 import com.vena.learning.model.Instructor;
@@ -78,19 +81,19 @@ public class AdminController {
 
     @GetMapping("/{adminId}/student/{studentId}")
     public ResponseEntity<?> getStudentById(@PathVariable String adminId, @PathVariable String studentId) {
-        Student student = adminService.getStudentById(adminId,studentId);
+        StudentStatResponse student = adminService.getStudentById(adminId,studentId);
         return new ResponseEntity<>(student, HttpStatus.OK);
     }
 
     @GetMapping("/{adminId}/instructor/{instructorId}")
     public ResponseEntity<?> getInstructorById(@PathVariable String adminId, @PathVariable String instructorId) {
-        Instructor instructor = adminService.getInstructorById(adminId,instructorId);
+        InstructorStatResponse instructor = adminService.getInstructorById(adminId,instructorId);
         return new ResponseEntity<>(instructor, HttpStatus.OK);
     }
 
     @GetMapping("/{adminId}/course/{courseId}")
     public ResponseEntity<?> getCourseById(@PathVariable String adminId, @PathVariable String courseId){
-        CourseResponse course=adminService.getCourseById(adminId,courseId);
+        CourseStats course=adminService.getCourseById(adminId,courseId);
         return new ResponseEntity<>(course,HttpStatus.OK);
     }
 }

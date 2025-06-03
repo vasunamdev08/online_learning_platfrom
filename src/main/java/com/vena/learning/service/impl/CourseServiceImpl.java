@@ -30,6 +30,7 @@ public class CourseServiceImpl implements CourseService {
     private InstructorService instructorService;
 
     @Autowired
+    @Lazy
     private QuizService quizService;
 
     @Autowired
