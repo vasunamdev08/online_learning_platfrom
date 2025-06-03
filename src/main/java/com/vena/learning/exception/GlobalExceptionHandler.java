@@ -15,6 +15,7 @@ import com.vena.learning.exception.customException.InstructorExceptions.Instruct
 import com.vena.learning.exception.customException.InstructorExceptions.InstructorViewNotAuthorizedException;
 import com.vena.learning.exception.customException.ModuleExceptions.EmptyModulesListException;
 import com.vena.learning.exception.customException.ModuleExceptions.FirstModuleMustBeIntroductionException;
+import com.vena.learning.exception.customException.ModuleExceptions.LastModuleMustBeConclusionException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -242,6 +243,20 @@ public class GlobalExceptionHandler {
         problemDetail.setTitle("First Module Must Be Introduction");
         problemDetail.setDetail(e.getMessage()); // assuming the exception has a message
         problemDetail.setProperty("errorCode", "FIRST_MODULE_INTRO_REQUIRED");
+        problemDetail.setProperty("path", request.getRequestURI());
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(problemDetail);
+    }
+
+    @ExceptionHandler(LastModuleMustBeConclusionException.class)
+    public ResponseEntity<ProblemDetail> handleLastModuleMustBeConclusionException(LastModuleMustBeConclusionException e,
+                                                                                   HttpServletRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problemDetail.setTitle("Last Module Must Be Conclusion");
+        problemDetail.setDetail(e.getMessage()); // assuming the exception has a message
+        problemDetail.setProperty("errorCode", "LAST_MODULE_CONCLUSION_REQUIRED");
         problemDetail.setProperty("path", request.getRequestURI());
 
         return ResponseEntity
