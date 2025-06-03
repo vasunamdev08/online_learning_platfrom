@@ -85,7 +85,8 @@ public class CourseServiceImpl implements CourseService {
         return new CourseResponse(addCourse(course));
     }
 
-    private void validateCourseRequest(CourseRequest course) {
+    @Override
+    public void validateCourseRequest(CourseRequest course) {
         if (course.getModules() == null || course.getModules().isEmpty()) {
             throw new RuntimeException("Course must have at least 3 modules");
         }

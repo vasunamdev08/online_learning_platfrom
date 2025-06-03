@@ -5,6 +5,8 @@ import lombok.Data;
 
 @Data
 public class ModuleRequest {
+    private String moduleId;
+    private String instructorId;
     private String courseId;
     private int sequence;
     private String title;

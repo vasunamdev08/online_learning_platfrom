@@ -1,14 +1,18 @@
 package com.vena.learning.service.impl;
 
 import com.vena.learning.dto.requestDto.CourseRequest;
+import com.vena.learning.dto.requestDto.ModuleRequest;
 import com.vena.learning.dto.requestDto.RegisterRequest;
 import com.vena.learning.dto.responseDto.CourseResponse;
+import com.vena.learning.dto.responseDto.ModuleResponse;
 import com.vena.learning.model.Course;
 import com.vena.learning.model.Instructor;
+import com.vena.learning.model.Module;
 import com.vena.learning.enums.Role;
 import com.vena.learning.repository.InstructorRepository;
 import com.vena.learning.service.CourseService;
 import com.vena.learning.service.InstructorService;
+import com.vena.learning.service.ModuleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -25,6 +29,10 @@ public class InstructorServiceImpl implements InstructorService {
     @Autowired
     @Lazy
     private CourseService courseService;
+
+    @Autowired
+    @Lazy
+    private ModuleService moduleService;
 
     @Override
     public Instructor getInstructorById(String id) {
@@ -129,6 +137,39 @@ public class InstructorServiceImpl implements InstructorService {
     @Override
     public void deleteInstructorCourse(String courseId) {
         courseService.deleteCourse(courseId);
+    }
+
+    @Override
+    public ModuleResponse updateModule(ModuleRequest request) {
+        // Ensure the instructor exists
+        Instructor instructor = getInstructorById(request.getInstructorId());
+
+        // Validate course and module constraints
+        CourseRequest courseRequest = new CourseRequest();
+        courseRequest.setCourseId(request.getCourseId());
+        courseRequest.setInstructorId(request.getInstructorId());
+        courseRequest.setTitle("ignored");        // Not validated here
+        courseRequest.setDescription("ignored");  // Not validated here
+        courseRequest.setModules(List.of(request));
+
+        courseService.validateCourseRequest(courseRequest);
+
+        // Fetch existing module
+        Module existingModule = moduleService.getModuleById(
+                instructor.getId(),
+                request.getCourseId(),
+                request.getModuleId()
+        );
+
+        // Update the fields
+        existingModule.setTitle(request.getTitle());
+        existingModule.setContent(request.getContent());
+        existingModule.setSequence(request.getSequence());
+        existingModule.setType(request.getType());
+
+        // Save and return updated response
+        Module updated = moduleService.saveModule(existingModule);
+        return new ModuleResponse(updated);
     }
 
 }

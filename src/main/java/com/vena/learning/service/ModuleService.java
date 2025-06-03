@@ -6,4 +6,5 @@ import org.springframework.stereotype.Service;
 @Service
 public interface ModuleService {
     Module getModuleById(String studentId, String courseId, String moduleId);
+    Module saveModule(Module module);
 }

@@ -23,4 +23,10 @@ public class ModuleServiceImpl implements ModuleService {
         return moduleRepository.findByIdAndCourseId(moduleId, courseId)
                 .orElseThrow(() -> new RuntimeException("Module not found with ID: " + moduleId + " and Course ID: " + courseId));
     }
+
+    @Override
+    public Module saveModule(Module module) {
+        return moduleRepository.save(module);
+    }
+
 }

@@ -1,6 +1,8 @@
 package com.vena.learning.controller;
 
+import com.vena.learning.dto.requestDto.ModuleRequest;
 import com.vena.learning.dto.responseDto.CourseResponse;
+import com.vena.learning.dto.responseDto.ModuleResponse;
 import com.vena.learning.service.InstructorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -46,6 +48,12 @@ public class InstructorController {
     public ResponseEntity<?> deleteCourse(@PathVariable String courseId) {
         instructorService.deleteInstructorCourse(courseId);
         return ResponseEntity.ok("Course with ID " + courseId + " has been deleted successfully.");
+    }
+
+    @PutMapping("/courses/modules")
+    public ResponseEntity<ModuleResponse> updateModule(@RequestBody ModuleRequest moduleRequest) {
+        ModuleResponse updatedModule = instructorService.updateModule(moduleRequest);
+        return ResponseEntity.ok(updatedModule);
     }
 
 }
