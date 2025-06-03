@@ -6,6 +6,7 @@ import com.vena.learning.exception.customException.CourseExceptions.CourseDescri
 import com.vena.learning.exception.customException.CourseExceptions.CourseNotFoundByIdException;
 import com.vena.learning.exception.customException.CourseExceptions.CourseQuizAccessDeniedDueToDeletionException;
 import com.vena.learning.exception.customException.CourseExceptions.CourseQuizAccessDeniedDueToUnapprovedStatusException;
+import com.vena.learning.exception.customException.CourseExceptions.CourseTitleEmptyException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -114,4 +115,17 @@ public class GlobalExceptionHandler {
                 .body(problemDetail);
     }
 
+    @ExceptionHandler(CourseTitleEmptyException.class)
+    public ResponseEntity<ProblemDetail> handleCourseTitleEmptyException(CourseTitleEmptyException e,
+                                                                          HttpServletRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problemDetail.setTitle("Course Title Missing");
+        problemDetail.setDetail(e.getMessage()); // assuming the exception has a message
+        problemDetail.setProperty("errorCode", "COURSE_TITLE_EMPTY");
+        problemDetail.setProperty("path", request.getRequestURI());
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(problemDetail);
+    }
 }
