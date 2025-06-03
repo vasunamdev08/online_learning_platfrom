@@ -102,11 +102,6 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public Optional<Student> findById(String userId) {
-        return studentRepository.findById(userId);
-    }
-
-    @Override
     public List<Student> getAllStudents() {
         return studentRepository.findAll();
     }
@@ -120,5 +115,10 @@ public class StudentServiceImpl implements StudentService {
         student.setPassword(request.getPassword());
         studentRepository.save(student);
         return new UserResponse(student);
+    }
+
+    @Override
+    public boolean isStudentExist(String userId) {
+        return studentRepository.existsById(userId);
     }
 }

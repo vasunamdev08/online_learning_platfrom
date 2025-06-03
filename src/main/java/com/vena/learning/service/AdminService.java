@@ -6,6 +6,9 @@ import com.vena.learning.dto.responseDto.CourseStatusResponse;
 import com.vena.learning.dto.responseDto.StatisticsResponse;
 import com.vena.learning.dto.responseDto.UserResponse;
 import com.vena.learning.model.Admin;
+import com.vena.learning.model.Course;
+import com.vena.learning.model.Instructor;
+import com.vena.learning.model.Student;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
@@ -40,5 +43,9 @@ public interface AdminService {
 
     List<UserResponse> getAllInstructorsByInstitution(String adminId);
 
-//    List<CourseResponse> getAllApprovedCoursesByInstitution(String adminId);
+    Student getStudentById(String adminId,String studentId);
+
+    Instructor getInstructorById(String adminId,String instructorId);
+
+    CourseResponse getCourseById(String adminId, String courseId);
 }

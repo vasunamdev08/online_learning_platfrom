@@ -25,13 +25,15 @@ public interface InstructorService {
 
     void deleteInstructor(String userId);
 
-    Optional<Instructor> findById(String userId);
-
-
     List<Instructor> getAllInstructors();
     List<CourseResponse> getCoursesByInstructor(String instructorId);
 
     CourseResponse createCourse(CourseRequest request);
     CourseResponse updateInstructorCourse(CourseRequest request);
 
+    void deleteInstructorCourse(String courseId);
+
+    CourseResponse addModuleToCourse(CourseRequest courseRequest);
+
+    boolean isInstructorExist(String userId);
 }
