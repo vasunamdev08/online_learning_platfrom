@@ -2,6 +2,7 @@ package com.vena.learning.exception;
 
 import com.vena.learning.exception.customException.AdminException.AdminNotFoundByEmailException;
 import com.vena.learning.exception.customException.AdminException.AdminNotFoundByIdException;
+import com.vena.learning.exception.customException.AdminException.AdminNotFoundByUsernameException;
 import com.vena.learning.exception.customException.CourseExceptions.CourseAlreadyApprovedException;
 import com.vena.learning.exception.customException.CourseExceptions.CourseAlreadyDeletedException;
 import com.vena.learning.exception.customException.CourseExceptions.CourseAlreadyExistsForInstructorException;
@@ -81,6 +82,14 @@ public class GlobalExceptionHandler {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
         problemDetail.setTitle("Admin Not Found");
         problemDetail.setProperty("id", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).contentType(MediaType.APPLICATION_PROBLEM_JSON).body(problemDetail);
+    }
+
+    @ExceptionHandler(AdminNotFoundByUsernameException.class)
+    public ResponseEntity<ProblemDetail> handleAdminNotFoundByUsernameException(AdminNotFoundByUsernameException ex, WebRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+        problemDetail.setTitle("Admin Not Found");
+        problemDetail.setProperty("username", ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).contentType(MediaType.APPLICATION_PROBLEM_JSON).body(problemDetail);
     }
 
