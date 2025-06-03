@@ -3,14 +3,17 @@ package com.vena.learning.controller;
 import com.vena.learning.dto.requestDto.EnrollmentRequest;
 import com.vena.learning.dto.responseDto.QuestionResponse;
 import com.vena.learning.dto.requestDto.StudentUpdateRequest;
+import com.vena.learning.dto.responseDto.QuizAttemptResponse;
 import com.vena.learning.dto.responseDto.QuestionResponseWrapper;
 import com.vena.learning.dto.responseDto.UserResponse;
 import com.vena.learning.enums.Grade;
+import com.vena.learning.dto.requestDto.QuizSubmissionRequest;
 import com.vena.learning.model.Course;
 import com.vena.learning.model.Enrollment;
 import com.vena.learning.model.Module;
 import com.vena.learning.service.EnrollmentService;
 import com.vena.learning.service.ModuleService;
+import com.vena.learning.service.QuizAttemptService;
 import com.vena.learning.service.QuizService;
 import com.vena.learning.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +36,8 @@ public class StudentController {
     private EnrollmentService enrollmentService;
     @Autowired
     private ModuleService moduleService;
+    @Autowired
+    private QuizAttemptService quizAttemptService;
     @Autowired
     private QuizService quizService;
 
@@ -95,5 +100,11 @@ public class StudentController {
     public ResponseEntity<?> getGrades(@PathVariable String studentId, @PathVariable String courseId) {
         Grade grade = enrollmentService.getGradeByCourse(studentId, courseId);
         return ResponseEntity.ok(grade);
+    }
+    //update the number of attempts and for the first time set the score.
+    @PostMapping("/courses/quizzes/submit")
+    public ResponseEntity<?> submitQuiz(@RequestBody QuizSubmissionRequest request) {
+        QuizAttemptResponse quizResponse = quizAttemptService.submitQuiz(request);
+        return ResponseEntity.ok(quizResponse);
     }
 }

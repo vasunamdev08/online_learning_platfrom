@@ -17,10 +17,6 @@ import java.util.stream.Collectors;
 public class QuizServiceImpl implements QuizService {
     @Autowired
     private QuizRepository quizRepo;
-    public List<QuizResponse> getQuizzesByCourseId(String courseId) {
-       List<Quiz> quizzes = quizRepo.findByCourseId(courseId);
-        return quizzes.stream().map(quiz -> new QuizResponse(quiz.getId(), quiz.getTitle())).collect(Collectors.toList());
-    }
     @Autowired
     private StudentService studentService;
     @Autowired
@@ -28,6 +24,15 @@ public class QuizServiceImpl implements QuizService {
     @Autowired
     private CourseService courseService;
 
+    @Override
+    public List<QuizResponse> getQuizzesByCourseId(String courseId) {
+       List<Quiz> quizzes = quizRepo.findByCourseId(courseId);
+        return quizzes.stream().map(quiz -> new QuizResponse(quiz.getId(), quiz.getTitle())).collect(Collectors.toList());
+    }
+    @Override
+    public Quiz getQuizById(String quizId) {
+        return quizRepo.findById(quizId).orElseThrow(() -> new RuntimeException("Quiz not found with id: " + quizId));
+    }
     @Override
     public List<QuestionResponse> getQuizQuestions(String studentId, String courseId, String quizId) {
 
