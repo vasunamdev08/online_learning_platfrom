@@ -7,6 +7,7 @@ import com.vena.learning.exception.customException.CourseExceptions.CourseNotFou
 import com.vena.learning.exception.customException.CourseExceptions.CourseQuizAccessDeniedDueToDeletionException;
 import com.vena.learning.exception.customException.CourseExceptions.CourseQuizAccessDeniedDueToUnapprovedStatusException;
 import com.vena.learning.exception.customException.CourseExceptions.CourseTitleEmptyException;
+import com.vena.learning.exception.customException.CourseExceptions.CourseViewNotAuthorizedException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -126,6 +127,20 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
+                .body(problemDetail);
+    }
+
+    @ExceptionHandler(CourseViewNotAuthorizedException.class)
+    public ResponseEntity<ProblemDetail> handleCourseViewNotAuthorizedException(CourseViewNotAuthorizedException e,
+                                                                                 HttpServletRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.UNAUTHORIZED);
+        problemDetail.setTitle("Unauthorized Course View");
+        problemDetail.setDetail(e.getMessage()); // assuming the exception has a message
+        problemDetail.setProperty("errorCode", "COURSE_VIEW_UNAUTHORIZED");
+        problemDetail.setProperty("path", request.getRequestURI());
+
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
                 .body(problemDetail);
     }
 }
