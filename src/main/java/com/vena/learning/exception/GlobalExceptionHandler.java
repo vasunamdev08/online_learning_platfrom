@@ -2,6 +2,7 @@ package com.vena.learning.exception;
 
 import com.vena.learning.exception.customException.AdminException.AdminNotFoundByEmailException;
 import com.vena.learning.exception.customException.AdminException.AdminNotFoundByIdException;
+import com.vena.learning.exception.customException.CourseExceptions.CourseApprovalNotAuthorizedException;
 import com.vena.learning.exception.customException.CourseExceptions.CourseDescriptionEmptyException;
 import com.vena.learning.exception.customException.CourseExceptions.CourseNotFoundByIdException;
 import com.vena.learning.exception.customException.CourseExceptions.CourseQuizAccessDeniedDueToDeletionException;
@@ -78,6 +79,20 @@ public class GlobalExceptionHandler {
         problemDetail.setTitle("Admin Not Found");
         problemDetail.setProperty("id", ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).contentType(MediaType.APPLICATION_PROBLEM_JSON).body(problemDetail);
+    }
+
+    @ExceptionHandler(CourseApprovalNotAuthorizedException.class)
+    public ResponseEntity<ProblemDetail> handleCourseApprovalNotAuthorizedException(CourseApprovalNotAuthorizedException e,
+                                                                                     HttpServletRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
+        problemDetail.setTitle("Course Approval Not Authorized");
+        problemDetail.setDetail(e.getMessage()); // assuming the exception has a message
+        problemDetail.setProperty("errorCode", "COURSE_APPROVAL_NOT_AUTHORIZED");
+        problemDetail.setProperty("path", request.getRequestURI());
+
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(problemDetail);
     }
 
     @ExceptionHandler(CourseDescriptionEmptyException.class)
