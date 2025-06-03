@@ -19,6 +19,7 @@ import com.vena.learning.exception.customException.ModuleExceptions.LastModuleMu
 import com.vena.learning.exception.customException.ModuleExceptions.ModuleNotFoundByIdAndCourseIdException;
 import com.vena.learning.exception.customException.ModuleExceptions.MultipleConclusionModulesException;
 import com.vena.learning.exception.customException.ModuleExceptions.MultipleIntroductionModulesException;
+import com.vena.learning.exception.customException.QuizExceptions.QuizNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -306,6 +307,20 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
+                .body(problemDetail);
+    }
+
+    @ExceptionHandler(QuizNotFoundException.class)
+    public ResponseEntity<ProblemDetail> handleQuizNotFoundException(QuizNotFoundException e,
+                                                                      HttpServletRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+        problemDetail.setTitle("Quiz Not Found");
+        problemDetail.setDetail(e.getMessage()); // assuming the exception has a message
+        problemDetail.setProperty("errorCode", "QUIZ_NOT_FOUND");
+        problemDetail.setProperty("path", request.getRequestURI());
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
                 .body(problemDetail);
     }
 }
