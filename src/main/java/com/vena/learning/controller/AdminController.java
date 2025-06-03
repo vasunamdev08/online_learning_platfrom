@@ -4,6 +4,9 @@ import com.vena.learning.dto.responseDto.CourseResponse;
 import com.vena.learning.dto.responseDto.CourseStatusResponse;
 import com.vena.learning.dto.responseDto.StatisticsResponse;
 import com.vena.learning.dto.responseDto.UserResponse;
+import com.vena.learning.model.Course;
+import com.vena.learning.model.Instructor;
+import com.vena.learning.model.Student;
 import com.vena.learning.service.AdminService;
 import org.hibernate.stat.Statistics;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,5 +74,23 @@ public class AdminController {
     public ResponseEntity<?> getInstructors(@PathVariable String adminId) {
         List<UserResponse> instructors = adminService.getAllInstructorsByInstitution(adminId);
         return new ResponseEntity<>(instructors, HttpStatus.OK);
+    }
+
+    @GetMapping("/{adminId}/student/{studentId}")
+    public ResponseEntity<?> getStudentById(@PathVariable String adminId, @PathVariable String studentId) {
+        Student student = adminService.getStudentById(adminId,studentId);
+        return new ResponseEntity<>(student, HttpStatus.OK);
+    }
+
+    @GetMapping("/{adminId}/instructor/{instructorId}")
+    public ResponseEntity<?> getInstructorById(@PathVariable String adminId, @PathVariable String instructorId) {
+        Instructor instructor = adminService.getInstructorById(adminId,instructorId);
+        return new ResponseEntity<>(instructor, HttpStatus.OK);
+    }
+
+    @GetMapping("/{adminId}/course/{courseId}")
+    public ResponseEntity<?> getCourseById(@PathVariable String adminId, @PathVariable String courseId){
+        CourseResponse course=adminService.getCourseById(adminId,courseId);
+        return new ResponseEntity<>(course,HttpStatus.OK);
     }
 }

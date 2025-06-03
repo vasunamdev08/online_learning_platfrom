@@ -29,10 +29,9 @@ public interface StudentService {
 
     void deleteStudent(String userId);
 
-    Optional<Student> findById(String adminID);
-
     List<Student> getAllStudents();
 
     UserResponse updateStudentProfile(StudentUpdateRequest request);
 
+    boolean isStudentExist(String userId);
 }

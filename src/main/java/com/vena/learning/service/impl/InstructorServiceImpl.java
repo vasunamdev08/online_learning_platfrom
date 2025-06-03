@@ -3,7 +3,6 @@ package com.vena.learning.service.impl;
 import com.vena.learning.dto.requestDto.CourseRequest;
 import com.vena.learning.dto.requestDto.RegisterRequest;
 import com.vena.learning.dto.responseDto.CourseResponse;
-import com.vena.learning.model.Course;
 import com.vena.learning.model.Instructor;
 import com.vena.learning.enums.Role;
 import com.vena.learning.repository.InstructorRepository;
@@ -101,11 +100,6 @@ public class InstructorServiceImpl implements InstructorService {
     }
 
     @Override
-    public Optional<Instructor> findById(String userId) {
-        return instructorRepository.findById(userId);
-    }
-
-    @Override
     public List<Instructor> getAllInstructors() {
         return instructorRepository.findAll();
     }
@@ -141,4 +135,8 @@ public class InstructorServiceImpl implements InstructorService {
         return moduleService.addModuleToCourse(courseRequest);
     }
 
+    @Override
+    public boolean isInstructorExist(String userId) {
+        return instructorRepository.existsById(userId);
+    }
 }
