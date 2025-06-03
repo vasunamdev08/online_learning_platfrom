@@ -2,6 +2,7 @@ package com.vena.learning.service.impl;
 
 import com.vena.learning.dto.requestDto.AnswerSubmissionRequest;
 import com.vena.learning.dto.requestDto.QuizSubmissionRequest;
+import com.vena.learning.dto.responseDto.QuizAttemptResponse;
 import com.vena.learning.model.Choice;
 import com.vena.learning.model.Quiz;
 import com.vena.learning.model.QuizAttempt;
@@ -35,16 +36,16 @@ public class QuizAttemptImpl implements QuizAttemptService {
     private EnrollmentService enrollmentService;
 
     @Override
-    public void submitQuiz(String studentId, String courseId, String quizId, QuizSubmissionRequest request) {
+    public QuizAttemptResponse submitQuiz(QuizSubmissionRequest request) {
         //so here we need to attemptNumber++ and set the score if(attemptNumber == 1)
         //also set the attemptDate
-        Student student = studentService.getStudentById(studentId);
-        Quiz quiz = quizService.getQuizById(quizId);
+        Student student = studentService.getStudentById(request.getStudentId());
+        Quiz quiz = quizService.getQuizById(request.getQuizId());
         //applying check that the student is enrolled in the course.
-        if (!enrollmentService.isEnrolled(studentId, courseId)) {
+        if (!enrollmentService.isEnrolled(request.getStudentId(), request.getCourseId())) {
             throw new RuntimeException("Student is not enrolled in the course. Cannot attempt the quiz.");
         }
-        Integer attemptNumber = calculateAttemptNumber(studentId, quizId);
+        Integer attemptNumber = calculateAttemptNumber(request.getStudentId(), request.getQuizId());
         int newAttemptNumber = (attemptNumber == null) ? 1 : attemptNumber + 1;
         //allowing user to take max 2 attempts.
         if (newAttemptNumber > 2) {
@@ -53,6 +54,7 @@ public class QuizAttemptImpl implements QuizAttemptService {
         int score = calculateScore(request);
         QuizAttempt attempt = createQuizAttempt(student, quiz, newAttemptNumber, score);
         quizAttemptRepo.save(attempt);
+        return new QuizAttemptResponse(attempt);
     }
 
     public Integer calculateAttemptNumber(String studentId, String quizId) {

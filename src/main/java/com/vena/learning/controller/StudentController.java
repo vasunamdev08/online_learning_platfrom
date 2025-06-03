@@ -2,6 +2,7 @@ package com.vena.learning.controller;
 
 import com.vena.learning.dto.requestDto.EnrollmentRequest;
 import com.vena.learning.dto.requestDto.StudentUpdateRequest;
+import com.vena.learning.dto.responseDto.QuizAttemptResponse;
 import com.vena.learning.dto.responseDto.UserResponse;
 import com.vena.learning.enums.Grade;
 import com.vena.learning.dto.requestDto.QuizSubmissionRequest;
@@ -20,7 +21,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
@@ -91,9 +91,9 @@ public class StudentController {
         return ResponseEntity.ok(grade);
     }
     //update the number of attempts and for the first time set the score.
-    @PostMapping("/{studentId}/courses/{courseId}/quizzes/{quizId}/submit")
-    public ResponseEntity<?> submitQuiz(@PathVariable String studentId, @PathVariable String courseId, @PathVariable String quizId, @RequestBody QuizSubmissionRequest request) {
-        quizAttemptService.submitQuiz(studentId, courseId, quizId, request);
-        return ResponseEntity.ok("Quiz submitted");
+    @PostMapping("/courses/quizzes/submit")
+    public ResponseEntity<?> submitQuiz(@RequestBody QuizSubmissionRequest request) {
+        QuizAttemptResponse quizResponse = quizAttemptService.submitQuiz(request);
+        return ResponseEntity.ok(quizResponse);
     }
 }
