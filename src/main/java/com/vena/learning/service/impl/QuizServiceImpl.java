@@ -45,11 +45,6 @@ public class QuizServiceImpl implements QuizService {
         //apply check for the course module completion.
 
         Quiz quiz = quizRepo.findByIdAndCourseId(quizId, courseId).orElseThrow(() -> new RuntimeException("Quiz not found."));
-        Course course = quiz.getCourse();
-
-        if (!course.isApproved() || course.isDeleted()) {
-            throw new RuntimeException("Cannot access questions: Course is either not approved or deleted.");
-        }
         return quiz.getQuestions().stream().map(QuestionResponse::new).collect(Collectors.toList());
     }
 }
