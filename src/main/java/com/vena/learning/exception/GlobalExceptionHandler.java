@@ -23,6 +23,7 @@ import com.vena.learning.exception.customException.QuizExceptions.QuizNotFoundEx
 import com.vena.learning.exception.customException.StudentExceptions.EnrollmentDoesNotExistException;
 import com.vena.learning.exception.customException.StudentExceptions.EnrollmentNotFoundException;
 import com.vena.learning.exception.customException.StudentExceptions.NoCoursesFoundForStudentException;
+import com.vena.learning.exception.customException.StudentExceptions.StudentAlreadyEnrolledException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -369,5 +370,17 @@ public class GlobalExceptionHandler {
                 .body(problemDetail);
     }
 
+    @ExceptionHandler(StudentAlreadyEnrolledException.class)
+    public ResponseEntity<ProblemDetail> handleStudentAlreadyEnrolledException(StudentAlreadyEnrolledException e,
+                                                                                HttpServletRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.CONFLICT);
+        problemDetail.setTitle("Student Already Enrolled");
+        problemDetail.setDetail(e.getMessage()); // assuming the exception has a message
+        problemDetail.setProperty("errorCode", "STUDENT_ALREADY_ENROLLED");
+        problemDetail.setProperty("path", request.getRequestURI());
 
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(problemDetail);
+    }
 }
