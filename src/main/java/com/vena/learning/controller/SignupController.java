@@ -30,13 +30,13 @@ public class SignupController {
 
     @PostMapping("/admin")
     public ResponseEntity<?> registerAdmin(@RequestBody RegisterRequest adminRequest) {
-        adminService.registerAdmin(adminRequest);
-        return ResponseEntity.ok("Admin registered successfully");
+        RegisterResponse registerResponse = adminService.registerAdmin(adminRequest);
+        return ResponseEntity.ok(registerResponse);
     }
 
     @PostMapping("/instructor")
     public ResponseEntity<?> registerInstructor(@RequestBody RegisterRequest instructorRequest) {
-        instructorService.registerInstructor(instructorRequest);
-        return ResponseEntity.ok("Instructor registered successfully");
+        RegisterResponse registerResponse = instructorService.registerInstructor(instructorRequest);
+        return ResponseEntity.ok(registerResponse);
     }
 }
