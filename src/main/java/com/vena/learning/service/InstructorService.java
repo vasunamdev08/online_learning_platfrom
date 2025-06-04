@@ -6,7 +6,7 @@ import com.vena.learning.dto.requestDto.ModuleRequest;
 import com.vena.learning.dto.requestDto.RegisterRequest;
 import com.vena.learning.dto.responseDto.CourseResponse;
 import com.vena.learning.dto.responseDto.ModuleResponse;
-import com.vena.learning.dto.responseDto.QuizResponse;
+import com.vena.learning.dto.responseDto.RegisterResponse;
 import com.vena.learning.model.Instructor;
 import org.springframework.stereotype.Service;
 
@@ -15,8 +15,8 @@ import java.util.Optional;
 
 @Service
 public interface InstructorService {
-    void registerInstructor(RegisterRequest instructorRequest);
-    void saveInstructor(RegisterRequest instructorRequest);
+    RegisterResponse registerInstructor(RegisterRequest instructorRequest);
+    Instructor saveInstructor(RegisterRequest instructorRequest);
     void deleteInstructor(String userId);
     void deleteInstructorCourse(String courseId);
 

@@ -2,6 +2,7 @@ package com.vena.learning.service;
 
 import com.vena.learning.dto.requestDto.RegisterRequest;
 import com.vena.learning.dto.requestDto.StudentUpdateRequest;
+import com.vena.learning.dto.responseDto.RegisterResponse;
 import com.vena.learning.dto.responseDto.UserResponse;
 import com.vena.learning.model.Course;
 import com.vena.learning.model.Student;
@@ -21,8 +22,8 @@ public interface StudentService {
     boolean isStudentExist(String userId);
     boolean isStudentExist(String email, String username);
 
-    void registerStudent(RegisterRequest user);
-    void saveStudent(RegisterRequest user);
+    RegisterResponse registerStudent(RegisterRequest user);
+    Student saveStudent(RegisterRequest user);
     void deleteStudent(String userId);
 
     List<Course> getStudentCources(String studentId);

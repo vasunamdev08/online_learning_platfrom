@@ -7,7 +7,7 @@ import com.vena.learning.dto.requestDto.ModuleRequest;
 import com.vena.learning.dto.requestDto.QuestionRequest;
 import com.vena.learning.dto.requestDto.RegisterRequest;
 import com.vena.learning.dto.responseDto.CourseResponse;
-import com.vena.learning.dto.responseDto.QuizResponse;
+import com.vena.learning.dto.responseDto.RegisterResponse;
 import com.vena.learning.model.Choice;
 import com.vena.learning.model.Course;
 import com.vena.learning.dto.responseDto.ModuleResponse;
@@ -87,7 +87,7 @@ public class InstructorServiceImpl implements InstructorService {
     }
 
     @Override
-    public void saveInstructor(RegisterRequest instructorRequest) {
+    public Instructor saveInstructor(RegisterRequest instructorRequest) {
         Instructor instructor = new Instructor();
         instructor.setName(instructorRequest.getName());
         instructor.setEmail(instructorRequest.getEmail());
@@ -96,17 +96,18 @@ public class InstructorServiceImpl implements InstructorService {
         instructor.setInstitution(instructorRequest.getInstitution());
         instructor.setRole(Role.ROLE_INSTRUCTOR);
         instructorRepository.save(instructor);
+        return instructor;
     }
 
     @Override
-    public void registerInstructor(RegisterRequest instructorRequest) {
+    public RegisterResponse registerInstructor(RegisterRequest instructorRequest) {
         if(isExist(instructorRequest.getEmail(), instructorRequest.getUsername())) {
             throw new RuntimeException("Instructor already exists with email or username");
         }
         if(instructorRequest.getName() == null || instructorRequest.getEmail() == null || instructorRequest.getUsername() == null || instructorRequest.getPassword() == null) {
             throw new RuntimeException("Instructor details are incomplete");
         }
-        saveInstructor(instructorRequest);
+        return new RegisterResponse(saveInstructor(instructorRequest));
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.vena.learning.controller;
 
 import com.vena.learning.dto.requestDto.RegisterRequest;
+import com.vena.learning.dto.responseDto.RegisterResponse;
 import com.vena.learning.service.AdminService;
 import com.vena.learning.service.InstructorService;
 import com.vena.learning.service.StudentService;
@@ -23,9 +24,8 @@ public class SignupController {
 
     @PostMapping("/student")
     public ResponseEntity<?> registerStudent(@RequestBody RegisterRequest studentRequest) {
-        System.out.println("Registering student: " + studentRequest);
-        studentService.registerStudent(studentRequest);
-        return ResponseEntity.ok("Student registered successfully");
+        RegisterResponse registerResponse = studentService.registerStudent(studentRequest);
+        return ResponseEntity.ok(registerResponse);
     }
 
     @PostMapping("/admin")
