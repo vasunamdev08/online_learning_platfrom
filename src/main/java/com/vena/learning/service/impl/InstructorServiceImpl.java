@@ -4,8 +4,8 @@ import com.vena.learning.dto.requestDto.CourseRequest;
 import com.vena.learning.dto.requestDto.ModuleRequest;
 import com.vena.learning.dto.requestDto.RegisterRequest;
 import com.vena.learning.dto.responseDto.CourseResponse;
-import com.vena.learning.dto.responseDto.ModuleResponse;
 import com.vena.learning.model.Course;
+import com.vena.learning.dto.responseDto.ModuleResponse;
 import com.vena.learning.model.Instructor;
 import com.vena.learning.model.Module;
 import com.vena.learning.enums.Role;
@@ -13,15 +13,12 @@ import com.vena.learning.repository.InstructorRepository;
 import com.vena.learning.service.CourseService;
 import com.vena.learning.service.InstructorService;
 import com.vena.learning.service.ModuleService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class InstructorServiceImpl implements InstructorService {
