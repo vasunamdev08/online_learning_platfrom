@@ -3,6 +3,9 @@ package com.vena.learning.service.impl;
 import com.vena.learning.dto.requestDto.AnswerSubmissionRequest;
 import com.vena.learning.dto.requestDto.QuizSubmissionRequest;
 import com.vena.learning.dto.responseDto.QuizAttemptResponse;
+import com.vena.learning.exception.customException.QuizExceptions.ChoiceNotFoundException;
+import com.vena.learning.exception.customException.QuizExceptions.MaxQuizAttemptsExceededException;
+import com.vena.learning.exception.customException.StudentExceptions.StudentNotEnrolledInCourseException;
 import com.vena.learning.model.Choice;
 import com.vena.learning.model.Enrollment;
 import com.vena.learning.model.Quiz;
@@ -46,13 +49,13 @@ public class QuizAttemptImpl implements QuizAttemptService {
         Enrollment enrollment = enrollmentService.getEnrollmentByIds(request.getStudentId(), request.getCourseId());
         //applying check that the student is enrolled in the course.
         if(enrollment.getProgressMask()!=enrollment.getCourse().getCompletionMask()){
-            throw new RuntimeException("You are not enrolled in this course or you have not completed the prerequisites.");
+            throw new StudentNotEnrolledInCourseException("You are not enrolled in this course or you have not completed the prerequisites.");
         }
         Integer attemptNumber = calculateAttemptNumber(request.getStudentId(), request.getQuizId());
         int newAttemptNumber = (attemptNumber == null) ? 1 : attemptNumber + 1;
         //allowing user to take max 2 attempts.
         if (newAttemptNumber > 2) {
-            throw new RuntimeException("Maximum of 2 attempts reached. You cannot take the quiz again.");
+            throw new MaxQuizAttemptsExceededException("Maximum of 2 attempts reached. You cannot take the quiz again.");
         }
         int score = calculateScore(request);
         QuizAttempt attempt = createQuizAttempt(student, quiz, newAttemptNumber, score);
@@ -81,7 +84,7 @@ public class QuizAttemptImpl implements QuizAttemptService {
         int score = 0;
         for (AnswerSubmissionRequest answer : request.getAnswers()) {
             Choice choice = choiceRepo.findById(answer.getSelectedChoiceId())
-                    .orElseThrow(() -> new RuntimeException("Choice not found"));
+                    .orElseThrow(() -> new ChoiceNotFoundException("Choice not found"));
             if (choice.isCorrect()) {
                 score++;
             }
