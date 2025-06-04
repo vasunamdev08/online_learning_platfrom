@@ -120,11 +120,21 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public UserResponse updateStudentProfile(StudentUpdateRequest request) {
-        Student student = studentRepository.findById(request.getId()).orElseThrow(() -> new RuntimeException("Student not found"));
-        student.setName(request.getName());
-        student.setEmail(request.getEmail());
-        student.setInstitution(request.getInstitution());
-        student.setPassword(request.getPassword());
+        Student student = studentRepository.findById(request.getId())
+                .orElseThrow(() -> new RuntimeException("Student not found"));
+
+        if (request.getName() != null) {
+            student.setName(request.getName());
+        }
+        if (request.getEmail() != null) {
+            student.setEmail(request.getEmail());
+        }
+        if (request.getInstitution() != null) {
+            student.setInstitution(request.getInstitution());
+        }
+        if (request.getPassword() != null) {
+            student.setPassword(request.getPassword());
+        }
         studentRepository.save(student);
         return new UserResponse(student);
     }
