@@ -1,22 +1,32 @@
 package com.vena.learning.service.impl;
 
+import com.vena.learning.dto.requestDto.ChoiceRequest;
 import com.vena.learning.dto.requestDto.CourseRequest;
+import com.vena.learning.dto.requestDto.CreateQuizRequest;
 import com.vena.learning.dto.requestDto.ModuleRequest;
+import com.vena.learning.dto.requestDto.QuestionRequest;
 import com.vena.learning.dto.requestDto.RegisterRequest;
 import com.vena.learning.dto.responseDto.CourseResponse;
+import com.vena.learning.dto.responseDto.QuizResponse;
+import com.vena.learning.model.Choice;
 import com.vena.learning.model.Course;
 import com.vena.learning.dto.responseDto.ModuleResponse;
 import com.vena.learning.model.Instructor;
 import com.vena.learning.model.Module;
 import com.vena.learning.enums.Role;
+import com.vena.learning.model.Question;
+import com.vena.learning.model.Quiz;
 import com.vena.learning.repository.InstructorRepository;
+import com.vena.learning.repository.QuizRepository;
 import com.vena.learning.service.CourseService;
 import com.vena.learning.service.InstructorService;
 import com.vena.learning.service.ModuleService;
+import com.vena.learning.service.QuizService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,12 +37,18 @@ public class InstructorServiceImpl implements InstructorService {
     private InstructorRepository instructorRepository;
 
     @Autowired
+    private QuizRepository quizRepository;
+
+    @Autowired
     @Lazy
     private CourseService courseService;
 
     @Autowired
     @Lazy
     private ModuleService moduleService;
+
+    @Autowired
+    private QuizService quizService;
 
     @Override
     public Instructor getInstructorById(String id) {
@@ -176,5 +192,41 @@ public class InstructorServiceImpl implements InstructorService {
         Module updated = moduleService.updateModule(existingModule, moduleRequest);
         return new ModuleResponse(updated);
     }
+
+    @Override
+    public void addQuizToCourse(CreateQuizRequest quizRequest) {
+        Course course = courseService.getCourseById(quizRequest.getCourseId());
+        Instructor instructor = getInstructorById(quizRequest.getInstructorId());
+        if(course.getInstructor()!= instructor) {
+            throw new RuntimeException("Instructor does not own this course");
+        }
+        Quiz quiz = new Quiz();
+        quiz.setTitle(quizRequest.getQuizTitle());
+        quiz.setCourse(course);
+
+        List<Question> questionEntities = new ArrayList<>();
+
+        for (QuestionRequest questionRequest : quizRequest.getQuestions()) {
+            Question question = new Question();
+            question.setQuestion(questionRequest.getQuestionText());
+            question.setQuiz(quiz); // Set back-reference
+
+            List<Choice> choiceEntities = new ArrayList<>();
+            for (ChoiceRequest choiceRequest : questionRequest.getChoices()) {
+                Choice choice = new Choice();
+                choice.setOptionText(choiceRequest.getChoiceText());
+                choice.setCorrect(choiceRequest.isCorrect());
+                choice.setQuestion(question); // Set back-reference
+                choiceEntities.add(choice);
+            }
+
+            question.setChoices(choiceEntities);
+            questionEntities.add(question);
+        }
+
+        quiz.setQuestions(questionEntities);
+        quizRepository.save(quiz);  // Cascade saves everything
+    }
+
 
 }
