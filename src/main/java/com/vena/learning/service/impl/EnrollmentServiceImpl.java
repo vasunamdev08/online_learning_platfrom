@@ -1,6 +1,11 @@
 package com.vena.learning.service.impl;
 
 import com.vena.learning.dto.requestDto.EnrollmentRequest;
+import com.vena.learning.exception.customException.QuizExceptions.MaxQuizAttemptsExceededException;
+import com.vena.learning.exception.customException.StudentExceptions.EnrollmentDoesNotExistException;
+import com.vena.learning.exception.customException.StudentExceptions.EnrollmentNotFoundException;
+import com.vena.learning.exception.customException.StudentExceptions.StudentAlreadyEnrolledException;
+import com.vena.learning.exception.customException.StudentExceptions.StudentNotEnrolledInCourseException;
 import com.vena.learning.model.Course;
 import com.vena.learning.model.Enrollment;
 import com.vena.learning.model.Quiz;
@@ -39,7 +44,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         String studentId = enrollmentRequest.getStudentId();
         String courseId = enrollmentRequest.getCourseId();
         if(isEnrolled(studentId, courseId)) {
-            throw new RuntimeException("Student is already enrolled in the course");
+            throw new StudentAlreadyEnrolledException("Student is already enrolled in the course");
         }
         if(isExists(studentId, courseId)) {
             Enrollment enrollment = getEnrollmentByIds(studentId, courseId);
@@ -72,10 +77,10 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         String studentId = enrollmentRequest.getStudentId();
         String courseId = enrollmentRequest.getCourseId();
         if(!isEnrolled(studentId, courseId)) {
-            throw new RuntimeException("Student is not enrolled in the course");
+            throw new StudentNotEnrolledInCourseException("Student is not enrolled in the course");
         }
         if(!isExists(studentId, courseId)) {
-            throw new RuntimeException("Enrollment does not exist");
+            throw new EnrollmentDoesNotExistException("Enrollment does not exist");
         }
         Enrollment enrollment = enrollmentRepository.findByStudentIdAndCourseId(studentId, courseId).get();
         enrollment.setIsEnrolled(false);
@@ -95,7 +100,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     @Override
     public Enrollment getEnrollmentByIds(String studentId, String courseId) {
         return enrollmentRepository.findByStudentIdAndCourseId(studentId, courseId).orElseThrow(
-                () -> new RuntimeException("Enrollment not found with studentId: " + studentId + " and courseId: " + courseId)
+                () -> new EnrollmentNotFoundException("Enrollment not found with studentId: " + studentId + " and courseId: " + courseId)
         );
     }
 
@@ -113,7 +118,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         Enrollment enrollment = enrollmentRepository.findByStudentIdAndCourseId(studentId, courseId).orElseThrow(() -> new RuntimeException("Enrollment not found"));
         List<QuizAttempt> attempts = quizAttemptService.findByStudentIdAndQuizId(studentId, quizId);
         if (attempts == null || attempts.isEmpty()) {
-            throw new RuntimeException("No attempts found for the quiz.");
+            throw new MaxQuizAttemptsExceededException("No attempts found for the quiz.");
         }
 
         int score = attempts.stream().mapToInt(QuizAttempt::getScore).max().orElse(0);

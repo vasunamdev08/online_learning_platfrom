@@ -5,12 +5,14 @@ import com.vena.learning.exception.customException.AdminException.AdminNotFoundB
 import com.vena.learning.exception.customException.AdminException.AdminNotFoundByIdException;
 import com.vena.learning.exception.customException.AdminException.AdminNotFoundByUsernameException;
 import com.vena.learning.exception.customException.AdminException.IncompleteAdminDetailsException;
+import com.vena.learning.exception.customException.CourseExceptions.ApprovedCourseNotFoundException;
 import com.vena.learning.exception.customException.CourseExceptions.CourseAlreadyApprovedException;
 import com.vena.learning.exception.customException.CourseExceptions.CourseAlreadyDeletedException;
 import com.vena.learning.exception.customException.CourseExceptions.CourseAlreadyExistsForInstructorException;
 import com.vena.learning.exception.customException.CourseExceptions.CourseApprovalNotAuthorizedException;
 import com.vena.learning.exception.customException.CourseExceptions.CourseDeletionNotAuthorizedException;
 import com.vena.learning.exception.customException.CourseExceptions.CourseDescriptionEmptyException;
+import com.vena.learning.exception.customException.CourseExceptions.CourseIdEmptyException;
 import com.vena.learning.exception.customException.CourseExceptions.CourseNotFoundByIdException;
 import com.vena.learning.exception.customException.CourseExceptions.CourseQuizAccessDeniedDueToDeletionException;
 import com.vena.learning.exception.customException.CourseExceptions.CourseQuizAccessDeniedDueToUnapprovedStatusException;
@@ -18,22 +20,39 @@ import com.vena.learning.exception.customException.CourseExceptions.CourseTitleE
 import com.vena.learning.exception.customException.CourseExceptions.CourseViewNotAuthorizedException;
 import com.vena.learning.exception.customException.InstitutionExceptions.InstitutionDetailsMissingException;
 import com.vena.learning.exception.customException.InstitutionExceptions.NoCoursesFoundForInstitutionException;
+import com.vena.learning.exception.customException.InstructorExceptions.InstructorAlreadyExistException;
+import com.vena.learning.exception.customException.InstructorExceptions.InstructorDetailMissingException;
 import com.vena.learning.exception.customException.InstructorExceptions.InstructorIdMissingException;
+import com.vena.learning.exception.customException.InstructorExceptions.InstructorNotFoundByEmailException;
+import com.vena.learning.exception.customException.InstructorExceptions.InstructorNotFoundByIdException;
+import com.vena.learning.exception.customException.InstructorExceptions.InstructorNotFoundByUsernameException;
+import com.vena.learning.exception.customException.InstructorExceptions.InstructorNotFoundException;
 import com.vena.learning.exception.customException.InstructorExceptions.InstructorNotFoundForCourseException;
 import com.vena.learning.exception.customException.InstructorExceptions.InstructorViewNotAuthorizedException;
 import com.vena.learning.exception.customException.ModuleExceptions.EmptyModulesListException;
 import com.vena.learning.exception.customException.ModuleExceptions.FirstModuleMustBeIntroductionException;
+import com.vena.learning.exception.customException.ModuleExceptions.InvalidModuleSequenceException;
 import com.vena.learning.exception.customException.ModuleExceptions.LastModuleMustBeConclusionException;
+import com.vena.learning.exception.customException.ModuleExceptions.ModuleNotFound;
+import com.vena.learning.exception.customException.ModuleExceptions.ModuleNotFoundById;
 import com.vena.learning.exception.customException.ModuleExceptions.ModuleNotFoundByIdAndCourseIdException;
+import com.vena.learning.exception.customException.ModuleExceptions.ModuleValidationException;
 import com.vena.learning.exception.customException.ModuleExceptions.MultipleConclusionModulesException;
 import com.vena.learning.exception.customException.ModuleExceptions.MultipleIntroductionModulesException;
+import com.vena.learning.exception.customException.QuizExceptions.ChoiceNotFoundException;
+import com.vena.learning.exception.customException.QuizExceptions.MaxQuizAttemptsExceededException;
 import com.vena.learning.exception.customException.QuizExceptions.QuizNotFoundException;
 import com.vena.learning.exception.customException.StudentExceptions.EnrollmentDoesNotExistException;
 import com.vena.learning.exception.customException.StudentExceptions.EnrollmentNotFoundException;
 import com.vena.learning.exception.customException.StudentExceptions.NoCoursesFoundForStudentException;
 import com.vena.learning.exception.customException.StudentExceptions.StudentAlreadyEnrolledException;
+import com.vena.learning.exception.customException.StudentExceptions.StudentAlreadyExistsException;
+import com.vena.learning.exception.customException.StudentExceptions.StudentDetailIncompleteException;
 import com.vena.learning.exception.customException.StudentExceptions.StudentNotEnrolledInCourseException;
+import com.vena.learning.exception.customException.StudentExceptions.StudentNotFoundByEmailException;
 import com.vena.learning.exception.customException.StudentExceptions.StudentNotFoundByIdException;
+import com.vena.learning.exception.customException.StudentExceptions.StudentNotFoundByUsername;
+import com.vena.learning.exception.customException.StudentExceptions.StudentNotFoundException;
 import com.vena.learning.exception.customException.StudentExceptions.StudentViewNotAuthorizedException;
 import com.vena.learning.exception.customException.UserExceptions.UserDeletionNotAuthorizedException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -555,6 +574,261 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
+                .body(problemDetail);
+    }
+
+    @ExceptionHandler(ApprovedCourseNotFoundException.class)
+    public ResponseEntity<ProblemDetail> handleApprovedCourseNotFoundException(ApprovedCourseNotFoundException e,
+                                                                                HttpServletRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+        problemDetail.setTitle("Approved Course Not Found");
+        problemDetail.setDetail(e.getMessage()); // assuming the exception has a message
+        problemDetail.setProperty("errorCode", "APPROVED_COURSE_NOT_FOUND");
+        problemDetail.setProperty("path", request.getRequestURI());
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(problemDetail);
+    }
+
+    @ExceptionHandler(ModuleNotFound.class)
+    public ResponseEntity<ProblemDetail> handleModuleNotFound(ModuleNotFound e, HttpServletRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+        problemDetail.setTitle("Module Not Found");
+        problemDetail.setDetail(e.getMessage()); // assuming the exception has a message
+        problemDetail.setProperty("errorCode", "MODULE_NOT_FOUND");
+        problemDetail.setProperty("path", request.getRequestURI());
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(problemDetail);
+    }
+
+    @ExceptionHandler(ChoiceNotFoundException.class)
+    public ResponseEntity<ProblemDetail> handleChoiceNotFoundException(ChoiceNotFoundException e, HttpServletRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+        problemDetail.setTitle("Choice Not Found");
+        problemDetail.setDetail(e.getMessage()); // assuming the exception has a message
+        problemDetail.setProperty("errorCode", "CHOICE_NOT_FOUND");
+        problemDetail.setProperty("path", request.getRequestURI());
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(problemDetail);
+    }
+
+    @ExceptionHandler(MaxQuizAttemptsExceededException.class)
+    public ResponseEntity<ProblemDetail> handleMaxQuizAttemptsExceededException(MaxQuizAttemptsExceededException e, HttpServletRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
+        problemDetail.setTitle("Max Quiz Attempts Exceeded");
+        problemDetail.setDetail(e.getMessage()); // assuming the exception has a message
+        problemDetail.setProperty("errorCode", "MAX_QUIZ_ATTEMPTS_EXCEEDED");
+        problemDetail.setProperty("path", request.getRequestURI());
+
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(problemDetail);
+    }
+
+    @ExceptionHandler(StudentAlreadyExistsException.class)
+    public ResponseEntity<ProblemDetail> handleStudentAlreadyExistsException(StudentAlreadyExistsException e, HttpServletRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.CONFLICT);
+        problemDetail.setTitle("Student Already Exists");
+        problemDetail.setDetail(e.getMessage()); // assuming the exception has a message
+        problemDetail.setProperty("errorCode", "STUDENT_ALREADY_EXISTS");
+        problemDetail.setProperty("path", request.getRequestURI());
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(problemDetail);
+    }
+
+    @ExceptionHandler(StudentDetailIncompleteException.class)
+    public ResponseEntity<ProblemDetail> handleStudentDetailIncompleteException(StudentDetailIncompleteException e, HttpServletRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problemDetail.setTitle("Student Detail Incomplete");
+        problemDetail.setDetail(e.getMessage()); // assuming the exception has a message
+        problemDetail.setProperty("errorCode", "STUDENT_DETAIL_INCOMPLETE");
+        problemDetail.setProperty("path", request.getRequestURI());
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(problemDetail);
+    }
+
+    @ExceptionHandler(StudentNotFoundByEmailException.class)
+    public ResponseEntity<ProblemDetail> handleStudentNotFoundByEmailException(StudentNotFoundByEmailException e, HttpServletRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+        problemDetail.setTitle("Student Not Found by Email");
+        problemDetail.setDetail(e.getMessage()); // assuming the exception has a message
+        problemDetail.setProperty("errorCode", "STUDENT_NOT_FOUND_BY_EMAIL");
+        problemDetail.setProperty("path", request.getRequestURI());
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(problemDetail);
+    }
+
+    @ExceptionHandler(StudentNotFoundByUsername.class)
+    public ResponseEntity<ProblemDetail> handleStudentNotFoundByUsername(StudentNotFoundByUsername e, HttpServletRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+        problemDetail.setTitle("Student Not Found by Username");
+        problemDetail.setDetail(e.getMessage()); // assuming the exception has a message
+        problemDetail.setProperty("errorCode", "STUDENT_NOT_FOUND_BY_USERNAME");
+        problemDetail.setProperty("path", request.getRequestURI());
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(problemDetail);
+    }
+
+    @ExceptionHandler(StudentNotFoundException.class)
+    public ResponseEntity<ProblemDetail> handleStudentNotFoundException(StudentNotFoundException e, HttpServletRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+        problemDetail.setTitle("Student Not Found");
+        problemDetail.setDetail(e.getMessage()); // assuming the exception has a message
+        problemDetail.setProperty("errorCode", "STUDENT_NOT_FOUND");
+        problemDetail.setProperty("path", request.getRequestURI());
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(problemDetail);
+    }
+
+    @ExceptionHandler(InvalidModuleSequenceException.class)
+    public ResponseEntity<ProblemDetail> handleInvalidModuleSequenceException(InvalidModuleSequenceException e, HttpServletRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problemDetail.setTitle("Invalid Module Sequence");
+        problemDetail.setDetail(e.getMessage()); // assuming the exception has a message
+        problemDetail.setProperty("errorCode", "INVALID_MODULE_SEQUENCE");
+        problemDetail.setProperty("path", request.getRequestURI());
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(problemDetail);
+    }
+
+    @ExceptionHandler(CourseIdEmptyException.class)
+    public ResponseEntity<ProblemDetail> handleCourseIdEmptyException(CourseIdEmptyException e, HttpServletRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problemDetail.setTitle("Course ID Missing");
+        problemDetail.setDetail(e.getMessage()); // assuming the exception has a message
+        problemDetail.setProperty("errorCode", "COURSE_ID_EMPTY");
+        problemDetail.setProperty("path", request.getRequestURI());
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(problemDetail);
+    }
+
+    @ExceptionHandler(ModuleNotFoundById.class)
+    public ResponseEntity<ProblemDetail> handleModuleNotFoundById(ModuleNotFoundById e, HttpServletRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+        problemDetail.setTitle("Module Not Found by ID");
+        problemDetail.setDetail(e.getMessage()); // assuming the exception has a message
+        problemDetail.setProperty("errorCode", "MODULE_NOT_FOUND_BY_ID");
+        problemDetail.setProperty("path", request.getRequestURI());
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(problemDetail);
+    }
+
+    @ExceptionHandler(InstructorNotFoundByIdException.class)
+    public ResponseEntity<ProblemDetail> handleInstructorNotFoundByIdException(InstructorNotFoundByIdException e,
+                                                                                 HttpServletRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+        problemDetail.setTitle("Instructor Not Found");
+        problemDetail.setDetail(e.getMessage()); // assuming the exception has a message
+        problemDetail.setProperty("errorCode", "INSTRUCTOR_NOT_FOUND");
+        problemDetail.setProperty("path", request.getRequestURI());
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(problemDetail);
+    }
+
+    @ExceptionHandler(InstructorNotFoundByUsernameException.class)
+    public ResponseEntity<ProblemDetail> handleInstructorNotFoundByUsernameException(InstructorNotFoundByUsernameException e,
+                                                                                     HttpServletRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+        problemDetail.setTitle("Instructor Not Found by Username");
+        problemDetail.setDetail(e.getMessage()); // assuming the exception has a message
+        problemDetail.setProperty("errorCode", "INSTRUCTOR_NOT_FOUND_BY_USERNAME");
+        problemDetail.setProperty("path", request.getRequestURI());
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(problemDetail);
+    }
+
+    @ExceptionHandler(InstructorNotFoundByEmailException.class)
+    public ResponseEntity<ProblemDetail> handleInstructorNotFoundByEmailException(InstructorNotFoundByEmailException e,
+                                                                                   HttpServletRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+        problemDetail.setTitle("Instructor Not Found by Email");
+        problemDetail.setDetail(e.getMessage()); // assuming the exception has a message
+        problemDetail.setProperty("errorCode", "INSTRUCTOR_NOT_FOUND_BY_EMAIL");
+        problemDetail.setProperty("path", request.getRequestURI());
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(problemDetail);
+    }
+
+    @ExceptionHandler(InstructorAlreadyExistException.class)
+    public ResponseEntity<ProblemDetail> handleInstructorAlreadyExistException(InstructorAlreadyExistException e,
+                                                                                 HttpServletRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.CONFLICT);
+        problemDetail.setTitle("Instructor Already Exists");
+        problemDetail.setDetail(e.getMessage()); // assuming the exception has a message
+        problemDetail.setProperty("errorCode", "INSTRUCTOR_ALREADY_EXISTS");
+        problemDetail.setProperty("path", request.getRequestURI());
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(problemDetail);
+    }
+
+    @ExceptionHandler(InstructorDetailMissingException.class)
+    public ResponseEntity<ProblemDetail> handleInstructorDetailMissingException(InstructorDetailMissingException e,
+                                                                                 HttpServletRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problemDetail.setTitle("Instructor Detail Missing");
+        problemDetail.setDetail(e.getMessage()); // assuming the exception has a message
+        problemDetail.setProperty("errorCode", "INSTRUCTOR_DETAIL_MISSING");
+        problemDetail.setProperty("path", request.getRequestURI());
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(problemDetail);
+    }
+
+    @ExceptionHandler(InstructorNotFoundException.class)
+    public ResponseEntity<ProblemDetail> handleInstructorNotFoundException(InstructorNotFoundException e,
+                                                                             HttpServletRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+        problemDetail.setTitle("Instructor Not Found");
+        problemDetail.setDetail(e.getMessage()); // assuming the exception has a message
+        problemDetail.setProperty("errorCode", "INSTRUCTOR_NOT_FOUND");
+        problemDetail.setProperty("path", request.getRequestURI());
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(problemDetail);
+    }
+
+    @ExceptionHandler(ModuleValidationException.class)
+    public ResponseEntity<ProblemDetail> handleModuleValidationException(ModuleValidationException e,
+                                                                           HttpServletRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problemDetail.setTitle("Module Validation Error");
+        problemDetail.setDetail(e.getMessage()); // assuming the exception has a message
+        problemDetail.setProperty("errorCode", "MODULE_VALIDATION_ERROR");
+        problemDetail.setProperty("path", request.getRequestURI());
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
                 .body(problemDetail);
     }
 }
