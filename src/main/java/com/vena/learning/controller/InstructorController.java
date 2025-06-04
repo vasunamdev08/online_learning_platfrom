@@ -74,7 +74,7 @@ public class InstructorController {
     @DeleteMapping("/courses/modules/{moduleId}")
     public ResponseEntity<?> deleteModule(@PathVariable String moduleId) {
         instructorService.deleteModule(moduleId);
-        return ResponseEntity.ok("Module with ID " + moduleId + " has been deleted successfully.");
+        return ResponseEntity.ok("Module deleted successfully.");
     }
 
 }

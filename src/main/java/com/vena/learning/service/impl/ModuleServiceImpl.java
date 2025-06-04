@@ -122,7 +122,7 @@ public class ModuleServiceImpl implements ModuleService {
     }
 
     @Override
-    public Module fetchModuleByIdOrThrow(String moduleId) {
+    public Module fetchModuleById(String moduleId) {
         return moduleRepository.findById(moduleId)
                 .orElseThrow(() -> new ModuleNotFoundById("Module not found with ID: " + moduleId));
     }

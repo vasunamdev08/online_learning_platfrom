@@ -186,7 +186,7 @@ public class InstructorServiceImpl implements InstructorService {
         Course course = courseService.getCourseById(moduleRequest.getCourseId());
 
         // Validate module exists
-        Module existingModule = moduleService.fetchModuleByIdOrThrow(moduleRequest.getId());
+        Module existingModule = moduleService.fetchModuleById(moduleRequest.getId());
 
         // Ensure module belongs to the course
         if (!existingModule.getCourse().getId().equals(moduleRequest.getCourseId())) {
@@ -243,7 +243,7 @@ public class InstructorServiceImpl implements InstructorService {
     @Override
     public void deleteModule(String moduleId) {
         // Fetch the module
-        Module module = moduleService.fetchModuleByIdOrThrow(moduleId);
+        Module module = moduleService.fetchModuleById(moduleId);
 
         // Only allow deletion if the type is LESSON
         if (module.getType() != Type.Lesson) {

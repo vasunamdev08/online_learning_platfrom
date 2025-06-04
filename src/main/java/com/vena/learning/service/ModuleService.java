@@ -15,7 +15,7 @@ public interface ModuleService {
     List<Integer> getSequencesByCourseId(String courseId);
     List<Module> getModulesByCourseId(String courseId);
     Module updateModule(Module existingModule, ModuleRequest request);
-    Module fetchModuleByIdOrThrow(String moduleId);
+    Module fetchModuleById(String moduleId);
     void validateModuleTypeBySequence(ModuleRequest request, List<Module> existingModules);
     void deleteModuleById(String moduleId);
     void saveAllModules(List<Module> modules);
