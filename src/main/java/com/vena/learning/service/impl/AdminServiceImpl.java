@@ -10,6 +10,7 @@ import com.vena.learning.dto.responseDto.InstructorStatResponse;
 import com.vena.learning.dto.responseDto.InstructorStats;
 import com.vena.learning.dto.responseDto.ModuleResponse;
 import com.vena.learning.dto.responseDto.QuizSummary;
+import com.vena.learning.dto.responseDto.RegisterResponse;
 import com.vena.learning.dto.responseDto.StatisticsResponse;
 import com.vena.learning.dto.responseDto.StudentStatResponse;
 import com.vena.learning.dto.responseDto.UserResponse;
@@ -77,18 +78,18 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public void registerAdmin(RegisterRequest adminRequest) {
+    public RegisterResponse registerAdmin(RegisterRequest adminRequest) {
         if(adminRequest.getName() == null || adminRequest.getEmail() == null || adminRequest.getUsername() == null || adminRequest.getPassword() == null) {
             throw new IncompleteAdminDetailsException("Admin details are incomplete");
         }
         if(isExists(adminRequest.getEmail(), adminRequest.getUsername())) {
             throw new AdminAlreadyExistsException("Admin already exists with email: " + adminRequest.getEmail() + " or username: " + adminRequest.getUsername());
         }
-        saveAdmin(adminRequest);
+        return new RegisterResponse(saveAdmin(adminRequest));
     }
 
     @Override
-    public void saveAdmin(RegisterRequest adminRequest) {
+    public Admin saveAdmin(RegisterRequest adminRequest) {
         Admin admin = new Admin();
         admin.setName(adminRequest.getName());
         admin.setEmail(adminRequest.getEmail());
@@ -97,6 +98,7 @@ public class AdminServiceImpl implements AdminService {
         admin.setInstitution(adminRequest.getInstitution());
         admin.setRole(Role.ROLE_ADMIN);
         adminRepository.save(admin);
+        return admin;
     }
 
     @Override
@@ -341,7 +343,8 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public List<UserResponse> getAllStudentsByInstitution(String adminId) {
+    public List<UserResponse>
+    getAllStudentsByInstitution(String adminId) {
         String institution = getInstitutionByAdminId(adminId);
         if (institution == null || institution.trim().isEmpty()) {
             throw new InstitutionDetailsMissingException("Institution cannot be null or empty");
