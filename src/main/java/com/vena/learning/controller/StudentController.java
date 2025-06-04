@@ -3,7 +3,6 @@ package com.vena.learning.controller;
 import com.vena.learning.dto.requestDto.EnrollmentRequest;
 import com.vena.learning.dto.responseDto.QuestionResponse;
 import com.vena.learning.dto.requestDto.StudentUpdateRequest;
-import com.vena.learning.dto.responseDto.QuestionResponse;
 import com.vena.learning.dto.responseDto.QuizAttemptResponse;
 import com.vena.learning.dto.responseDto.QuestionResponseWrapper;
 import com.vena.learning.dto.responseDto.UserResponse;
@@ -12,8 +11,6 @@ import com.vena.learning.dto.requestDto.QuizSubmissionRequest;
 import com.vena.learning.dto.responseDto.EnrollmentResponse;
 import com.vena.learning.dto.responseDto.ModuleResponse;
 import com.vena.learning.model.Course;
-import com.vena.learning.model.Enrollment;
-import com.vena.learning.model.Module;
 import com.vena.learning.service.EnrollmentService;
 import com.vena.learning.service.ModuleService;
 import com.vena.learning.service.QuizAttemptService;
@@ -27,7 +24,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
@@ -77,7 +73,7 @@ public class StudentController {
 
     @GetMapping("/{studentId}/courses/{courseId}")
     public ResponseEntity<?> getCourseById(@PathVariable String studentId, @PathVariable String courseId) {
-        EnrollmentResponse courseDetails = new EnrollmentResponse(enrollmentService.getCourseDetailsByIds(studentId, courseId));
+        EnrollmentResponse courseDetails = new EnrollmentResponse(enrollmentService.getEnrollmentByIds(studentId, courseId));
         return ResponseEntity.ok(courseDetails);
     }
 

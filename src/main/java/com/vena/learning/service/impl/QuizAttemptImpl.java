@@ -7,6 +7,7 @@ import com.vena.learning.exception.customException.QuizException.ChoiceNotFoundE
 import com.vena.learning.exception.customException.QuizException.MaxQuizAttemptsExceededException;
 import com.vena.learning.exception.customException.StudentException.StudentNotEnrolledInCourseException;
 import com.vena.learning.model.Choice;
+import com.vena.learning.model.Enrollment;
 import com.vena.learning.model.Quiz;
 import com.vena.learning.model.QuizAttempt;
 import com.vena.learning.model.Student;
@@ -45,6 +46,7 @@ public class QuizAttemptImpl implements QuizAttemptService {
         //also set the attemptDate
         Student student = studentService.getStudentById(request.getStudentId());
         Quiz quiz = quizService.getQuizById(request.getQuizId());
+        Enrollment enrollment = enrollmentService.getEnrollmentByIds(request.getStudentId(), request.getCourseId());
         //applying check that the student is enrolled in the course.
         if (!enrollmentService.isEnrolled(request.getStudentId(), request.getCourseId())) {
             throw new StudentNotEnrolledInCourseException(request.getStudentId(), request.getCourseId());

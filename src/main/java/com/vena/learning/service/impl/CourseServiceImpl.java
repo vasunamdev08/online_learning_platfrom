@@ -5,6 +5,7 @@ import com.vena.learning.dto.responseDto.CourseResponse;
 import com.vena.learning.dto.responseDto.QuizResponse;
 import com.vena.learning.dto.responseDto.QuizResponseWrapper;
 import com.vena.learning.enums.Type;
+import com.vena.learning.exception.customException.CourseExceptions.CourseDescriptionEmptyException;
 import com.vena.learning.model.Course;
 import com.vena.learning.model.Instructor;
 import com.vena.learning.model.Module;
@@ -104,7 +105,7 @@ public class CourseServiceImpl implements CourseService {
             throw new RuntimeException("Course title cannot be empty.");
         }
         if (course.getDescription() == null || course.getDescription().trim().isEmpty()) {
-            throw new RuntimeException("Course description cannot be empty.");
+            throw new CourseDescriptionEmptyException("Course description cannot be empty.");
         }
         if (course.getInstructorId() == null || course.getInstructorId().trim().isEmpty()) {
             throw new RuntimeException("Instructor ID cannot be empty.");
