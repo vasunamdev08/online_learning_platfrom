@@ -1,5 +1,7 @@
 package com.vena.learning.service;
 
+import com.vena.learning.dto.requestDto.CreateQuizRequest;
+import com.vena.learning.model.Course;
 import com.vena.learning.model.Quiz;
 
 import com.vena.learning.dto.responseDto.QuestionResponse;
@@ -12,4 +14,6 @@ public interface QuizService {
     Quiz getQuizById(String quizId);
     List<QuestionResponse> getQuizQuestions(String studentId, String courseId, String quizId);
     List<QuizResponse> getQuizzesByCourseId(String courseId);
+
+    void createQuiz(Course course, CreateQuizRequest request);
 }

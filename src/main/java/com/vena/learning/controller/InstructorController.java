@@ -1,10 +1,13 @@
 package com.vena.learning.controller;
 
+import com.vena.learning.dto.requestDto.CreateQuizRequest;
 import com.vena.learning.dto.requestDto.ModuleRequest;
 import com.vena.learning.dto.responseDto.CourseResponse;
 import com.vena.learning.dto.responseDto.ModuleResponse;
+import com.vena.learning.dto.responseDto.QuizResponse;
 import com.vena.learning.service.InstructorService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -60,6 +63,12 @@ public class InstructorController {
     public ResponseEntity<ModuleResponse> updateModule(@RequestBody ModuleRequest moduleRequest) {
         ModuleResponse updatedModule = instructorService.updateModule(moduleRequest);
         return ResponseEntity.ok(updatedModule);
+    }
+
+    @PostMapping("/courses/quizzes")
+    public ResponseEntity<String> createQuizForCourse(@RequestBody CreateQuizRequest createQuizRequest) {
+        instructorService.addQuizToCourse(createQuizRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body("Quiz created successfully.");
     }
 
 }

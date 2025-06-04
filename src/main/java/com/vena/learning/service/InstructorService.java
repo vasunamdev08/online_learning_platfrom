@@ -1,10 +1,12 @@
 package com.vena.learning.service;
 
 import com.vena.learning.dto.requestDto.CourseRequest;
+import com.vena.learning.dto.requestDto.CreateQuizRequest;
 import com.vena.learning.dto.requestDto.ModuleRequest;
 import com.vena.learning.dto.requestDto.RegisterRequest;
 import com.vena.learning.dto.responseDto.CourseResponse;
 import com.vena.learning.dto.responseDto.ModuleResponse;
+import com.vena.learning.dto.responseDto.QuizResponse;
 import com.vena.learning.model.Instructor;
 import org.springframework.stereotype.Service;
 
@@ -41,4 +43,6 @@ public interface InstructorService {
 
     boolean isInstructorExist(String userId);
     ModuleResponse updateModule(ModuleRequest moduleRequest);
+
+    void addQuizToCourse(CreateQuizRequest createQuizRequest);
 }
