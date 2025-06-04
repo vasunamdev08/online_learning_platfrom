@@ -21,6 +21,7 @@ import com.vena.learning.exception.customException.CourseExceptions.CourseViewNo
 import com.vena.learning.exception.customException.InstitutionExceptions.InstitutionDetailsMissingException;
 import com.vena.learning.exception.customException.InstitutionExceptions.NoCoursesFoundForInstitutionException;
 import com.vena.learning.exception.customException.InstructorExceptions.InstructorAlreadyExistException;
+import com.vena.learning.exception.customException.InstructorExceptions.InstructorCourseOwnershipException;
 import com.vena.learning.exception.customException.InstructorExceptions.InstructorDetailMissingException;
 import com.vena.learning.exception.customException.InstructorExceptions.InstructorIdMissingException;
 import com.vena.learning.exception.customException.InstructorExceptions.InstructorNotFoundByEmailException;
@@ -829,6 +830,20 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
+                .body(problemDetail);
+    }
+
+    @ExceptionHandler(InstructorCourseOwnershipException.class)
+    public ResponseEntity<ProblemDetail> handleInstructorCourseOwnershipException(InstructorCourseOwnershipException e,
+                                                                                   HttpServletRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
+        problemDetail.setTitle("Instructor Course Ownership Error");
+        problemDetail.setDetail(e.getMessage()); // assuming the exception has a message
+        problemDetail.setProperty("errorCode", "INSTRUCTOR_COURSE_OWNERSHIP_ERROR");
+        problemDetail.setProperty("path", request.getRequestURI());
+
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
                 .body(problemDetail);
     }
 }

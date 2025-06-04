@@ -8,6 +8,7 @@ import com.vena.learning.dto.requestDto.QuestionRequest;
 import com.vena.learning.dto.requestDto.RegisterRequest;
 import com.vena.learning.dto.responseDto.CourseResponse;
 import com.vena.learning.exception.customException.InstructorExceptions.InstructorAlreadyExistException;
+import com.vena.learning.exception.customException.InstructorExceptions.InstructorCourseOwnershipException;
 import com.vena.learning.exception.customException.InstructorExceptions.InstructorDetailMissingException;
 import com.vena.learning.exception.customException.InstructorExceptions.InstructorNotFoundByEmailException;
 import com.vena.learning.exception.customException.InstructorExceptions.InstructorNotFoundByIdException;
@@ -205,7 +206,7 @@ public class InstructorServiceImpl implements InstructorService {
         Course course = courseService.getCourseById(quizRequest.getCourseId());
         Instructor instructor = getInstructorById(quizRequest.getInstructorId());
         if(course.getInstructor()!= instructor) {
-            throw new RuntimeException("Instructor does not own this course");
+            throw new InstructorCourseOwnershipException("Instructor does not own this course");
         }
         Quiz quiz = new Quiz();
         quiz.setTitle(quizRequest.getQuizTitle());
