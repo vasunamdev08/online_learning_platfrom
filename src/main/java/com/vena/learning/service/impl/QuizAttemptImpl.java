@@ -3,20 +3,20 @@ package com.vena.learning.service.impl;
 import com.vena.learning.dto.requestDto.AnswerSubmissionRequest;
 import com.vena.learning.dto.requestDto.QuizSubmissionRequest;
 import com.vena.learning.dto.responseDto.QuizAttemptResponse;
-import com.vena.learning.enums.Grade;
+import com.vena.learning.exception.customException.QuizException.ChoiceNotFoundException;
+import com.vena.learning.exception.customException.QuizException.MaxQuizAttemptsExceededException;
+import com.vena.learning.exception.customException.StudentException.StudentNotEnrolledInCourseException;
 import com.vena.learning.model.Choice;
 import com.vena.learning.model.Quiz;
 import com.vena.learning.model.QuizAttempt;
 import com.vena.learning.model.Student;
 import com.vena.learning.repository.ChoiceRepository;
 import com.vena.learning.repository.QuizAttemptRepository;
-import com.vena.learning.service.CourseService;
 import com.vena.learning.service.EnrollmentService;
 import com.vena.learning.service.QuizAttemptService;
 import com.vena.learning.service.QuizService;
 import com.vena.learning.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -47,13 +47,13 @@ public class QuizAttemptImpl implements QuizAttemptService {
         Quiz quiz = quizService.getQuizById(request.getQuizId());
         //applying check that the student is enrolled in the course.
         if (!enrollmentService.isEnrolled(request.getStudentId(), request.getCourseId())) {
-            throw new RuntimeException("Student is not enrolled in the course. Cannot attempt the quiz.");
+            throw new StudentNotEnrolledInCourseException(request.getStudentId(), request.getCourseId());
         }
         Integer attemptNumber = calculateAttemptNumber(request.getStudentId(), request.getQuizId());
         int newAttemptNumber = (attemptNumber == null) ? 1 : attemptNumber + 1;
         //allowing user to take max 2 attempts.
         if (newAttemptNumber > 2) {
-            throw new RuntimeException("Maximum of 2 attempts reached. You cannot take the quiz again.");
+            throw new MaxQuizAttemptsExceededException();
         }
         int score = calculateScore(request);
         QuizAttempt attempt = createQuizAttempt(student, quiz, newAttemptNumber, score);
@@ -82,7 +82,7 @@ public class QuizAttemptImpl implements QuizAttemptService {
         int score = 0;
         for (AnswerSubmissionRequest answer : request.getAnswers()) {
             Choice choice = choiceRepo.findById(answer.getSelectedChoiceId())
-                    .orElseThrow(() -> new RuntimeException("Choice not found"));
+                    .orElseThrow(ChoiceNotFoundException::new);
             if (choice.isCorrect()) {
                 score++;
             }

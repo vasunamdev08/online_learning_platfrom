@@ -2,6 +2,8 @@ package com.vena.learning.service.impl;
 
 import com.vena.learning.dto.responseDto.QuestionResponse;
 import com.vena.learning.dto.responseDto.QuizResponse;
+import com.vena.learning.exception.customException.QuizException.QuizNotFoundException;
+import com.vena.learning.exception.customException.StudentException.StudentNotEnrolledInCourseException;
 import com.vena.learning.model.Quiz;
 import com.vena.learning.repository.QuizRepository;
 import com.vena.learning.service.CourseService;
@@ -33,7 +35,7 @@ public class QuizServiceImpl implements QuizService {
     }
     @Override
     public Quiz getQuizById(String quizId) {
-        return quizRepo.findById(quizId).orElseThrow(() -> new RuntimeException("Quiz not found with id: " + quizId));
+        return quizRepo.findById(quizId).orElseThrow(() -> new QuizNotFoundException(quizId));
     }
     @Override
     public List<QuestionResponse> getQuizQuestions(String studentId, String courseId, String quizId) {
@@ -41,7 +43,7 @@ public class QuizServiceImpl implements QuizService {
         //apply check if the student exists and is enrolled in the course.
         studentService.getStudentById(studentId);
         if (!enrollmentService.isEnrolled(studentId, courseId)) {
-            throw new RuntimeException("Student with id " + studentId + " is not enrolled in the course.");
+            throw new StudentNotEnrolledInCourseException(studentId, courseId);
         }
 
         //applying check that the course is not deleted and isApproved.
@@ -54,7 +56,7 @@ public class QuizServiceImpl implements QuizService {
 
         //apply check for the course module completion.
 
-        Quiz quiz = quizRepo.findByIdAndCourseId(quizId, courseId).orElseThrow(() -> new RuntimeException("Quiz not found."));
+        Quiz quiz = quizRepo.findByIdAndCourseId(quizId, courseId).orElseThrow(() -> new QuizNotFoundException(quizId));
         return quiz.getQuestions().stream().map(QuestionResponse::new).collect(Collectors.toList());
     }
 }

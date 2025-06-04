@@ -54,5 +54,5 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).contentType(MediaType.APPLICATION_PROBLEM_JSON).body(problemDetail);
     }
 
-
+    //----------------Student Exception Handler
 }
