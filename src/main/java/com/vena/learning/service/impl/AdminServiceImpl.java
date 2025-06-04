@@ -343,7 +343,8 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public List<UserResponse> getAllStudentsByInstitution(String adminId) {
+    public List<UserResponse>
+    getAllStudentsByInstitution(String adminId) {
         String institution = getInstitutionByAdminId(adminId);
         if (institution == null || institution.trim().isEmpty()) {
             throw new InstitutionDetailsMissingException("Institution cannot be null or empty");

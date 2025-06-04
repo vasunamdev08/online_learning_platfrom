@@ -8,6 +8,14 @@ import com.vena.learning.dto.requestDto.QuestionRequest;
 import com.vena.learning.dto.requestDto.RegisterRequest;
 import com.vena.learning.dto.responseDto.CourseResponse;
 import com.vena.learning.dto.responseDto.RegisterResponse;
+import com.vena.learning.exception.customException.InstructorExceptions.InstructorAlreadyExistException;
+import com.vena.learning.exception.customException.InstructorExceptions.InstructorCourseOwnershipException;
+import com.vena.learning.exception.customException.InstructorExceptions.InstructorDetailMissingException;
+import com.vena.learning.exception.customException.InstructorExceptions.InstructorNotFoundByEmailException;
+import com.vena.learning.exception.customException.InstructorExceptions.InstructorNotFoundByIdException;
+import com.vena.learning.exception.customException.InstructorExceptions.InstructorNotFoundByUsernameException;
+import com.vena.learning.exception.customException.InstructorExceptions.InstructorNotFoundException;
+import com.vena.learning.exception.customException.ModuleExceptions.ModuleValidationException;
 import com.vena.learning.model.Choice;
 import com.vena.learning.model.Course;
 import com.vena.learning.dto.responseDto.ModuleResponse;
@@ -53,21 +61,21 @@ public class InstructorServiceImpl implements InstructorService {
     @Override
     public Instructor getInstructorById(String id) {
         return instructorRepository.findById(id).orElseThrow(
-                () -> new RuntimeException("Instructor not found with id: " + id)
+                () -> new InstructorNotFoundByIdException("Instructor not found with id: " + id)
         );
     }
 
     @Override
     public Instructor getInstructorByUsername(String username) {
         return instructorRepository.findByUsername(username).orElseThrow(
-                () -> new RuntimeException("Instructor not found with username: " + username)
+                () -> new InstructorNotFoundByUsernameException("Instructor not found with username: " + username)
         );
     }
 
     @Override
     public Instructor getInstructorByEmail(String email) {
         return instructorRepository.getInstructorByEmail(email).orElseThrow(
-                () -> new RuntimeException("Instructor not found with email: " + email)
+                () -> new InstructorNotFoundByEmailException("Instructor not found with email: " + email)
         );
     }
 
@@ -102,17 +110,17 @@ public class InstructorServiceImpl implements InstructorService {
     @Override
     public RegisterResponse registerInstructor(RegisterRequest instructorRequest) {
         if(isExist(instructorRequest.getEmail(), instructorRequest.getUsername())) {
-            throw new RuntimeException("Instructor already exists with email or username");
+            throw new InstructorAlreadyExistException("Instructor already exists with email or username");
         }
         if(instructorRequest.getName() == null || instructorRequest.getEmail() == null || instructorRequest.getUsername() == null || instructorRequest.getPassword() == null) {
-            throw new RuntimeException("Instructor details are incomplete");
+            throw new InstructorDetailMissingException("Instructor details are incomplete");
         }
         return new RegisterResponse(saveInstructor(instructorRequest));
     }
 
     @Override
     public List<Instructor> getAllInstructorByInstitute(String institution){
-        return instructorRepository.findByInstitution(institution).orElseThrow(()-> new RuntimeException("Instructor not found"));
+        return instructorRepository.findByInstitution(institution).orElseThrow(()-> new InstructorNotFoundException("Instructor not found"));
     }
     @Override
     public void deleteInstructor(String userId) {
@@ -133,7 +141,7 @@ public class InstructorServiceImpl implements InstructorService {
     @Override
      public  List<CourseResponse> getCoursesByInstructor(String instructorId) {
         if (!instructorRepository.existsById(instructorId)) {
-            throw new RuntimeException("Instructor with ID " + instructorId + " does not exist");
+            throw new InstructorNotFoundByIdException("Instructor with ID " + instructorId + " does not exist");
         }
         return courseService.getCoursesByInstructorId(instructorId);
     }
@@ -141,7 +149,7 @@ public class InstructorServiceImpl implements InstructorService {
     @Override
     public CourseResponse createCourse(CourseRequest request) {
         if (!instructorRepository.existsById(request.getInstructorId())) {
-            throw new RuntimeException("Instructor with ID " + request.getInstructorId() + " is not present");
+            throw new InstructorNotFoundByIdException("Instructor with ID " + request.getInstructorId() + " is not present");
         }
         return courseService.addCourseWithModules(request);
     }
@@ -169,7 +177,7 @@ public class InstructorServiceImpl implements InstructorService {
     @Override
     public ModuleResponse updateModule(ModuleRequest moduleRequest) {
         if (moduleRequest.getId() == null || moduleRequest.getCourseId() == null) {
-            throw new IllegalArgumentException("Module ID and Course ID must not be null.");
+            throw new ModuleValidationException("Module ID and Course ID must not be null.");
         }
 
         // Validate course exists
@@ -180,7 +188,7 @@ public class InstructorServiceImpl implements InstructorService {
 
         // Ensure module belongs to the course
         if (!existingModule.getCourse().getId().equals(moduleRequest.getCourseId())) {
-            throw new IllegalArgumentException("Module does not belong to the specified course.");
+            throw new ModuleValidationException("Module does not belong to the specified course.");
         }
 
         // Fetch all modules for the course
@@ -199,7 +207,7 @@ public class InstructorServiceImpl implements InstructorService {
         Course course = courseService.getCourseById(quizRequest.getCourseId());
         Instructor instructor = getInstructorById(quizRequest.getInstructorId());
         if(course.getInstructor()!= instructor) {
-            throw new RuntimeException("Instructor does not own this course");
+            throw new InstructorCourseOwnershipException("Instructor does not own this course");
         }
         Quiz quiz = new Quiz();
         quiz.setTitle(quizRequest.getQuizTitle());

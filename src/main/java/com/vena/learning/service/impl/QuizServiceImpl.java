@@ -3,6 +3,11 @@ package com.vena.learning.service.impl;
 import com.vena.learning.dto.requestDto.CreateQuizRequest;
 import com.vena.learning.dto.responseDto.QuestionResponse;
 import com.vena.learning.dto.responseDto.QuizResponse;
+import com.vena.learning.exception.customException.CourseExceptions.CourseApprovalNotAuthorizedException;
+import com.vena.learning.exception.customException.CourseExceptions.CourseQuizAccessDeniedDueToDeletionException;
+import com.vena.learning.exception.customException.CourseExceptions.CourseQuizAccessDeniedDueToUnapprovedStatusException;
+import com.vena.learning.exception.customException.QuizExceptions.QuizNotFoundException;
+import com.vena.learning.exception.customException.StudentExceptions.StudentNotEnrolledInCourseException;
 import com.vena.learning.model.Course;
 import com.vena.learning.model.Quiz;
 import com.vena.learning.repository.ChoiceRepository;
@@ -45,7 +50,7 @@ public class QuizServiceImpl implements QuizService {
     }
     @Override
     public Quiz getQuizById(String quizId) {
-        return quizRepo.findById(quizId).orElseThrow(() -> new RuntimeException("Quiz not found with id: " + quizId));
+        return quizRepo.findById(quizId).orElseThrow(() -> new QuizNotFoundException("Quiz not found with id: " + quizId));
     }
     @Override
     public List<QuestionResponse> getQuizQuestions(String studentId, String courseId, String quizId) {
@@ -53,15 +58,15 @@ public class QuizServiceImpl implements QuizService {
         //apply check if the student exists and is enrolled in the course.
         studentService.getStudentById(studentId);
         if (!enrollmentService.isEnrolled(studentId, courseId)) {
-            throw new RuntimeException("Student with id " + studentId + " is not enrolled in the course.");
+            throw new StudentNotEnrolledInCourseException("Student with id " + studentId + " is not enrolled in the course.");
         }
 
         //applying check that the course is not deleted and isApproved.
         if (!courseService.getCourseById(courseId).isApproved()) {
-            throw new RuntimeException("Cannot access the course quiz as it course is not approved.");
+            throw new CourseQuizAccessDeniedDueToUnapprovedStatusException("Cannot access the course quiz as it course is not approved.");
         }
         if (courseService.getCourseById(courseId).isDeleted()){
-            throw new RuntimeException("Cannot access the course quiz as it course is deleted.");
+            throw new CourseQuizAccessDeniedDueToDeletionException("Cannot access the course quiz as it course is deleted.");
         }
 
         //apply check for the course module completion.

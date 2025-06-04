@@ -1,5 +1,10 @@
 package com.vena.learning.service.impl;
 
+import com.vena.learning.exception.customException.CourseExceptions.CourseIdEmptyException;
+import com.vena.learning.exception.customException.ModuleExceptions.InvalidModuleSequenceException;
+import com.vena.learning.exception.customException.ModuleExceptions.ModuleNotFound;
+import com.vena.learning.exception.customException.ModuleExceptions.ModuleNotFoundById;
+import com.vena.learning.exception.customException.StudentExceptions.StudentNotEnrolledInCourseException;
 import com.vena.learning.model.Course;
 import com.vena.learning.model.Enrollment;
 import com.vena.learning.dto.requestDto.CourseRequest;
@@ -44,7 +49,7 @@ public class ModuleServiceImpl implements ModuleService {
         System.out.println("Completing module: " + moduleSequence + " for student: " + studentId);
 
         if (moduleSequence < 0 || moduleSequence >= course.getModules().size()) {
-            throw new IllegalArgumentException("Invalid module sequence");
+            throw new InvalidModuleSequenceException("Invalid module sequence");
         }
 
         int mask = enrollment.getProgressMask();
@@ -60,10 +65,10 @@ public class ModuleServiceImpl implements ModuleService {
     @Override
     public Module getModuleById(String studentId, String courseId, String moduleId) {
         if(!enrollmentService.isEnrolled(studentId, courseId)) {
-            throw new RuntimeException("Student is not enrolled in the course");
+            throw new StudentNotEnrolledInCourseException("Student is not enrolled in the course");
         }
         Module module = moduleRepository.findById(moduleId).orElseThrow(
-                () -> new RuntimeException("Module not found with id: " + moduleId)
+                () -> new ModuleNotFound("Module not found with id: " + moduleId)
         );
         completeModule(studentId,courseId, module.getSequence());
         return module;
@@ -110,7 +115,7 @@ public class ModuleServiceImpl implements ModuleService {
     @Override
     public List<Module> getModulesByCourseId(String courseId) {
         if (courseId == null || courseId.trim().isEmpty()) {
-            throw new RuntimeException("Course ID cannot be null or empty.");
+            throw new CourseIdEmptyException("Course ID cannot be null or empty.");
         }
 
         return moduleRepository.findByCourseId(courseId);
@@ -119,7 +124,7 @@ public class ModuleServiceImpl implements ModuleService {
     @Override
     public Module fetchModuleByIdOrThrow(String moduleId) {
         return moduleRepository.findById(moduleId)
-                .orElseThrow(() -> new NoSuchElementException("Module not found with ID: " + moduleId));
+                .orElseThrow(() -> new ModuleNotFoundById("Module not found with ID: " + moduleId));
     }
 
     @Override
@@ -167,7 +172,7 @@ public class ModuleServiceImpl implements ModuleService {
 
             // Only validate the updated module
             if (m.getId().equals(request.getId()) && m.getType() != expectedType) {
-                throw new IllegalArgumentException(
+                throw new InvalidModuleSequenceException(
                         "Invalid module type. After update, the module at position " + (i + 1) +
                                 " (sequence: " + m.getSequence() + ") must be of type " + expectedType +
                                 ", but was " + m.getType());
