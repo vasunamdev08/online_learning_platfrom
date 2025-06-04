@@ -2,6 +2,7 @@ package com.vena.learning.service.impl;
 
 import com.vena.learning.dto.requestDto.RegisterRequest;
 import com.vena.learning.dto.requestDto.StudentUpdateRequest;
+import com.vena.learning.dto.responseDto.RegisterResponse;
 import com.vena.learning.dto.responseDto.UserResponse;
 import com.vena.learning.exception.customException.CourseExceptions.CourseNotFoundByIdException;
 import com.vena.learning.exception.customException.StudentExceptions.StudentAlreadyExistsException;
@@ -70,18 +71,18 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public void registerStudent(RegisterRequest user) {
+    public RegisterResponse registerStudent(RegisterRequest user) {
         if(isStudentExist(user.getEmail(), user.getUsername())) {
             throw new StudentAlreadyExistsException("User already exists with email: " + user.getEmail() + " or username: " + user.getUsername());
         }
         if(user.getName() == null || user.getEmail() == null || user.getPassword() == null) {
             throw new StudentDetailIncompleteException("User details are incomplete");
         }
-        saveStudent(user);
+        return new RegisterResponse(saveStudent(user));
     }
 
     @Override
-    public void saveStudent(RegisterRequest user) {
+    public Student saveStudent(RegisterRequest user) {
         Student student = new Student();
         student.setUsername(user.getUsername());
         student.setEmail(user.getEmail());
@@ -90,6 +91,7 @@ public class StudentServiceImpl implements StudentService {
         student.setInstitution(user.getInstitution());
         student.setRole(Role.ROLE_STUDENT);
         studentRepository.save(student);
+        return student;
     }
 
     @Override
