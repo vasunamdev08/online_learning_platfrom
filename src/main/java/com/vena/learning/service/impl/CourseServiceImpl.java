@@ -153,6 +153,42 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    public void validateModuleSequenceAndTypeConstraints(List<Module> modules) {
+        if (modules == null || modules.isEmpty()) {
+            throw new RuntimeException("Modules list cannot be empty.");
+        }
+
+        Map<Type, Long> typeCounts = modules.stream()
+                .collect(Collectors.groupingBy(Module::getType, Collectors.counting()));
+
+        // 1. Must have exactly one INTRODUCTION and one CONCLUSION
+        if (typeCounts.getOrDefault(Type.Introduction, 0L) != 1) {
+            throw new RuntimeException("There must be exactly one INTRODUCTION module.");
+        }
+        if (typeCounts.getOrDefault(Type.Conclusion, 0L) != 1) {
+            throw new RuntimeException("There must be exactly one CONCLUSION module.");
+        }
+
+        // 2. First sequence module should be INTRODUCTION
+        Module first = modules.stream()
+                .min(Comparator.comparingInt(Module::getSequence))
+                .orElseThrow(() -> new RuntimeException("No modules found."));
+
+        if (first.getType() != Type.Introduction) {
+            throw new RuntimeException("The first module (lowest sequence) must be of type INTRODUCTION.");
+        }
+
+        // 3. Last sequence module should be CONCLUSION
+        Module last = modules.stream()
+                .max(Comparator.comparingInt(Module::getSequence))
+                .orElseThrow(() -> new RuntimeException("No modules found."));
+
+        if (last.getType() != Type.Conclusion) {
+            throw new RuntimeException("The last module (highest sequence) must be of type CONCLUSION.");
+        }
+    }
+
+    @Override
     public CourseResponse updateCourse(CourseRequest request) {
         Course course = getCourseById(request.getCourseId());
         Instructor instructor = instructorService.getInstructorById(request.getInstructorId());
@@ -175,4 +211,13 @@ public class CourseServiceImpl implements CourseService {
         courseRepository.save(course);
     }
 
+    @Override
+    public QuizResponseWrapper getAllQuizzesForCourse(String courseId) {
+        //validate course existence
+        if (!courseRepository.existsById(courseId)) {
+            throw new RuntimeException("Course not found with ID: " + courseId);
+        }
+        List<QuizResponse> quizResponsesList = quizService.getQuizzesByCourseId(courseId);
+        return new QuizResponseWrapper(quizResponsesList);
+    }
 }

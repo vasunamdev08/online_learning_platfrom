@@ -20,15 +20,17 @@ public interface StudentService {
     boolean isExistsByUsername(String username);
     boolean isStudentExist(String userId);
     boolean isStudentExist(String email, String username);
+
     void registerStudent(RegisterRequest user);
     void saveStudent(RegisterRequest user);
-
     void deleteStudent(String userId);
+
     List<Course> getStudentCources(String studentId);
     List<Student> getAllStudents();
-
     List<Student> getAllStudentByInstitute(String institution);
-    Optional<Student> findById(String adminID);
 
+    Optional<Student> findById(String adminID);
     UserResponse updateStudentProfile(StudentUpdateRequest request);
+
+
 }

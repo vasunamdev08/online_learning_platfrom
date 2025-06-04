@@ -10,7 +10,6 @@ import com.vena.learning.enums.Role;
 import com.vena.learning.repository.StudentRepository;
 import com.vena.learning.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,14 +20,17 @@ import java.util.stream.Collectors;
 public class StudentServiceImpl implements StudentService {
     @Autowired
     private StudentRepository studentRepository;
-    @Autowired
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Override
     public Student getStudentByEmail(String email) {
         return studentRepository.getStudentByEmail(email).orElseThrow(
                 () -> new RuntimeException("Student not found with email: " + email)
         );
+    }
+
+    @Override
+    public Optional<Student> findById(String adminID) {
+        return studentRepository.findById(adminID);
     }
 
     @Override
@@ -76,7 +78,7 @@ public class StudentServiceImpl implements StudentService {
         Student student = new Student();
         student.setUsername(user.getUsername());
         student.setEmail(user.getEmail());
-        student.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+        student.setPassword(user.getPassword());
         student.setName(user.getName());
         student.setInstitution(user.getInstitution());
         student.setRole(Role.ROLE_STUDENT);

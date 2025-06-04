@@ -18,8 +18,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
-import java.util.List;
-
 @Service
 public class EnrollmentServiceImpl implements EnrollmentService {
     @Autowired
@@ -44,7 +42,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
             throw new RuntimeException("Student is already enrolled in the course");
         }
         if(isExists(studentId, courseId)) {
-            Enrollment enrollment = getCourseDetailsByIds(studentId, courseId);
+            Enrollment enrollment = getEnrollmentByIds(studentId, courseId);
             enrollment.setIsEnrolled(true);
             enrollmentRepository.save(enrollment);
         }else{
@@ -65,7 +63,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         enrollment.setAttempts(0);
         enrollment.setGrade(Grade.Pending);
         enrollment.setCompletionDate(null);
-        enrollment.setProgress(0);
+        enrollment.setProgressMask(0);
         enrollmentRepository.save(enrollment);
     }
 
@@ -95,7 +93,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     }
 
     @Override
-    public Enrollment getCourseDetailsByIds(String studentId, String courseId) {
+    public Enrollment getEnrollmentByIds(String studentId, String courseId) {
         return enrollmentRepository.findByStudentIdAndCourseId(studentId, courseId).orElseThrow(
                 () -> new RuntimeException("Enrollment not found with studentId: " + studentId + " and courseId: " + courseId)
         );
@@ -103,11 +101,13 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
     @Override
     public Grade getGradeByCourse(String studentId, String courseId) {
-        Enrollment enrollment = getCourseDetailsByIds(studentId, courseId);
+        Enrollment enrollment = getEnrollmentByIds(studentId, courseId);
         return enrollment.getGrade();
     }
-
-
+    @Override
+    public Enrollment saveEnrollment(Enrollment enrollment) {
+        return enrollmentRepository.save(enrollment);
+    }
     @Override
     public void setGradeBasedOnBestAttempt(String studentId, String courseId, String quizId, int attemptNumber) {
         Enrollment enrollment = enrollmentRepository.findByStudentIdAndCourseId(studentId, courseId).orElseThrow(() -> new RuntimeException("Enrollment not found"));
@@ -136,9 +136,5 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         enrollment.setGrade(grade);
         enrollment.setAttempts(attemptNumber);
         enrollmentRepository.save(enrollment);
-    }
-    @Override
-    public Enrollment saveEnrollment(Enrollment enrollment) {
-        return enrollmentRepository.save(enrollment);
     }
 }

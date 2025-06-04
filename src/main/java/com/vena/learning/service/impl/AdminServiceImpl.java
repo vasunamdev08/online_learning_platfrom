@@ -28,15 +28,12 @@ import com.vena.learning.service.EnrollmentService;
 import com.vena.learning.service.InstructorService;
 import com.vena.learning.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -56,9 +53,6 @@ public class AdminServiceImpl implements AdminService {
 
     @Autowired
     private EnrollmentService enrollmentService;
-
-    @Autowired
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     private List<UserResponse> mapToUserResponse(List<User> users) {
         return users.stream()
@@ -83,7 +77,7 @@ public class AdminServiceImpl implements AdminService {
         admin.setName(adminRequest.getName());
         admin.setEmail(adminRequest.getEmail());
         admin.setUsername(adminRequest.getUsername());
-        admin.setPassword(bCryptPasswordEncoder.encode(adminRequest.getPassword()));
+        admin.setPassword(adminRequest.getPassword());
         admin.setInstitution(adminRequest.getInstitution());
         admin.setRole(Role.ROLE_ADMIN);
         adminRepository.save(admin);
