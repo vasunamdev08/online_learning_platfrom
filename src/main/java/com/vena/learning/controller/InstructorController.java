@@ -72,9 +72,9 @@ public class InstructorController {
     }
 
     @DeleteMapping("/courses/modules/{moduleId}")
-    public ResponseEntity<Void> deleteModule(@PathVariable String moduleId) {
+    public ResponseEntity<?> deleteModule(@PathVariable String moduleId) {
         instructorService.deleteModule(moduleId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok("Module with ID " + moduleId + " has been deleted successfully.");
     }
 
 }
