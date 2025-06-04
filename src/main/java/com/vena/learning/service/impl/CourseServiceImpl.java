@@ -148,7 +148,7 @@ public class CourseServiceImpl implements CourseService {
             existingModules = moduleService.getModulesByCourseId(course.getCourseId());
         }
 
-        // 5. Merge incoming and existing modules (excluding overwritten ones)
+        // 5. Merge incoming + existing modules, ignoring any existing ones that have been overwritten
         Set<String> incomingIds = incomingModules.stream()
                 .map(Module::getId)
                 .filter(Objects::nonNull)
@@ -160,9 +160,10 @@ public class CourseServiceImpl implements CourseService {
                 incomingModules.stream()
         ).toList();
 
-        // 6. Run merged validation
+        // 6. RUN UPDATED VALIDATION on the merged list
         validateModuleSequenceAndTypeConstraints(mergedModules);
     }
+
 
     @Override
     public void validateModuleSequenceAndTypeConstraints(List<Module> modules) {
@@ -170,35 +171,52 @@ public class CourseServiceImpl implements CourseService {
             throw new EmptyModulesListException("Modules list cannot be empty.");
         }
 
+        // 1. Count how many of each Type we have
         Map<Type, Long> typeCounts = modules.stream()
                 .collect(Collectors.groupingBy(Module::getType, Collectors.counting()));
 
-        // 1. Must have exactly one INTRODUCTION and one CONCLUSION
+        // 2. Exactly one INTRODUCTION?
         if (typeCounts.getOrDefault(Type.Introduction, 0L) != 1) {
             throw new MultipleIntroductionModulesException("There must be exactly one INTRODUCTION module.");
         }
+        // 3. Exactly one CONCLUSION?
         if (typeCounts.getOrDefault(Type.Conclusion, 0L) != 1) {
             throw new MultipleConclusionModulesException("There must be exactly one CONCLUSION module.");
         }
 
-        // 2. First sequence module should be INTRODUCTION
-        Module first = modules.stream()
+        // 4. Ensure NO DUPLICATE sequence numbers at all
+        Set<Integer> seenSequences = new HashSet<>();
+        for (Module m : modules) {
+            Integer seq = m.getSequence();
+            if (!seenSequences.add(seq)) {
+                // duplicate found
+                throw new RuntimeException("Duplicate module sequence number: " + seq);
+            }
+        }
+
+        // 5. Find the module with the lowest sequence
+        Module firstModule = modules.stream()
                 .min(Comparator.comparingInt(Module::getSequence))
                 .orElseThrow(() -> new ModuleNotFound("No modules found."));
 
-        if (first.getType() != Type.Introduction) {
+        if (firstModule.getType() != Type.Introduction) {
             throw new FirstModuleMustBeIntroductionException("The first module (lowest sequence) must be of type INTRODUCTION.");
         }
 
-        // 3. Last sequence module should be CONCLUSION
-        Module last = modules.stream()
+        // 6. Find the module with the highest sequence
+        Module lastModule = modules.stream()
                 .max(Comparator.comparingInt(Module::getSequence))
                 .orElseThrow(() -> new ModuleNotFound("No modules found."));
 
-        if (last.getType() != Type.Conclusion) {
+        if (lastModule.getType() != Type.Conclusion) {
             throw new MultipleConclusionModulesException("The last module (highest sequence) must be of type CONCLUSION.");
         }
+
+        // 7. (Optional) You already know there can be multiple LESSON modules—
+        //    no further checks needed here, because duplicates were caught,
+        //    and we’ve enforced exactly one INTRO and one CONCL.
     }
+
 
     @Override
     public CourseResponse updateCourse(CourseRequest request) {
