@@ -6,23 +6,19 @@ import com.vena.learning.dto.requestDto.CourseRequest;
 import com.vena.learning.dto.requestDto.ModuleRequest;
 import com.vena.learning.dto.responseDto.CourseResponse;
 import com.vena.learning.enums.Type;
-import com.vena.learning.model.Course;
 import com.vena.learning.model.Module;
 import com.vena.learning.repository.ModuleRepository;
 import com.vena.learning.service.CourseService;
 import com.vena.learning.service.EnrollmentService;
 import com.vena.learning.service.ModuleService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,7 +37,7 @@ public class ModuleServiceImpl implements ModuleService {
     private CourseService courseService;
 
     private void completeModule(String studentId, String courseId, int moduleSequence) {
-        Enrollment enrollment = enrollmentService.getCourseDetailsByIds(studentId, courseId);
+        Enrollment enrollment = enrollmentService.getEnrollmentByIds(studentId, courseId);
 
         Course course = enrollment.getCourse();
 
