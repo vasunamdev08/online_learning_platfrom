@@ -9,6 +9,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import lombok.Data;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -23,8 +25,8 @@ public class Quiz {
     @JoinColumn(name = "course_id")
     private Course course;
 
-    @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL)
-    private List<Question> questions;
+    @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Question> questions = new ArrayList<>();
 
     @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL)
     private List<QuizAttempt> quizAttempts;

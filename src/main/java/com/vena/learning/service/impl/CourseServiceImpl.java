@@ -5,6 +5,18 @@ import com.vena.learning.dto.responseDto.CourseResponse;
 import com.vena.learning.dto.responseDto.QuizResponse;
 import com.vena.learning.dto.responseDto.QuizResponseWrapper;
 import com.vena.learning.enums.Type;
+import com.vena.learning.exception.customException.CourseExceptions.ApprovedCourseNotFoundException;
+import com.vena.learning.exception.customException.CourseExceptions.CourseAlreadyExistsForInstructorException;
+import com.vena.learning.exception.customException.CourseExceptions.CourseDescriptionEmptyException;
+import com.vena.learning.exception.customException.CourseExceptions.CourseNotFoundByIdException;
+import com.vena.learning.exception.customException.CourseExceptions.CourseTitleEmptyException;
+import com.vena.learning.exception.customException.InstructorExceptions.InstructorIdMissingException;
+import com.vena.learning.exception.customException.ModuleExceptions.EmptyModulesListException;
+import com.vena.learning.exception.customException.ModuleExceptions.FirstModuleMustBeIntroductionException;
+import com.vena.learning.exception.customException.ModuleExceptions.ModuleNotFound;
+import com.vena.learning.exception.customException.ModuleExceptions.ModuleNotFoundByIdAndCourseIdException;
+import com.vena.learning.exception.customException.ModuleExceptions.MultipleConclusionModulesException;
+import com.vena.learning.exception.customException.ModuleExceptions.MultipleIntroductionModulesException;
 import com.vena.learning.model.Course;
 import com.vena.learning.model.Instructor;
 import com.vena.learning.model.Module;
@@ -40,7 +52,7 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public Course addCourse(Course course) {
         if (course.getTitle() == null || course.getDescription() == null || course.getInstructor() == null) {
-            throw new RuntimeException("Course details are incomplete");
+            throw new CourseDescriptionEmptyException("Course details are incomplete");
         }
         return courseRepository.save(course);
     }
@@ -48,7 +60,7 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public List<CourseResponse> getApprovedCourses() {
         List<Course> courses = courseRepository.getAllApprovedCourses().orElseThrow(
-                () -> new RuntimeException("No approved courses found")
+                () -> new ApprovedCourseNotFoundException("No approved courses found")
         );
         return courses.stream()
                 .map(CourseResponse::new)
@@ -58,7 +70,7 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public CourseResponse getCourseResponseByCourseId(String id) {
         Course course = courseRepository.findById(id).orElseThrow(
-                () -> new RuntimeException("Course not found with id: " + id)
+                () -> new CourseNotFoundByIdException("Course not found with id: " + id)
         );
         return new CourseResponse(course);
     }
@@ -66,17 +78,17 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public Course getCourseById(String id) {
         return courseRepository.findById(id).orElseThrow(
-                () -> new RuntimeException("Course not found with id: " + id)
+                () -> new CourseNotFoundByIdException("Course not found with id: " + id)
         );
     }
 
     @Override
     public List<CourseResponse> getCoursesByInstructorId(String instructorId) {
         List<Course> courses = courseRepository.getCoursesByInstructorId(instructorId).orElseThrow(
-                () -> new RuntimeException("No courses found for instructor with id: " + instructorId)
+                () -> new CourseNotFoundByIdException("No courses found for instructor with id: " + instructorId)
         );
         if(courses.isEmpty()) {
-            throw new RuntimeException("No courses found for instructor with id: " + instructorId);
+            throw new CourseNotFoundByIdException("No courses found for instructor with id: " + instructorId);
         }
         return courses.stream()
                 .map(CourseResponse::new)
@@ -101,13 +113,13 @@ public class CourseServiceImpl implements CourseService {
     public void validateCourseRequest(CourseRequest course) {
         // 1. Basic field validation
         if (course.getTitle() == null || course.getTitle().trim().isEmpty()) {
-            throw new RuntimeException("Course title cannot be empty.");
+            throw new CourseTitleEmptyException("Course title cannot be empty.");
         }
         if (course.getDescription() == null || course.getDescription().trim().isEmpty()) {
-            throw new RuntimeException("Course description cannot be empty.");
+            throw new CourseDescriptionEmptyException("Course description cannot be empty.");
         }
         if (course.getInstructorId() == null || course.getInstructorId().trim().isEmpty()) {
-            throw new RuntimeException("Instructor ID cannot be empty.");
+            throw new InstructorIdMissingException("Instructor ID cannot be empty.");
         }
 
         // 2. Check for duplicate course title for the instructor
@@ -116,7 +128,7 @@ public class CourseServiceImpl implements CourseService {
                 instructorService.getInstructorById(course.getInstructorId())
         );
         if (courseExists) {
-            throw new RuntimeException("Course already exists with this title for the instructor.");
+            throw new CourseAlreadyExistsForInstructorException("Course already exists with this title for the instructor.");
         }
 
         // 3. Convert incoming ModuleRequests to Module entities
@@ -136,7 +148,7 @@ public class CourseServiceImpl implements CourseService {
             existingModules = moduleService.getModulesByCourseId(course.getCourseId());
         }
 
-        // 5. Merge incoming and existing modules (excluding overwritten ones)
+        // 5. Merge incoming + existing modules, ignoring any existing ones that have been overwritten
         Set<String> incomingIds = incomingModules.stream()
                 .map(Module::getId)
                 .filter(Objects::nonNull)
@@ -148,45 +160,63 @@ public class CourseServiceImpl implements CourseService {
                 incomingModules.stream()
         ).toList();
 
-        // 6. Run merged validation
+        // 6. RUN UPDATED VALIDATION on the merged list
         validateModuleSequenceAndTypeConstraints(mergedModules);
     }
+
 
     @Override
     public void validateModuleSequenceAndTypeConstraints(List<Module> modules) {
         if (modules == null || modules.isEmpty()) {
-            throw new RuntimeException("Modules list cannot be empty.");
+            throw new EmptyModulesListException("Modules list cannot be empty.");
         }
 
+        // 1. Count how many of each Type we have
         Map<Type, Long> typeCounts = modules.stream()
                 .collect(Collectors.groupingBy(Module::getType, Collectors.counting()));
 
-        // 1. Must have exactly one INTRODUCTION and one CONCLUSION
+        // 2. Exactly one INTRODUCTION?
         if (typeCounts.getOrDefault(Type.Introduction, 0L) != 1) {
-            throw new RuntimeException("There must be exactly one INTRODUCTION module.");
+            throw new MultipleIntroductionModulesException("There must be exactly one INTRODUCTION module.");
         }
+        // 3. Exactly one CONCLUSION?
         if (typeCounts.getOrDefault(Type.Conclusion, 0L) != 1) {
-            throw new RuntimeException("There must be exactly one CONCLUSION module.");
+            throw new MultipleConclusionModulesException("There must be exactly one CONCLUSION module.");
         }
 
-        // 2. First sequence module should be INTRODUCTION
-        Module first = modules.stream()
+        // 4. Ensure NO DUPLICATE sequence numbers at all
+        Set<Integer> seenSequences = new HashSet<>();
+        for (Module m : modules) {
+            Integer seq = m.getSequence();
+            if (!seenSequences.add(seq)) {
+                // duplicate found
+                throw new RuntimeException("Duplicate module sequence number: " + seq);
+            }
+        }
+
+        // 5. Find the module with the lowest sequence
+        Module firstModule = modules.stream()
                 .min(Comparator.comparingInt(Module::getSequence))
-                .orElseThrow(() -> new RuntimeException("No modules found."));
+                .orElseThrow(() -> new ModuleNotFound("No modules found."));
 
-        if (first.getType() != Type.Introduction) {
-            throw new RuntimeException("The first module (lowest sequence) must be of type INTRODUCTION.");
+        if (firstModule.getType() != Type.Introduction) {
+            throw new FirstModuleMustBeIntroductionException("The first module (lowest sequence) must be of type INTRODUCTION.");
         }
 
-        // 3. Last sequence module should be CONCLUSION
-        Module last = modules.stream()
+        // 6. Find the module with the highest sequence
+        Module lastModule = modules.stream()
                 .max(Comparator.comparingInt(Module::getSequence))
-                .orElseThrow(() -> new RuntimeException("No modules found."));
+                .orElseThrow(() -> new ModuleNotFound("No modules found."));
 
-        if (last.getType() != Type.Conclusion) {
-            throw new RuntimeException("The last module (highest sequence) must be of type CONCLUSION.");
+        if (lastModule.getType() != Type.Conclusion) {
+            throw new MultipleConclusionModulesException("The last module (highest sequence) must be of type CONCLUSION.");
         }
+
+        // 7. (Optional) You already know there can be multiple LESSON modules—
+        //    no further checks needed here, because duplicates were caught,
+        //    and we’ve enforced exactly one INTRO and one CONCL.
     }
+
 
     @Override
     public CourseResponse updateCourse(CourseRequest request) {
@@ -215,7 +245,7 @@ public class CourseServiceImpl implements CourseService {
     public QuizResponseWrapper getAllQuizzesForCourse(String courseId) {
         //validate course existence
         if (!courseRepository.existsById(courseId)) {
-            throw new RuntimeException("Course not found with ID: " + courseId);
+            throw new CourseNotFoundByIdException("Course not found with ID: " + courseId);
         }
         List<QuizResponse> quizResponsesList = quizService.getQuizzesByCourseId(courseId);
         return new QuizResponseWrapper(quizResponsesList);

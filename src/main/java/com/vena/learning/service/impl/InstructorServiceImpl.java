@@ -1,20 +1,36 @@
 package com.vena.learning.service.impl;
 
+import com.vena.learning.dto.requestDto.ChoiceRequest;
 import com.vena.learning.dto.requestDto.CourseRequest;
+import com.vena.learning.dto.requestDto.CreateQuizRequest;
 import com.vena.learning.dto.requestDto.ModuleRequest;
+import com.vena.learning.dto.requestDto.QuestionRequest;
 import com.vena.learning.dto.requestDto.RegisterRequest;
 import com.vena.learning.dto.responseDto.CourseResponse;
-import com.vena.learning.dto.responseDto.ModuleResponse;
+import com.vena.learning.exception.customException.InstructorExceptions.InstructorAlreadyExistException;
+import com.vena.learning.exception.customException.InstructorExceptions.InstructorCourseOwnershipException;
+import com.vena.learning.exception.customException.InstructorExceptions.InstructorDetailMissingException;
+import com.vena.learning.exception.customException.InstructorExceptions.InstructorNotFoundByEmailException;
+import com.vena.learning.exception.customException.InstructorExceptions.InstructorNotFoundByIdException;
+import com.vena.learning.exception.customException.InstructorExceptions.InstructorNotFoundByUsernameException;
+import com.vena.learning.exception.customException.InstructorExceptions.InstructorNotFoundException;
+import com.vena.learning.exception.customException.ModuleExceptions.ModuleValidationException;
+import com.vena.learning.dto.responseDto.QuizResponse;
+import com.vena.learning.model.Choice;
 import com.vena.learning.model.Course;
+import com.vena.learning.dto.responseDto.ModuleResponse;
 import com.vena.learning.model.Instructor;
 import com.vena.learning.model.Module;
 import com.vena.learning.enums.Role;
+import com.vena.learning.model.Question;
+import com.vena.learning.model.Quiz;
 import com.vena.learning.enums.Type;
 import com.vena.learning.repository.InstructorRepository;
+import com.vena.learning.repository.QuizRepository;
 import com.vena.learning.service.CourseService;
 import com.vena.learning.service.InstructorService;
 import com.vena.learning.service.ModuleService;
-import lombok.RequiredArgsConstructor;
+import com.vena.learning.service.QuizService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -23,13 +39,15 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class InstructorServiceImpl implements InstructorService {
 
     @Autowired
     private InstructorRepository instructorRepository;
+
+    @Autowired
+    private QuizRepository quizRepository;
 
     @Autowired
     @Lazy
@@ -39,24 +57,27 @@ public class InstructorServiceImpl implements InstructorService {
     @Lazy
     private ModuleService moduleService;
 
+    @Autowired
+    private QuizService quizService;
+
     @Override
     public Instructor getInstructorById(String id) {
         return instructorRepository.findById(id).orElseThrow(
-                () -> new RuntimeException("Instructor not found with id: " + id)
+                () -> new InstructorNotFoundByIdException("Instructor not found with id: " + id)
         );
     }
 
     @Override
     public Instructor getInstructorByUsername(String username) {
         return instructorRepository.findByUsername(username).orElseThrow(
-                () -> new RuntimeException("Instructor not found with username: " + username)
+                () -> new InstructorNotFoundByUsernameException("Instructor not found with username: " + username)
         );
     }
 
     @Override
     public Instructor getInstructorByEmail(String email) {
         return instructorRepository.getInstructorByEmail(email).orElseThrow(
-                () -> new RuntimeException("Instructor not found with email: " + email)
+                () -> new InstructorNotFoundByEmailException("Instructor not found with email: " + email)
         );
     }
 
@@ -90,17 +111,17 @@ public class InstructorServiceImpl implements InstructorService {
     @Override
     public void registerInstructor(RegisterRequest instructorRequest) {
         if(isExist(instructorRequest.getEmail(), instructorRequest.getUsername())) {
-            throw new RuntimeException("Instructor already exists with email or username");
+            throw new InstructorAlreadyExistException("Instructor already exists with email or username");
         }
         if(instructorRequest.getName() == null || instructorRequest.getEmail() == null || instructorRequest.getUsername() == null || instructorRequest.getPassword() == null) {
-            throw new RuntimeException("Instructor details are incomplete");
+            throw new InstructorDetailMissingException("Instructor details are incomplete");
         }
         saveInstructor(instructorRequest);
     }
 
     @Override
     public List<Instructor> getAllInstructorByInstitute(String institution){
-        return instructorRepository.findByInstitution(institution).orElseThrow(()-> new RuntimeException("Instructor not found"));
+        return instructorRepository.findByInstitution(institution).orElseThrow(()-> new InstructorNotFoundException("Instructor not found"));
     }
     @Override
     public void deleteInstructor(String userId) {
@@ -121,7 +142,7 @@ public class InstructorServiceImpl implements InstructorService {
     @Override
      public  List<CourseResponse> getCoursesByInstructor(String instructorId) {
         if (!instructorRepository.existsById(instructorId)) {
-            throw new RuntimeException("Instructor with ID " + instructorId + " does not exist");
+            throw new InstructorNotFoundByIdException("Instructor with ID " + instructorId + " does not exist");
         }
         return courseService.getCoursesByInstructorId(instructorId);
     }
@@ -129,7 +150,7 @@ public class InstructorServiceImpl implements InstructorService {
     @Override
     public CourseResponse createCourse(CourseRequest request) {
         if (!instructorRepository.existsById(request.getInstructorId())) {
-            throw new RuntimeException("Instructor with ID " + request.getInstructorId() + " is not present");
+            throw new InstructorNotFoundByIdException("Instructor with ID " + request.getInstructorId() + " is not present");
         }
         return courseService.addCourseWithModules(request);
     }
@@ -157,7 +178,7 @@ public class InstructorServiceImpl implements InstructorService {
     @Override
     public ModuleResponse updateModule(ModuleRequest moduleRequest) {
         if (moduleRequest.getId() == null || moduleRequest.getCourseId() == null) {
-            throw new IllegalArgumentException("Module ID and Course ID must not be null.");
+            throw new ModuleValidationException("Module ID and Course ID must not be null.");
         }
 
         // Validate course exists
@@ -168,7 +189,7 @@ public class InstructorServiceImpl implements InstructorService {
 
         // Ensure module belongs to the course
         if (!existingModule.getCourse().getId().equals(moduleRequest.getCourseId())) {
-            throw new IllegalArgumentException("Module does not belong to the specified course.");
+            throw new ModuleValidationException("Module does not belong to the specified course.");
         }
 
         // Fetch all modules for the course
@@ -181,6 +202,42 @@ public class InstructorServiceImpl implements InstructorService {
         Module updated = moduleService.updateModule(existingModule, moduleRequest);
         return new ModuleResponse(updated);
     }
+
+    @Override
+    public void addQuizToCourse(CreateQuizRequest quizRequest) {
+        Course course = courseService.getCourseById(quizRequest.getCourseId());
+        Instructor instructor = getInstructorById(quizRequest.getInstructorId());
+        if(course.getInstructor()!= instructor) {
+            throw new InstructorCourseOwnershipException("Instructor does not own this course");
+        }
+        Quiz quiz = new Quiz();
+        quiz.setTitle(quizRequest.getQuizTitle());
+        quiz.setCourse(course);
+
+        List<Question> questionEntities = new ArrayList<>();
+
+        for (QuestionRequest questionRequest : quizRequest.getQuestions()) {
+            Question question = new Question();
+            question.setQuestion(questionRequest.getQuestionText());
+            question.setQuiz(quiz); // Set back-reference
+
+            List<Choice> choiceEntities = new ArrayList<>();
+            for (ChoiceRequest choiceRequest : questionRequest.getChoices()) {
+                Choice choice = new Choice();
+                choice.setOptionText(choiceRequest.getChoiceText());
+                choice.setCorrect(choiceRequest.isCorrect());
+                choice.setQuestion(question); // Set back-reference
+                choiceEntities.add(choice);
+            }
+
+            question.setChoices(choiceEntities);
+            questionEntities.add(question);
+        }
+
+        quiz.setQuestions(questionEntities);
+        quizRepository.save(quiz);  // Cascade saves everything
+    }
+
 
     @Override
     public void deleteModule(String moduleId) {
