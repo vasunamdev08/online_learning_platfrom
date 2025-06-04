@@ -71,4 +71,10 @@ public class InstructorController {
         return ResponseEntity.status(HttpStatus.CREATED).body("Quiz created successfully.");
     }
 
+    @DeleteMapping("/courses/modules/{moduleId}")
+    public ResponseEntity<?> deleteModule(@PathVariable String moduleId) {
+        instructorService.deleteModule(moduleId);
+        return ResponseEntity.ok("Module deleted successfully.");
+    }
+
 }

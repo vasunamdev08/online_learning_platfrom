@@ -45,4 +45,5 @@ public interface InstructorService {
     ModuleResponse updateModule(ModuleRequest moduleRequest);
 
     void addQuizToCourse(CreateQuizRequest createQuizRequest);
+    void deleteModule(String moduleId);
 }

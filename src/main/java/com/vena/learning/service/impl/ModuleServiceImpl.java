@@ -122,7 +122,7 @@ public class ModuleServiceImpl implements ModuleService {
     }
 
     @Override
-    public Module fetchModuleByIdOrThrow(String moduleId) {
+    public Module fetchModuleById(String moduleId) {
         return moduleRepository.findById(moduleId)
                 .orElseThrow(() -> new ModuleNotFoundById("Module not found with ID: " + moduleId));
     }
@@ -178,6 +178,16 @@ public class ModuleServiceImpl implements ModuleService {
                                 ", but was " + m.getType());
             }
         }
+    }
+
+    @Override
+    public void deleteModuleById(String moduleId) {
+        moduleRepository.deleteById(moduleId);
+    }
+
+    @Override
+    public void saveAllModules(List<Module> modules) {
+        moduleRepository.saveAll(modules);
     }
 
 }

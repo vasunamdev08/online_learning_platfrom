@@ -24,6 +24,7 @@ import com.vena.learning.model.Module;
 import com.vena.learning.enums.Role;
 import com.vena.learning.model.Question;
 import com.vena.learning.model.Quiz;
+import com.vena.learning.enums.Type;
 import com.vena.learning.repository.InstructorRepository;
 import com.vena.learning.repository.QuizRepository;
 import com.vena.learning.service.CourseService;
@@ -35,6 +36,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -184,7 +186,7 @@ public class InstructorServiceImpl implements InstructorService {
         Course course = courseService.getCourseById(moduleRequest.getCourseId());
 
         // Validate module exists
-        Module existingModule = moduleService.fetchModuleByIdOrThrow(moduleRequest.getId());
+        Module existingModule = moduleService.fetchModuleById(moduleRequest.getId());
 
         // Ensure module belongs to the course
         if (!existingModule.getCourse().getId().equals(moduleRequest.getCourseId())) {
@@ -237,5 +239,37 @@ public class InstructorServiceImpl implements InstructorService {
         quizRepository.save(quiz);  // Cascade saves everything
     }
 
+
+    @Override
+    public void deleteModule(String moduleId) {
+        // Fetch the module
+        Module module = moduleService.fetchModuleById(moduleId);
+
+        // Only allow deletion if the type is LESSON
+        if (module.getType() != Type.Lesson) {
+            throw new RuntimeException("Cannot delete module of type " + module.getType() + ". Only LESSON modules can be deleted.");
+        }
+
+        // Get the courseId from the module
+        String courseId = module.getCourse().getId();
+
+        // Delete the module
+        moduleService.deleteModuleById(moduleId);
+
+        // Fetch remaining modules for the course
+        List<Module> remainingModules = moduleService.getModulesByCourseId(courseId);
+
+        // Sort by current sequence
+        remainingModules.sort(Comparator.comparingInt(Module::getSequence));
+
+        // Reassign sequence numbers starting from 1
+        int newSequence = 1;
+        for (Module m : remainingModules) {
+            m.setSequence(newSequence++);
+        }
+
+        // Save updated modules
+        moduleService.saveAllModules(remainingModules);
+    }
 
 }
